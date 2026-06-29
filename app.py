@@ -12,7 +12,7 @@ from datetime import datetime
 from urllib.parse import parse_qs, urlencode, urlparse
 from urllib.request import ProxyHandler, Request, build_opener
 
-from flask import Flask, jsonify, render_template, request, send_from_directory
+from flask import Flask, jsonify, redirect, render_template, request, send_from_directory, url_for
 from werkzeug.utils import secure_filename
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -519,6 +519,12 @@ def root():
 @app.route("/layout")
 def layout_map():
     return send_from_directory(FRONTEND_DIR, "layout_map.html")
+
+
+@app.route("/catalogue")
+@app.route("/catalogue/")
+def catalogue_home():
+    return redirect(url_for("layout_map"))
 
 
 @app.route("/catalogue/<room_code>")
