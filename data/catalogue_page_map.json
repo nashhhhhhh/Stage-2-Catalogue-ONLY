@@ -1,0 +1,492 @@
+{
+  "M-01": {
+    "page": 12,
+    "name": "Dispatch Office",
+    "pdf": "/static/catalogue/Stage 2 Medium Risk Catalogue.pdf"
+  },
+  "M-02": {
+    "page": 14,
+    "name": "Outgoing Warehouse",
+    "pdf": "/static/catalogue/Stage 2 Medium Risk Catalogue.pdf"
+  },
+  "M-03": {
+    "page": 21,
+    "name": "Ambient Packaging Store RM",
+    "pdf": "/static/catalogue/Stage 2 Medium Risk Catalogue.pdf"
+  },
+  "M-04": {
+    "page": 23,
+    "name": "Cloak Room",
+    "pdf": "/static/catalogue/Stage 2 Medium Risk Catalogue.pdf"
+  },
+  "M-05": {
+    "page": 24,
+    "name": "Manual Palletizing",
+    "pdf": "/static/catalogue/Stage 2 Medium Risk Catalogue.pdf"
+  },
+  "M-06": {
+    "page": 34,
+    "name": "HR Utensil Wash Up and Storage",
+    "pdf": "/static/catalogue/Stage 2 Medium Risk Catalogue.pdf"
+  },
+  "M-07": {
+    "page": 35,
+    "name": "Anti Room 3",
+    "pdf": "/static/catalogue/Stage 2 Medium Risk Catalogue.pdf"
+  },
+  "M-08": {
+    "page": 37,
+    "name": "Frozen Room 1",
+    "pdf": "/static/catalogue/Stage 2 Medium Risk Catalogue.pdf"
+  },
+  "M-09": {
+    "page": 39,
+    "name": "Anti Room 4",
+    "pdf": "/static/catalogue/Stage 2 Medium Risk Catalogue.pdf"
+  },
+  "M-10": {
+    "page": 40,
+    "name": "Frozen Room 2",
+    "pdf": "/static/catalogue/Stage 2 Medium Risk Catalogue.pdf"
+  },
+  "L-01": {
+    "page": 17,
+    "name": "Incoming Warehouse 1",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-02": {
+    "page": 22,
+    "name": "Battery Charging",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-03": {
+    "page": 23,
+    "name": "Inspection Room",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-04": {
+    "page": 24,
+    "name": "Frozen De-Box 1",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-05": {
+    "page": 25,
+    "name": "Allergen De-Box 1",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-06": {
+    "page": 26,
+    "name": "Non-Allergen-Chilled De-Box 1",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-07": {
+    "page": 27,
+    "name": "Incoming Warehouse 2",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-08": {
+    "page": 30,
+    "name": "Allergen 1",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-09": {
+    "page": 32,
+    "name": "AC Store",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-10": {
+    "page": 34,
+    "name": "Non-Allergen 1",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-11": {
+    "page": 38,
+    "name": "Incoming Warehouse 3",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-12": {
+    "page": 41,
+    "name": "Chilled 1",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-13": {
+    "page": 43,
+    "name": "Chilled 2",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-14": {
+    "page": 45,
+    "name": "Anti-Room 1",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-15": {
+    "page": 46,
+    "name": "Chicken Freezer 1",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-16": {
+    "page": 50,
+    "name": "Anti-Room 2",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-17": {
+    "page": 51,
+    "name": "Seafood Freezer",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-18": {
+    "page": 53,
+    "name": "Chicken Freezer 2",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-19": {
+    "page": 55,
+    "name": "Cloak Room",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-20": {
+    "page": 56,
+    "name": "Frozen De-Box 2",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-21": {
+    "page": 58,
+    "name": "Staff Access",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-22": {
+    "page": 65,
+    "name": "Trolley Storage",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-23": {
+    "page": 67,
+    "name": "Trolley Tray Wash Up",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-24": {
+    "page": 69,
+    "name": "Rice Room",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-25": {
+    "page": 70,
+    "name": "Wet Decanting",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-26": {
+    "page": 71,
+    "name": "Rice Washing",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-27": {
+    "page": 72,
+    "name": "Allergen De-Box 2",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-28": {
+    "page": 74,
+    "name": "Non-Allergen Chilled De-Box 2",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-29": {
+    "page": 76,
+    "name": "Chicken Defrost 1",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-30": {
+    "page": 77,
+    "name": "Chicken Defrost 2",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-31": {
+    "page": 78,
+    "name": "Seafood Defrost",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-32": {
+    "page": 80,
+    "name": "Staff Access LR Area-1",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-33": {
+    "page": 83,
+    "name": "Waste Out",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-34": {
+    "page": 84,
+    "name": "Storage Non-Allergen",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-35": {
+    "page": 86,
+    "name": "Washing Non-Allergen",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-36": {
+    "page": 88,
+    "name": "Storage Allergen",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-37": {
+    "page": 90,
+    "name": "Washing Allergen",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-38": {
+    "page": 92,
+    "name": "Equip and Trolley Wash up",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-39": {
+    "page": 94,
+    "name": "Allergen Weigh",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-40": {
+    "page": 95,
+    "name": "Allergen Chilled Weigh",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-41": {
+    "page": 97,
+    "name": "Non-Allergen 2",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-42": {
+    "page": 98,
+    "name": "Staging Area Chilled",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-43": {
+    "page": 99,
+    "name": "Veg Preparation",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-44": {
+    "page": 102,
+    "name": "Veg Chill",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-45": {
+    "page": 103,
+    "name": "Chicken Preparation",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-46": {
+    "page": 104,
+    "name": "Chicken Chill",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-47": {
+    "page": 105,
+    "name": "Seafood Preparation",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-48": {
+    "page": 106,
+    "name": "Seafood Chill",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-49": {
+    "page": 107,
+    "name": "LR War RM",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-50": {
+    "page": 108,
+    "name": "Staff Access LR Area-2",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-51": {
+    "page": 111,
+    "name": "LR Area",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-52": {
+    "page": 113,
+    "name": "Wet Waste",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-53": {
+    "page": 115,
+    "name": "Cardboard and Waste Compactors",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "L-54": {
+    "page": 118,
+    "name": "Washing Area EE-Point Water Drain",
+    "pdf": "/static/catalogue/Stage 2 Low Risk Catalogue.pdf"
+  },
+  "H-01": {
+    "page": 12,
+    "name": "Trolley Storage",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-02": {
+    "page": 14,
+    "name": "HR Area",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-03": {
+    "page": 16,
+    "name": "Trolley Tray Wash Up Room",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-04": {
+    "page": 18,
+    "name": "Blast Chiller 1",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-05": {
+    "page": 20,
+    "name": "Blast Chiller 2",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-06": {
+    "page": 22,
+    "name": "Blast Chiller 3",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-07": {
+    "page": 24,
+    "name": "Holding Chiller 1",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-08": {
+    "page": 26,
+    "name": "Blast Chiller 4",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-09": {
+    "page": 28,
+    "name": "Blast Chiller 5",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-10": {
+    "page": 30,
+    "name": "Holding Chiller 2",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-11": {
+    "page": 32,
+    "name": "Sanitation Room",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-12": {
+    "page": 34,
+    "name": "Mixing Room",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-13": {
+    "page": 36,
+    "name": "Vacuum Room",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-14": {
+    "page": 38,
+    "name": "Air Blast Freezer",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-15": {
+    "page": 40,
+    "name": "Equipment Room",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-16": {
+    "page": 42,
+    "name": "Packaging Store Room",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-17": {
+    "page": 44,
+    "name": "UV Entrance and Packaging Store",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-18": {
+    "page": 46,
+    "name": "Packing Area",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "H-19": {
+    "page": 47,
+    "name": "Daily Cold Room",
+    "pdf": "/static/catalogue/Stage_2_High_Risk_Catalogue.pdf"
+  },
+  "O-01": {
+    "page": 15,
+    "name": "Corridor 1",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-02": {
+    "page": 17,
+    "name": "Receive Uniform",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-03": {
+    "page": 19,
+    "name": "Rest RM 1 (W)",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-04": {
+    "page": 20,
+    "name": "Rest RM 1 (M)",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-05": {
+    "page": 21,
+    "name": "Toilet 1 (W)",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-06": {
+    "page": 22,
+    "name": "Toilet 1 (M)",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-07": {
+    "page": 23,
+    "name": "Janitor 1",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-08": {
+    "page": 24,
+    "name": "Changing (W)",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-09": {
+    "page": 25,
+    "name": "Changing (M)",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-10": {
+    "page": 26,
+    "name": "Corridor 2",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-11": {
+    "page": 28,
+    "name": "Office 1",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-12": {
+    "page": 33,
+    "name": "Office 2",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-13": {
+    "page": 36,
+    "name": "Meeting Room",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-14": {
+    "page": 38,
+    "name": "QA Room",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  },
+  "O-15": {
+    "page": 39,
+    "name": "Corridor 3",
+    "pdf": "/static/catalogue/current_office_catalogue.pdf"
+  }
+}

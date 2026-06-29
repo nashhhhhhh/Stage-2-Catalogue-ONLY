@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATS Stage 2 | Catalogue {{ room_code }}</title>
+
+    <link rel="stylesheet" href="/shared/navbar.css?v=nav-restore-20260628">
+    <style>
+        body {
+            margin: 0;
+            background: #eef3f8;
+            color: #0f172a;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            overflow: hidden;
+        }
+
+        .catalogue-page {
+            height: 100vh;
+            padding: 8px 10px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        body.pdf-expanded .catalogue-page {
+            padding: 0;
+            gap: 0;
+        }
+
+        body.pdf-expanded .catalogue-header,
+        body.pdf-expanded .layout-panel {
+            display: none;
+        }
+
+        .catalogue-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 10px 18px;
+            border: 1px solid #dbe4ee;
+            border-radius: 14px;
+            background: #ffffff;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .catalogue-kicker {
+            margin: 0 0 4px;
+            color: #2563eb;
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .catalogue-header h1 {
+            margin: 0;
+            font-size: 1.22rem;
+            font-weight: 750;
+            line-height: 1.25;
+        }
+
+        .catalogue-subtitle {
+            margin: 3px 0 0;
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 130px;
+            padding: 10px 16px;
+            border-radius: 999px;
+            background: #0f172a;
+            color: #ffffff;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .catalogue-split {
+            min-height: 0;
+            flex: 1;
+            display: grid;
+            grid-template-columns: minmax(560px, 56%) minmax(360px, 44%);
+            gap: 8px;
+        }
+
+        body.pdf-expanded .catalogue-split {
+            height: 100vh;
+            grid-template-columns: 1fr;
+            gap: 0;
+        }
+
+        .catalogue-panel {
+            min-height: 0;
+            border: 1px solid #dbe4ee;
+            border-radius: 14px;
+            background: #ffffff;
+            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.08);
+            overflow: hidden;
+        }
+
+        body.pdf-expanded .catalogue-panel {
+            border: 0;
+            border-radius: 0;
+            box-shadow: none;
+        }
+
+        .layout-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-title {
+            padding: 10px 14px 8px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .panel-title p {
+            margin: 0 0 4px;
+            color: #0ea5e9;
+            font-size: 0.7rem;
+            font-weight: 900;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+        }
+
+        .panel-title h2 {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .catalogue-map-wrapper {
+            position: relative;
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            overflow: hidden;
+            background: #f8fafc;
+        }
+
+        .catalogue-map-stage {
+            position: relative;
+            width: 100%;
+            max-width: none;
+            aspect-ratio: var(--catalogue-layout-aspect, 3.7963);
+            transform: translate(0, 0) scale(1);
+            transform-origin: 0 0;
+            transition: transform 0.22s ease;
+        }
+
+        .catalogue-risk-low .catalogue-map-stage {
+            transform: translate(0, 0) scale(1);
+        }
+
+        .catalogue-risk-high .catalogue-map-stage {
+            transform: translate(0, 0) scale(1);
+        }
+
+        .catalogue-risk-office .catalogue-map-stage {
+            transform: translate(0, 0) scale(1);
+        }
+
+        .catalogue-map-stage img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+            user-select: none;
+        }
+
+        #catalogue-room-overlay {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .catalogue-room {
+            fill: var(--room-fill);
+            fill-opacity: var(--room-fill-opacity);
+            stroke: var(--room-stroke);
+            stroke-width: var(--room-stroke-width);
+            vector-effect: non-scaling-stroke;
+            cursor: pointer;
+            pointer-events: all;
+            transition: fill 0.16s ease, stroke 0.16s ease, filter 0.16s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .catalogue-room:hover,
+        .catalogue-room:focus-visible {
+            fill-opacity: min(0.72, calc(var(--room-fill-opacity) + 0.24));
+            stroke-width: calc(var(--room-stroke-width) + 0.75px);
+            filter: saturate(1.18) brightness(1.02);
+            outline: none;
+        }
+
+        .catalogue-room:focus,
+        .catalogue-room:active {
+            outline: none;
+        }
+
+        .catalogue-room.selected {
+            fill: #0ea5e9;
+            fill-opacity: 0.46;
+            stroke: rgba(2, 132, 199, 0.95);
+            stroke-width: 2.5px;
+            filter: drop-shadow(0 0 0.45px rgba(2, 132, 199, 0.9));
+        }
+
+        .pdf-panel {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .room-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(64px, 1fr));
+            gap: 7px;
+            max-height: 92px;
+            padding: 9px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f4f7fb;
+            overflow-y: auto;
+            scrollbar-gutter: stable;
+        }
+
+        .room-button {
+            min-height: 34px;
+            border: 1px solid #d4deea;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #26364d;
+            cursor: pointer;
+            padding: 7px 10px;
+            font-size: 0.76rem;
+            font-weight: 750;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        }
+
+        .room-button:hover {
+            border-color: #7dd3fc;
+            background: #f0f9ff;
+            color: #0369a1;
+        }
+
+        .room-button.active {
+            border-color: #0284c7;
+            background: #0284c7;
+            color: #ffffff;
+            box-shadow: 0 3px 8px rgba(2, 132, 199, 0.22);
+        }
+
+        .pdf-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 8px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #ffffff;
+        }
+
+        .catalogue-updated-line {
+            margin: 0;
+            color: #475569;
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+
+        .pdf-toolbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .catalogue-mode-actions {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .catalogue-mode-button {
+            min-height: 32px;
+            border: 1px solid #d4deea;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #334155;
+            cursor: pointer;
+            padding: 7px 10px;
+            font-size: 0.74rem;
+            font-weight: 850;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .catalogue-mode-button:hover {
+            border-color: #7dd3fc;
+            background: #f0f9ff;
+            color: #0369a1;
+        }
+
+        .catalogue-mode-button.active {
+            border-color: #0284c7;
+            background: #0284c7;
+            color: #ffffff;
+        }
+
+        .pdf-zoom-value {
+            min-width: 48px;
+            border: 0;
+            background: transparent;
+            color: #334155;
+            cursor: pointer;
+            font-size: 0.74rem;
+            font-weight: 900;
+            text-align: center;
+        }
+
+        .pdf-zoom-control {
+            display: none;
+        }
+
+        body.pdf-expanded .pdf-zoom-control {
+            display: inline-flex;
+        }
+
+        .pdf-icon-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border: 1px solid #bfdbfe;
+            border-radius: 12px;
+            background: #eff6ff;
+            color: #1d4ed8;
+            cursor: pointer;
+            padding: 0;
+        }
+
+        .pdf-icon-button:hover {
+            background: #dbeafe;
+        }
+
+        .pdf-icon-button svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2.4;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        body.pdf-expanded .enter-fullscreen-icon,
+        .exit-fullscreen-icon {
+            display: none;
+        }
+
+        body.pdf-expanded .exit-fullscreen-icon {
+            display: block;
+        }
+
+        .version-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+        }
+
+        .version-item {
+            min-width: 0;
+            padding: 8px;
+            border-radius: 10px;
+            background: #f1f5f9;
+        }
+
+        .version-item span {
+            display: block;
+            color: #64748b;
+            font-size: 0.66rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .version-item b {
+            display: block;
+            margin-top: 3px;
+            color: #0f172a;
+            font-size: 0.8rem;
+            overflow-wrap: anywhere;
+        }
+
+        .version-item.remarks {
+            grid-column: 1 / -1;
+        }
+
+        .catalogue-frame {
+            width: 100%;
+            height: calc(100vh - 148px);
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            background: #64748b;
+        }
+
+        body.pdf-expanded .catalogue-frame {
+            height: calc(100vh - 57px);
+        }
+
+        .pdf-pages {
+            width: 100%;
+            min-height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+            padding: 18px;
+            box-sizing: border-box;
+        }
+
+        .pdf-page {
+            width: var(--pdf-page-width, min(100%, 520px));
+            flex: 0 0 auto;
+            min-height: 260px;
+            display: grid;
+            place-items: center;
+            scroll-margin-top: 18px;
+            background: #ffffff;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.22);
+        }
+
+        .pdf-page.loading::before {
+            content: "Loading page " attr(data-page);
+            color: #64748b;
+            font-size: 0.84rem;
+            font-weight: 800;
+        }
+
+        .pdf-page canvas {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .pdf-fallback-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: #ffffff;
+            display: block;
+        }
+
+        .machine-capacity-panel {
+            flex: 1;
+            min-height: 0;
+            overflow: auto;
+            padding: 16px;
+            background: #f8fafc;
+        }
+
+        .machine-capacity-panel.hidden,
+        .catalogue-frame.hidden {
+            display: none;
+        }
+
+        .machine-summary {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .machine-summary-card {
+            padding: 12px;
+            border: 1px solid #dbe4ee;
+            border-radius: 8px;
+            background: #ffffff;
+        }
+
+        .machine-summary-card span {
+            display: block;
+            color: #64748b;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .machine-summary-card b {
+            display: block;
+            margin-top: 5px;
+            color: #0f172a;
+            font-size: 1.05rem;
+        }
+
+        .machine-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .machine-card {
+            border: 1px solid #dbe4ee;
+            border-radius: 8px;
+            background: #ffffff;
+            padding: 14px;
+        }
+
+        .machine-card h3 {
+            margin: 0;
+            color: #0f172a;
+            font-size: 0.98rem;
+        }
+
+        .machine-card p {
+            margin: 5px 0 0;
+            color: #475569;
+            font-size: 0.78rem;
+            line-height: 1.4;
+        }
+
+        .machine-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .machine-field {
+            min-width: 0;
+            padding: 8px;
+            border-radius: 8px;
+            background: #f1f5f9;
+        }
+
+        .machine-field span {
+            display: block;
+            color: #64748b;
+            font-size: 0.64rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .machine-field b {
+            display: block;
+            margin-top: 4px;
+            color: #0f172a;
+            font-size: 0.78rem;
+            overflow-wrap: anywhere;
+        }
+
+        .machine-empty {
+            min-height: 260px;
+            display: grid;
+            place-items: center;
+            color: #64748b;
+            font-size: 0.94rem;
+            font-weight: 800;
+            text-align: center;
+        }
+
+        .empty-state {
+            min-height: 0;
+            flex: 1;
+            display: grid;
+            place-items: center;
+            color: #475569;
+            font-size: 1.05rem;
+            font-weight: 800;
+        }
+
+        @media (max-width: 980px) {
+            body {
+                overflow: auto;
+            }
+
+            .catalogue-page {
+                height: auto;
+            }
+
+            .catalogue-split {
+                grid-template-columns: 1fr;
+            }
+
+            .catalogue-panel {
+                min-height: 520px;
+            }
+        }
+    </style>
+</head>
+<body class="catalogue-risk-{{ risk_key or 'unknown' }}">
+    <main class="catalogue-page">
+        <header class="catalogue-header">
+            <div>
+                <p class="catalogue-kicker">Embedded Catalogue</p>
+                <h1><span id="selected-room-code">{{ room_code }}</span><span id="selected-room-name">{% if room_name %} - {{ room_name }}{% endif %}</span></h1>
+                <p class="catalogue-subtitle" id="catalogue-status">
+                    {% if page_number %}
+                        Opening catalogue page {{ page_number }}
+                    {% else %}
+                        Catalogue page not available yet
+                    {% endif %}
+                </p>
+            </div>
+            <a class="back-link" href="/layout">Back to Layout</a>
+        </header>
+
+        {% if risk_catalogue_map %}
+            <section class="catalogue-split">
+                <aside class="catalogue-panel layout-panel">
+                    <div class="panel-title">
+                        <p>{% if risk_key == "office" %}Office Layout{% else %}{{ risk_key|title if risk_key else "Risk" }} Risk Layout{% endif %}</p>
+                        <h2>Selected Room Highlight</h2>
+                    </div>
+                    <div class="catalogue-map-wrapper">
+                        <div class="catalogue-map-stage">
+                            <img id="catalogue-layout-image" src="/static/images/stage2_layout.png?v=ppt-exact-20260618-1" alt="{{ risk_key|title if risk_key else 'Risk' }} Risk layout">
+                            <svg id="catalogue-room-overlay" viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="{{ risk_key|title if risk_key else 'Risk' }} Risk room highlights"></svg>
+                        </div>
+                    </div>
+                </aside>
+
+                <section class="catalogue-panel pdf-panel">
+                    <div class="room-selector" id="room-selector" aria-label="{{ risk_key|title if risk_key else 'Risk' }} Risk room selector"></div>
+                    <div class="pdf-toolbar">
+                        <p class="catalogue-updated-line">
+                            Catalogue updated: {{ catalogue_metadata.last_updated or "Not available" }}
+                        </p>
+                        <div class="pdf-toolbar-actions">
+                            <div class="catalogue-mode-actions" aria-label="Catalogue room actions">
+                                <button class="catalogue-mode-button active" id="view-catalogue-button" type="button">View Catalogue</button>
+                                <button class="catalogue-mode-button" id="view-machines-button" type="button">Machine Capacity</button>
+                            </div>
+                            <button class="pdf-icon-button pdf-zoom-control" id="pdf-zoom-out" type="button" aria-label="Zoom document out" title="Zoom document out">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </button>
+                            <button class="pdf-zoom-value pdf-zoom-control" id="pdf-zoom-value" type="button" aria-label="Reset document zoom" title="Reset document zoom">100%</button>
+                            <button class="pdf-icon-button pdf-zoom-control" id="pdf-zoom-in" type="button" aria-label="Zoom document in" title="Zoom document in">
+                                <svg viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M12 5v14"></path>
+                                    <path d="M5 12h14"></path>
+                                </svg>
+                            </button>
+                            <button class="pdf-icon-button" id="toggle-pdf-view" type="button" aria-label="Expand PDF view" title="Expand PDF view">
+                                <svg class="enter-fullscreen-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M8 3H3v5"></path>
+                                    <path d="M16 3h5v5"></path>
+                                    <path d="M21 16v5h-5"></path>
+                                    <path d="M8 21H3v-5"></path>
+                                </svg>
+                                <svg class="exit-fullscreen-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M9 3v6H3"></path>
+                                    <path d="M15 3v6h6"></path>
+                                    <path d="M21 15h-6v6"></path>
+                                    <path d="M3 15h6v6"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div
+                        class="catalogue-frame"
+                        id="catalogue-frame"
+                        aria-label="Catalogue PDF for {{ room_code }}"
+                    >
+                        <div class="pdf-pages" id="pdf-pages"></div>
+                    </div>
+                    <div class="machine-capacity-panel hidden" id="machine-capacity-panel" aria-label="Machine capacity for {{ room_code }}">
+                        <div class="machine-empty">Loading machine capacity...</div>
+                    </div>
+                </section>
+            </section>
+        {% else %}
+            <section class="catalogue-panel empty-state">
+                Catalogue page not available yet
+            </section>
+        {% endif %}
+    </main>
+
+    <script src="/static/vendor/pdfjs/pdf.min.js"></script>
+    <script>
+        const initialRoomCode = {{ room_code|tojson }};
+        const catalogueRiskKey = {{ risk_key|tojson }};
+        const riskCatalogueMap = {{ risk_catalogue_map|tojson }};
+        const initialCatalogueViewMode = new URLSearchParams(window.location.search).get('view') === 'machines' ? 'machines' : 'catalogue';
+        let roomShapes = {};
+        let officeRoomShapesByLevel = {};
+        let pdfDocument = null;
+        let loadedPdfUrl = '';
+        let pdfLoadPromise = null;
+        let pageAspectRatio = 1.414;
+        let selectedRoomCode = '';
+        let pageObserver = null;
+        let scrollSyncFrame = null;
+        let isScrollSyncAttached = false;
+        let isInitialCatalogueLoad = true;
+        let pdfJumpLockUntil = 0;
+        let pendingRoomCode = '';
+        let observedCatalogueVersion = riskCatalogueMap[initialRoomCode]?.pdfVersion || 'missing';
+        let pdfZoom = 1;
+        let catalogueViewMode = initialCatalogueViewMode;
+        let machinePayload = null;
+        const renderedPages = new Set();
+        const renderingPages = new Set();
+        const pageRenderPromises = new Map();
+        const togglePdfViewButton = document.getElementById('toggle-pdf-view');
+        const viewCatalogueButton = document.getElementById('view-catalogue-button');
+        const viewMachinesButton = document.getElementById('view-machines-button');
+        const pdfZoomOutButton = document.getElementById('pdf-zoom-out');
+        const pdfZoomInButton = document.getElementById('pdf-zoom-in');
+        const pdfZoomValue = document.getElementById('pdf-zoom-value');
+        const pdfFrame = document.getElementById('catalogue-frame');
+        const pdfPages = document.getElementById('pdf-pages');
+        const machineCapacityPanel = document.getElementById('machine-capacity-panel');
+        const catalogueLayoutImage = document.getElementById('catalogue-layout-image');
+        const isOfficeCatalogue = document.body.classList.contains('catalogue-risk-office');
+        const officeLayoutConfig = {
+            'level-1': {
+                image: '/static/images/incoming_warehouse_office_level1.png?v=ppt-exact-20260618-1',
+                alt: 'Incoming Warehouse Office Level 1 layout',
+                aspect: 1.875,
+                rooms: new Set(['O-01', 'O-02', 'O-03', 'O-04', 'O-05', 'O-06', 'O-07', 'O-08', 'O-09', 'O-10', 'O-11'])
+            },
+            'level-2': {
+                image: '/static/images/incoming_warehouse_office_level2.png?v=ppt-exact-20260618-1',
+                alt: 'Incoming Warehouse Office Level 2 layout',
+                aspect: 1.2853,
+                rooms: new Set(['O-12', 'O-13', 'O-14', 'O-15'])
+            }
+        };
+        const roomCodeByPage = Object.keys(riskCatalogueMap).reduce((mapping, roomCode) => {
+            const page = Number(riskCatalogueMap[roomCode]?.page);
+            if (Number.isFinite(page) && !mapping[page]) {
+                mapping[page] = roomCode;
+            }
+            return mapping;
+        }, {});
+        const roomSections = Object.keys(riskCatalogueMap)
+            .map(roomCode => ({
+                roomCode,
+                page: Number(riskCatalogueMap[roomCode]?.page)
+            }))
+            .filter(section => Number.isFinite(section.page))
+            .sort((a, b) => a.page - b.page);
+        const roomCodePattern = new RegExp(`\\b(${Object.keys(riskCatalogueMap).join('|')})\\b`, 'i');
+
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = '/static/vendor/pdfjs/pdf.worker.min.js';
+        }
+
+        function setPdfExpanded(isExpanded) {
+            document.body.classList.toggle('pdf-expanded', isExpanded);
+            if (!isExpanded && pdfZoom !== 1) {
+                setPdfZoom(1);
+            }
+
+            if (!togglePdfViewButton) return;
+            togglePdfViewButton.setAttribute('aria-label', isExpanded ? 'Exit expanded PDF view' : 'Expand PDF view');
+            togglePdfViewButton.setAttribute('title', isExpanded ? 'Exit expanded PDF view' : 'Expand PDF view');
+        }
+
+        function getRoomLabel(roomCode) {
+            const room = riskCatalogueMap[roomCode];
+            if (!room) return '';
+            return room.name ? ` - ${room.name}` : '';
+        }
+
+        function getRoomDisplayName(roomCode, fallback = '') {
+            return riskCatalogueMap[roomCode]?.name || fallback || roomCode;
+        }
+
+        function getPdfUrl(roomCode) {
+            const room = riskCatalogueMap[roomCode];
+            if (!room || !room.pdf) return '';
+
+            const params = new URLSearchParams({
+                v: room.pdfVersion || 'latest'
+            });
+
+            return `${room.pdf}?${params.toString()}`;
+        }
+
+        function getPdfFallbackSrc(roomCode) {
+            const room = riskCatalogueMap[roomCode];
+            if (!room) return '';
+            return `${getPdfUrl(roomCode)}#page=${room.page}`;
+        }
+
+        function formatMachineValue(value, fallback = 'Not set') {
+            if (value === null || value === undefined || value === '') return fallback;
+            return String(value).replace(/\s+/g, ' ').trim() || fallback;
+        }
+
+        function escapeHtml(value) {
+            return formatMachineValue(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function setCatalogueViewMode(mode) {
+            catalogueViewMode = mode === 'machines' ? 'machines' : 'catalogue';
+            const showingMachines = catalogueViewMode === 'machines';
+            pdfFrame?.classList.toggle('hidden', showingMachines);
+            machineCapacityPanel?.classList.toggle('hidden', !showingMachines);
+            viewCatalogueButton?.classList.toggle('active', !showingMachines);
+            viewMachinesButton?.classList.toggle('active', showingMachines);
+            document.body.classList.toggle('pdf-expanded', false);
+            if (showingMachines) {
+                renderMachineCapacity(selectedRoomCode);
+            }
+        }
+
+        async function loadMachinePayload() {
+            if (machinePayload) return machinePayload;
+            const response = await fetch(`/api/catalogue/machines?v=${Date.now()}`);
+            if (!response.ok) throw new Error(`Machine capacity failed: HTTP ${response.status}`);
+            machinePayload = await response.json();
+            return machinePayload;
+        }
+
+        function getMachinesForRoom(roomCode) {
+            const normalizedRoomCode = String(roomCode || '').toUpperCase();
+            return (machinePayload?.machines || [])
+                .filter(machine => String(machine.room_code || '').toUpperCase() === normalizedRoomCode);
+        }
+
+        function renderMachineCapacity(roomCode) {
+            if (!machineCapacityPanel) return;
+            machineCapacityPanel.innerHTML = '<div class="machine-empty">Loading machine capacity...</div>';
+
+            loadMachinePayload()
+                .then(() => {
+                    const machines = getMachinesForRoom(roomCode);
+                    const totalQty = machines.reduce((sum, machine) => sum + (Number(machine.quantity) || 0), 0);
+                    const mapped = machines.filter(machine => machine.mapping_confidence !== 'low').length;
+                    if (!machines.length) {
+                        machineCapacityPanel.innerHTML = `
+                            <div class="machine-empty">
+                                No machines mapped to ${roomCode || 'this room'} yet.<br>
+                                Add or assign equipment from Catalogue Management.
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    const cards = machines.map(machine => `
+                        <article class="machine-card">
+                            <h3>${escapeHtml(machine.machine_name)}</h3>
+                            <p>${escapeHtml(machine.reference)} · ${escapeHtml(machine.brand)} · Source room: ${escapeHtml(machine.source_room)}</p>
+                            <div class="machine-grid">
+                                <div class="machine-field"><span>Quantity</span><b>${escapeHtml(machine.quantity)}</b></div>
+                                <div class="machine-field"><span>Capacity</span><b>${escapeHtml(machine.capacity_display || [machine.capacity, machine.capacity_unit].filter(Boolean).join(' '))}</b></div>
+                                <div class="machine-field"><span>Area</span><b>${escapeHtml(machine.area)}</b></div>
+                                <div class="machine-field"><span>Mapping</span><b>${escapeHtml(machine.mapping_confidence)}</b></div>
+                            </div>
+                            ${machine.mapping_note ? `<p>${escapeHtml(machine.mapping_note)}</p>` : ''}
+                        </article>
+                    `).join('');
+
+                    machineCapacityPanel.innerHTML = `
+                        <div class="machine-summary">
+                            <div class="machine-summary-card"><span>Machines</span><b>${machines.length}</b></div>
+                            <div class="machine-summary-card"><span>Total Qty</span><b>${totalQty || machines.length}</b></div>
+                            <div class="machine-summary-card"><span>Mapped</span><b>${mapped}/${machines.length}</b></div>
+                        </div>
+                        <div class="machine-list">${cards}</div>
+                    `;
+                })
+                .catch(error => {
+                    console.error(error);
+                    machineCapacityPanel.innerHTML = '<div class="machine-empty">Machine capacity data could not be loaded.</div>';
+                });
+        }
+
+        function getContainerWidth() {
+            const width = pdfFrame?.clientWidth || 520;
+            const baseWidth = Math.max(300, Math.min(width - 36, 520));
+            return Math.round(baseWidth * pdfZoom);
+        }
+
+        async function setPdfZoom(nextZoom) {
+            const clampedZoom = Math.max(0.75, Math.min(2, nextZoom));
+            if (clampedZoom === pdfZoom) return;
+
+            const pagesToRender = Array.from(renderedPages);
+            const anchorPage = document.querySelector('.pdf-page[data-room-code="' + selectedRoomCode + '"]')
+                || document.getElementById(`pdf-page-${riskCatalogueMap[selectedRoomCode]?.page}`);
+            pdfZoom = clampedZoom;
+            pdfZoomValue.textContent = `${Math.round(pdfZoom * 100)}%`;
+            pdfPages.style.setProperty('--pdf-page-width', `${getContainerWidth()}px`);
+
+            renderedPages.clear();
+            pagesToRender.forEach(pageNumber => {
+                const pageElement = document.getElementById(`pdf-page-${pageNumber}`);
+                if (!pageElement) return;
+                pageElement.classList.add('loading');
+                pageElement.innerHTML = '';
+            });
+
+            await Promise.all(pagesToRender.map(pageNumber => renderPage(pageNumber)));
+            if (anchorPage) {
+                window.requestAnimationFrame(() => alignPdfPageTop(anchorPage));
+            }
+        }
+
+        function showPdfFallback(roomCode) {
+            const fallbackSrc = getPdfFallbackSrc(roomCode);
+            if (!pdfFrame || !fallbackSrc) return;
+
+            pdfFrame.innerHTML = '';
+            const frame = document.createElement('iframe');
+            frame.className = 'pdf-fallback-frame';
+            frame.title = `Catalogue PDF for ${roomCode}`;
+            frame.src = fallbackSrc;
+            pdfFrame.appendChild(frame);
+        }
+
+        async function tagPdfPageRoom(page, pageElement, pageNumber) {
+            const fallbackRoomCode = getRoomCodeForPage(pageNumber);
+            try {
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items
+                    .map(item => item.str || '')
+                    .join(' ');
+                const matchedRoomCode = pageText.match(roomCodePattern)?.[1]?.toUpperCase();
+
+                pageElement.dataset.roomCode = riskCatalogueMap[matchedRoomCode]
+                    ? matchedRoomCode
+                    : fallbackRoomCode;
+            } catch (error) {
+                pageElement.dataset.roomCode = fallbackRoomCode;
+            }
+        }
+
+        function getRoomCodeForPage(pageNumber) {
+            const numericPage = Number(pageNumber);
+            let roomCode = '';
+
+            roomSections.forEach(section => {
+                if (section.page <= numericPage) {
+                    roomCode = section.roomCode;
+                }
+            });
+            return roomCode;
+        }
+
+        async function renderPage(pageNumber) {
+            if (!pdfDocument || renderedPages.has(pageNumber)) return;
+            if (pageRenderPromises.has(pageNumber)) return pageRenderPromises.get(pageNumber);
+            const pageElement = document.getElementById(`pdf-page-${pageNumber}`);
+            if (!pageElement) return;
+
+            renderingPages.add(pageNumber);
+            const renderPromise = (async () => {
+                const page = await pdfDocument.getPage(pageNumber);
+                await tagPdfPageRoom(page, pageElement, pageNumber);
+                const baseViewport = page.getViewport({ scale: 1 });
+                const scale = getContainerWidth() / baseViewport.width;
+                const viewport = page.getViewport({ scale });
+                const outputScale = 2;
+                const renderViewport = page.getViewport({ scale: scale * outputScale });
+                const canvas = document.createElement('canvas');
+                const context = canvas.getContext('2d');
+                canvas.width = Math.floor(renderViewport.width);
+                canvas.height = Math.floor(renderViewport.height);
+                canvas.style.width = `${Math.floor(viewport.width)}px`;
+                canvas.style.height = `${Math.floor(viewport.height)}px`;
+
+                await page.render({ canvasContext: context, viewport: renderViewport }).promise;
+                pageElement.classList.remove('loading');
+                pageElement.style.aspectRatio = '';
+                pageElement.innerHTML = '';
+                pageElement.appendChild(canvas);
+                renderedPages.add(pageNumber);
+            })();
+
+            pageRenderPromises.set(pageNumber, renderPromise);
+            try {
+                await renderPromise;
+            } catch (error) {
+                console.error(`PDF page ${pageNumber} failed to render:`, error);
+            } finally {
+                renderingPages.delete(pageNumber);
+                pageRenderPromises.delete(pageNumber);
+            }
+        }
+
+        function scheduleRemainingPageRenders(priorityPage) {
+            const pages = Array.from({ length: pdfDocument.numPages }, (_, index) => index + 1)
+                .filter(pageNumber => Math.abs(pageNumber - priorityPage) <= 1)
+                .sort((a, b) => Math.abs(a - priorityPage) - Math.abs(b - priorityPage));
+
+            pages.forEach((pageNumber, index) => {
+                window.setTimeout(() => renderPage(pageNumber), index * 40);
+            });
+        }
+
+        function alignPdfPageTop(pageElement) {
+            if (!pdfFrame || !pageElement) return;
+            const frameRect = pdfFrame.getBoundingClientRect();
+            const pageRect = pageElement.getBoundingClientRect();
+            const targetTop = pdfFrame.scrollTop + pageRect.top - frameRect.top - 18;
+            pdfFrame.scrollTop = Math.max(0, targetTop);
+        }
+
+        async function scrollToPdfPage(pageNumber, roomCode) {
+            const pageElement = document.getElementById(`pdf-page-${pageNumber}`);
+            if (!pageElement) return;
+
+            pendingRoomCode = roomCode || getRoomCodeForPage(pageNumber);
+            pdfJumpLockUntil = performance.now() + 1000;
+            alignPdfPageTop(pageElement);
+            await renderPage(pageNumber);
+            window.requestAnimationFrame(() => {
+                alignPdfPageTop(pageElement);
+                if (pendingRoomCode) {
+                    setActiveRoom(pendingRoomCode, 'Viewing');
+                }
+                pendingRoomCode = '';
+            });
+        }
+
+        function syncRoomFromPage(pageNumber) {
+            if (performance.now() < pdfJumpLockUntil) return;
+            const pageElement = document.getElementById(`pdf-page-${pageNumber}`);
+            const roomCode = pageElement?.dataset.roomCode || getRoomCodeForPage(pageNumber);
+            if (!roomCode || roomCode === selectedRoomCode) return;
+
+            setActiveRoom(roomCode, 'Viewing');
+        }
+
+        function renderAndSyncPage(pageNumber) {
+            const numericPage = Number(pageNumber);
+            if (!Number.isFinite(numericPage)) return;
+
+            renderPage(numericPage).then(() => {
+                syncRoomFromPage(numericPage);
+            });
+        }
+
+        function syncRoomFromScrollPosition() {
+            if (!pdfFrame || scrollSyncFrame) return;
+            if (performance.now() < pdfJumpLockUntil) return;
+
+            scrollSyncFrame = window.requestAnimationFrame(() => {
+                scrollSyncFrame = null;
+                const frameRect = pdfFrame.getBoundingClientRect();
+                const frameCenter = frameRect.top + frameRect.height / 2;
+                let nearestPage = null;
+                let nearestDistance = Number.POSITIVE_INFINITY;
+
+                document.querySelectorAll('.pdf-page').forEach(pageElement => {
+                    const pageRect = pageElement.getBoundingClientRect();
+                    if (pageRect.top <= frameCenter && pageRect.bottom >= frameCenter) {
+                        nearestPage = pageElement;
+                        nearestDistance = 0;
+                        return;
+                    }
+
+                    if (nearestDistance === 0) return;
+
+                    const pageCenter = pageRect.top + pageRect.height / 2;
+                    const distance = Math.abs(pageCenter - frameCenter);
+
+                    if (distance < nearestDistance) {
+                        nearestDistance = distance;
+                        nearestPage = pageElement;
+                    }
+                });
+
+                if (nearestPage?.dataset.page) {
+                    renderAndSyncPage(nearestPage.dataset.page);
+                }
+            });
+        }
+
+        function observePdfPages() {
+            if (!pdfFrame || !window.IntersectionObserver) {
+                if (pdfFrame && !isScrollSyncAttached) {
+                    pdfFrame.addEventListener('scroll', syncRoomFromScrollPosition, { passive: true });
+                    isScrollSyncAttached = true;
+                }
+                return;
+            }
+
+            pageObserver?.disconnect();
+            pageObserver = new IntersectionObserver(entries => {
+                if (performance.now() < pdfJumpLockUntil) return;
+                const centeredEntry = entries
+                    .filter(entry => entry.isIntersecting)
+                    .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+                if (centeredEntry?.target?.dataset.page) {
+                    const pageNumber = Number(centeredEntry.target.dataset.page);
+                    renderAndSyncPage(pageNumber);
+                }
+            }, {
+                root: pdfFrame,
+                rootMargin: '-42% 0px -42% 0px',
+                threshold: [0, 0.1, 0.5, 1]
+            });
+
+            document.querySelectorAll('.pdf-page').forEach(pageElement => {
+                pageObserver.observe(pageElement);
+            });
+            if (!isScrollSyncAttached) {
+                pdfFrame.addEventListener('scroll', syncRoomFromScrollPosition, { passive: true });
+                isScrollSyncAttached = true;
+            }
+        }
+
+        async function loadPdfForRoom(roomCode, options = {}) {
+            const room = riskCatalogueMap[roomCode];
+            const pdfUrl = getPdfUrl(roomCode);
+            if (!room || !pdfUrl || !pdfFrame || !pdfPages) return;
+
+            if (loadedPdfUrl !== pdfUrl || !pdfLoadPromise) {
+                loadedPdfUrl = pdfUrl;
+                renderedPages.clear();
+                renderingPages.clear();
+                pageRenderPromises.clear();
+                pdfPages.innerHTML = '';
+
+                pdfLoadPromise = (async () => {
+                    pdfDocument = await pdfjsLib.getDocument({
+                        url: pdfUrl,
+                        disableAutoFetch: true,
+                        disableStream: true,
+                        rangeChunkSize: 262144
+                    }).promise;
+                    const firstPage = await pdfDocument.getPage(1);
+                    const firstViewport = firstPage.getViewport({ scale: 1 });
+                    pageAspectRatio = firstViewport.height / firstViewport.width;
+
+                    for (let pageNumber = 1; pageNumber <= pdfDocument.numPages; pageNumber += 1) {
+                        const pageElement = document.createElement('section');
+                        pageElement.className = 'pdf-page loading';
+                        pageElement.id = `pdf-page-${pageNumber}`;
+                        pageElement.dataset.page = String(pageNumber);
+                        pageElement.style.aspectRatio = `1 / ${pageAspectRatio}`;
+                        pdfPages.appendChild(pageElement);
+                    }
+                    pdfPages.style.setProperty('--pdf-page-width', `${getContainerWidth()}px`);
+                    observePdfPages();
+                })();
+            }
+
+            try {
+                await pdfLoadPromise;
+            } catch (error) {
+                if (loadedPdfUrl === pdfUrl) {
+                    loadedPdfUrl = '';
+                    pdfLoadPromise = null;
+                    pdfDocument = null;
+                }
+                console.error('PDF failed to load:', error);
+                showPdfFallback(roomCode);
+                return;
+            }
+
+            await scrollToPdfPage(room.page, roomCode);
+            if (pdfDocument) {
+                scheduleRemainingPageRenders(room.page);
+            }
+            isInitialCatalogueLoad = false;
+        }
+
+        function updateHeader(roomCode, action = 'Opening') {
+            const room = riskCatalogueMap[roomCode];
+            document.getElementById('selected-room-code').textContent = roomCode;
+            document.getElementById('selected-room-name').textContent = getRoomLabel(roomCode);
+            document.getElementById('catalogue-status').textContent = room
+                ? `${action} catalogue page ${room.page}`
+                : 'Catalogue page not available yet';
+        }
+
+        function updateButtons(roomCode) {
+            document.querySelectorAll('.room-button').forEach(button => {
+                const active = button.dataset.roomCode === roomCode;
+                button.classList.toggle('active', active);
+                if (active) {
+                    button.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+                }
+            });
+        }
+
+        function updateHighlight(roomCode) {
+            updateOfficeLayoutImage(roomCode);
+            document.querySelectorAll('.catalogue-room').forEach(shape => {
+                shape.classList.toggle('selected', shape.dataset.roomCode === roomCode);
+            });
+            centerLayoutOnRoom(roomCode);
+            window.requestAnimationFrame(() => centerLayoutOnRoom(roomCode));
+        }
+
+        function getOfficeLayoutKey(roomCode) {
+            if (officeLayoutConfig['level-2'].rooms.has(roomCode)) return 'level-2';
+            return 'level-1';
+        }
+
+        function updateOfficeLayoutImage(roomCode) {
+            if (!isOfficeCatalogue || !catalogueLayoutImage) return;
+            const layoutKey = getOfficeLayoutKey(roomCode);
+            const config = officeLayoutConfig[layoutKey];
+            if (!config) return;
+            if (catalogueLayoutImage.getAttribute('src') !== config.image) {
+                catalogueLayoutImage.src = config.image;
+                catalogueLayoutImage.alt = config.alt;
+            }
+            const stage = document.querySelector('.catalogue-map-stage');
+            if (stage) stage.style.aspectRatio = String(config.aspect);
+            renderOfficeFloorShapes(layoutKey, roomCode);
+        }
+
+        function renderOfficeFloorShapes(layoutKey, selectedCode) {
+            const overlay = document.getElementById('catalogue-room-overlay');
+            const rooms = officeRoomShapesByLevel[layoutKey] || {};
+            if (!overlay) return;
+
+            overlay.innerHTML = '';
+            Object.keys(rooms).sort().forEach(roomCode => {
+                const shape = createRoomShape(rooms[roomCode]);
+                shape.classList.toggle('selected', roomCode === selectedCode);
+                overlay.appendChild(shape);
+            });
+        }
+
+        function centerLayoutOnRoom(roomCode) {
+            const wrapper = document.querySelector('.catalogue-map-wrapper');
+            const stage = document.querySelector('.catalogue-map-stage');
+            const shape = document.querySelector(`.catalogue-room[data-room-code="${roomCode}"]`);
+            if (!wrapper || !stage || !shape) return;
+            fitLayoutToVisibleRooms(wrapper, stage);
+        }
+
+        function fitLayoutToVisibleRooms(wrapper, stage) {
+            const visibleRooms = isOfficeCatalogue
+                ? Object.values(officeRoomShapesByLevel[getOfficeLayoutKey(selectedRoomCode)] || {})
+                : Object.keys(riskCatalogueMap).map(roomCode => roomShapes[roomCode]).filter(Boolean);
+            if (!visibleRooms.length) return;
+
+            const bounds = visibleRooms.reduce((result, room) => {
+                result.left = Math.min(result.left, room.left);
+                result.top = Math.min(result.top, room.top);
+                result.right = Math.max(result.right, room.left + room.width);
+                result.bottom = Math.max(result.bottom, room.top + room.height);
+                return result;
+            }, {
+                left: Number.POSITIVE_INFINITY,
+                top: Number.POSITIVE_INFINITY,
+                right: Number.NEGATIVE_INFINITY,
+                bottom: Number.NEGATIVE_INFINITY
+            });
+
+            if (!Number.isFinite(bounds.left) || bounds.right <= bounds.left || bounds.bottom <= bounds.top) return;
+
+            const paddingX = Math.max(1.5, (bounds.right - bounds.left) * 0.045);
+            const paddingY = Math.max(1.5, (bounds.bottom - bounds.top) * 0.045);
+            bounds.left = Math.max(0, bounds.left - paddingX);
+            bounds.top = Math.max(0, bounds.top - paddingY);
+            bounds.right = Math.min(100, bounds.right + paddingX);
+            bounds.bottom = Math.min(100, bounds.bottom + paddingY);
+
+            const stageWidth = stage.offsetWidth || 1;
+            const stageHeight = stage.offsetHeight || 1;
+            const contentWidth = ((bounds.right - bounds.left) / 100) * stageWidth;
+            const contentHeight = ((bounds.bottom - bounds.top) / 100) * stageHeight;
+            const scale = Math.min(
+                (wrapper.clientWidth * 0.86) / contentWidth,
+                (wrapper.clientHeight * 0.84) / contentHeight
+            );
+            const centerX = ((bounds.left + bounds.right) / 200) * stageWidth;
+            const centerY = ((bounds.top + bounds.bottom) / 200) * stageHeight;
+            const targetX = wrapper.clientWidth / 2 - centerX * scale;
+            const targetY = wrapper.clientHeight / 2 - centerY * scale;
+
+            stage.style.transform = `translate(${targetX}px, ${targetY}px) scale(${scale})`;
+        }
+
+        function setActiveRoom(roomCode, action = 'Opening') {
+            if (!riskCatalogueMap[roomCode]) return;
+
+            selectedRoomCode = roomCode;
+            updateHeader(roomCode, action);
+            updateButtons(roomCode);
+            updateHighlight(roomCode);
+            if (catalogueViewMode === 'machines') {
+                renderMachineCapacity(roomCode);
+            }
+        }
+
+        function selectRoom(roomCode, options = {}) {
+            setActiveRoom(roomCode, 'Opening');
+            loadPdfForRoom(roomCode, {
+                instant: true
+            });
+        }
+
+        function createRoomShape(room) {
+            const shape = document.createElementNS('http://www.w3.org/2000/svg', room.svgPath ? 'path' : 'rect');
+            shape.classList.add('catalogue-room');
+            shape.dataset.roomCode = room.code;
+            shape.setAttribute('role', 'button');
+            shape.setAttribute('tabindex', '0');
+            shape.setAttribute('aria-label', `${room.code} ${getRoomDisplayName(room.code, room.name)}`);
+            shape.style.setProperty('--room-fill', room.fillColor);
+            shape.style.setProperty('--room-fill-opacity', room.fillOpacity);
+            shape.style.setProperty('--room-stroke', room.strokeColor);
+            shape.style.setProperty('--room-stroke-width', `${room.strokeWidth}px`);
+
+            if (room.svgPath) {
+                shape.setAttribute('d', room.svgPath);
+            } else {
+                shape.setAttribute('x', room.left);
+                shape.setAttribute('y', room.top);
+                shape.setAttribute('width', room.width);
+                shape.setAttribute('height', room.height);
+            }
+
+            shape.addEventListener('mousedown', event => {
+                event.preventDefault();
+            });
+            shape.addEventListener('click', event => {
+                selectRoom(room.code);
+                event.currentTarget.blur();
+            });
+            shape.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    selectRoom(room.code);
+                    event.currentTarget.blur();
+                }
+            });
+
+            return shape;
+        }
+
+        function renderRoomSelector() {
+            const selector = document.getElementById('room-selector');
+            if (!selector) return;
+
+            Object.keys(riskCatalogueMap).sort().forEach(roomCode => {
+                const button = document.createElement('button');
+                button.className = 'room-button';
+                button.type = 'button';
+                button.dataset.roomCode = roomCode;
+                button.textContent = roomCode;
+                button.addEventListener('click', () => selectRoom(roomCode));
+                selector.appendChild(button);
+            });
+        }
+
+        async function renderRiskLayout() {
+            const overlay = document.getElementById('catalogue-room-overlay');
+            if (!overlay) return;
+
+            const response = await fetch(isOfficeCatalogue ? '/static/data/office_layout_shapes.json' : '/static/data/room_shapes.json');
+            if (!response.ok) throw new Error(`Room shapes failed: HTTP ${response.status}`);
+            const shapePayload = await response.json();
+            if (isOfficeCatalogue) {
+                officeRoomShapesByLevel = {
+                    'level-1': shapePayload['incoming-office-level-1'] || {},
+                    'level-2': shapePayload['incoming-office-level-2'] || {}
+                };
+                roomShapes = Object.assign(
+                    {},
+                    officeRoomShapesByLevel['level-1'],
+                    officeRoomShapesByLevel['level-2']
+                );
+            } else {
+                roomShapes = shapePayload;
+                Object.keys(riskCatalogueMap).sort().forEach(roomCode => {
+                    const room = roomShapes[roomCode];
+                    if (!room) return;
+                    overlay.appendChild(createRoomShape(room));
+                });
+            }
+
+            selectRoom(riskCatalogueMap[initialRoomCode] ? initialRoomCode : Object.keys(riskCatalogueMap).sort()[0], { instant: true });
+        }
+
+        renderRoomSelector();
+        document.documentElement.style.setProperty('--catalogue-layout-aspect', '3.7963');
+        renderRiskLayout()
+            .then(() => setCatalogueViewMode(initialCatalogueViewMode))
+            .catch(error => {
+                console.error(error);
+                updateHeader(initialRoomCode);
+            });
+
+        togglePdfViewButton?.addEventListener('click', () => {
+            setPdfExpanded(!document.body.classList.contains('pdf-expanded'));
+        });
+        viewCatalogueButton?.addEventListener('click', () => setCatalogueViewMode('catalogue'));
+        viewMachinesButton?.addEventListener('click', () => setCatalogueViewMode('machines'));
+        pdfZoomOutButton?.addEventListener('click', () => setPdfZoom(pdfZoom - 0.25));
+        pdfZoomInButton?.addEventListener('click', () => setPdfZoom(pdfZoom + 0.25));
+        pdfZoomValue?.addEventListener('click', () => setPdfZoom(1));
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && document.body.classList.contains('pdf-expanded')) {
+                setPdfExpanded(false);
+            }
+        });
+
+        window.addEventListener('resize', () => {
+            if (selectedRoomCode) {
+                window.requestAnimationFrame(() => centerLayoutOnRoom(selectedRoomCode));
+            }
+        });
+
+        catalogueLayoutImage?.addEventListener('load', () => {
+            if (selectedRoomCode) {
+                window.requestAnimationFrame(() => centerLayoutOnRoom(selectedRoomCode));
+            }
+        });
+
+        async function checkForCatalogueUpdate() {
+            if (!catalogueRiskKey) return;
+            try {
+                const response = await fetch(`/api/catalogue/status/${encodeURIComponent(catalogueRiskKey)}?v=${Date.now()}`);
+                if (!response.ok) return;
+                const payload = await response.json();
+                if (
+                    payload.version
+                    && payload.version !== 'missing'
+                    && observedCatalogueVersion !== 'missing'
+                    && payload.version !== observedCatalogueVersion
+                ) {
+                    window.location.reload();
+                    return;
+                }
+                observedCatalogueVersion = payload.version || observedCatalogueVersion;
+            } catch (error) {
+                console.warn('Catalogue update check failed:', error);
+            }
+        }
+
+        window.setInterval(checkForCatalogueUpdate, 60000);
+    </script>
+</body>
+</html>

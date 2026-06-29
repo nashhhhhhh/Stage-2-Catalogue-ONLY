@@ -1,0 +1,42 @@
+{
+  "medium": {
+    "current_file": "current_medium_catalogue.pdf",
+    "source_url": "https://docs.google.com/document/d/1R684kd-Ji-h2Lm5UbsoTy1XkByQGPng7zStc48kZmSY/edit?pli=1&tab=t.a43jsivstbpn",
+    "doc_id": "1R684kd-Ji-h2Lm5UbsoTy1XkByQGPng7zStc48kZmSY",
+    "last_updated": "2026-06-29 11:18:17",
+    "last_checked": "2026-06-29 11:18:17",
+    "auto_refresh": true,
+    "refresh_interval_minutes": 5,
+    "refresh_error": ""
+  },
+  "high": {
+    "current_file": "current_high_catalogue.pdf",
+    "source_url": "https://docs.google.com/document/d/1L6j-jwW8knmoJkPwMKShwULCknU3lK-rzHn5R9XG6_E/edit?pli=1&tab=t.aaj2bgygpuvh",
+    "doc_id": "1L6j-jwW8knmoJkPwMKShwULCknU3lK-rzHn5R9XG6_E",
+    "last_updated": "2026-06-28 22:11:44",
+    "last_checked": "2026-06-29 15:27:00",
+    "auto_refresh": true,
+    "refresh_interval_minutes": 5,
+    "refresh_error": ""
+  },
+  "low": {
+    "current_file": "current_low_catalogue.pdf",
+    "source_url": "https://docs.google.com/document/d/1HEqGcmutN2WJBUvRLBK98Pw0cVhwgA20bz3PBm_092g/edit?tab=t.7doisssq51tx",
+    "doc_id": "1HEqGcmutN2WJBUvRLBK98Pw0cVhwgA20bz3PBm_092g",
+    "last_updated": "2026-06-28 22:14:27",
+    "last_checked": "2026-06-29 14:45:49",
+    "auto_refresh": true,
+    "refresh_interval_minutes": 5,
+    "refresh_error": ""
+  },
+  "office": {
+    "current_file": "current_office_catalogue.pdf",
+    "source_url": "https://docs.google.com/document/d/17aT-V_Ccjlxbr43jEzPAcFW4vNNKdnYVE2za-tvW3-A/edit?tab=t.0",
+    "doc_id": "17aT-V_Ccjlxbr43jEzPAcFW4vNNKdnYVE2za-tvW3-A",
+    "last_updated": "2026-06-28 22:14:59",
+    "last_checked": "2026-06-28 22:15:08",
+    "auto_refresh": true,
+    "refresh_interval_minutes": 5,
+    "refresh_error": ""
+  }
+}

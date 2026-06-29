@@ -1,0 +1,1465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATS Stage 2 | Layout Map</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="/shared/navbar.css?v=nav-restore-20260628">
+    <style>
+        body.layout-map-page {
+            --layout-bg: #eef3f8;
+            --layout-ink: #172033;
+            --layout-muted: #64748b;
+            --layout-card: #ffffff;
+            --layout-border: #d9e2ec;
+            --layout-blue: #2563eb;
+            --layout-blue-soft: rgba(37, 99, 235, 0.16);
+            --layout-blue-strong: rgba(37, 99, 235, 0.36);
+            --layout-nav-height: 116px;
+            --layout-header-height: 28px;
+            --layout-map-max-width: 7680px;
+            --layout-map-aspect: 3.7963;
+            background:
+                radial-gradient(circle at top left, rgba(37, 99, 235, 0.12), transparent 34rem),
+                linear-gradient(180deg, #f8fbff 0%, var(--layout-bg) 100%);
+            color: var(--layout-ink);
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .layout-map-page .layout-content {
+            width: 100%;
+            height: calc(100vh - var(--layout-nav-height));
+            margin: 0;
+            padding: 2px 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+            overflow: hidden;
+        }
+
+        .layout-map-page .layout-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            align-items: center;
+            min-height: var(--layout-header-height);
+            margin: 0;
+            flex: 0 0 auto;
+        }
+
+        .layout-map-page .eyebrow {
+            display: none;
+            margin: 0;
+            color: var(--layout-blue);
+            font-size: 0.68rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .layout-map-page .layout-header h1 {
+            margin: 0;
+            font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+            letter-spacing: -0.04em;
+        }
+
+        .layout-map-page .layout-view-select {
+            min-width: 250px;
+            border: 1px solid var(--layout-border);
+            border-radius: 999px;
+            background: #ffffff;
+            color: var(--layout-ink);
+            cursor: pointer;
+            padding: 8px 34px 8px 12px;
+            font: inherit;
+            font-size: clamp(0.9rem, 1.1vw, 1.06rem);
+            font-weight: 900;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+        }
+
+        .layout-map-page .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        .layout-map-page .layout-header p {
+            display: none;
+            max-width: 760px;
+            margin: 0;
+            color: var(--layout-muted);
+            line-height: 1.2;
+            font-size: 0.74rem;
+        }
+
+        .layout-map-page .layout-badge {
+            flex: 0 0 auto;
+            border: 1px solid var(--layout-border);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.78);
+            color: #334155;
+            padding: 4px 8px;
+            font-size: 0.62rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            box-shadow: 0 14px 35px rgba(15, 23, 42, 0.08);
+        }
+
+        .layout-map-page .layout-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .layout-map-page .catalogue-manage-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #1d4ed8;
+            border-radius: 999px;
+            background: #2563eb;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 8px 12px;
+            font-size: 0.72rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-decoration: none;
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.24);
+        }
+
+        .layout-map-page .catalogue-manage-button:hover {
+            background: #1d4ed8;
+        }
+
+        .layout-map-page .map-card {
+            position: relative;
+            width: 100%;
+            flex: 1 1 auto;
+            min-height: 0;
+            background: rgba(255, 255, 255, 0.46);
+            border: 1px solid rgba(217, 226, 236, 0.72);
+            border-radius: 8px;
+            box-shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .layout-map-page .map-wrapper {
+            width: 100%;
+            height: calc(100vh - var(--layout-nav-height) - var(--layout-header-height) - 4px);
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            overflow: hidden;
+        }
+
+        .layout-map-page .map-stage {
+            position: relative;
+            width: min(99vw, var(--layout-map-max-width), calc((100vh - var(--layout-nav-height) - var(--layout-header-height) - 4px) * var(--layout-map-aspect)));
+            max-width: none;
+            border-radius: 4px;
+            border: 0;
+            background: #f8fafc;
+            overflow: hidden;
+            transform: translate(0, 0) scale(1);
+            transform-origin: 0 0;
+            transition: transform 0.22s ease;
+        }
+
+        .layout-map-page .map-stage img {
+            width: 100%;
+            height: auto;
+            display: block;
+            user-select: none;
+            image-rendering: auto;
+        }
+
+        .layout-map-page #room-overlay-layer {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .layout-map-page .room {
+            fill: var(--room-fill);
+            fill-opacity: var(--room-fill-opacity);
+            stroke: var(--room-stroke);
+            stroke-width: var(--room-stroke-width);
+            vector-effect: non-scaling-stroke;
+            pointer-events: all;
+            transition: fill-opacity 0.16s ease, filter 0.16s ease, stroke-width 0.16s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .layout-map-page .room:hover,
+        .layout-map-page .room:focus-visible {
+            cursor: pointer;
+            fill-opacity: min(0.72, calc(var(--room-fill-opacity) + 0.24));
+            filter: saturate(1.18) brightness(1.02);
+            stroke-width: calc(var(--room-stroke-width) + 0.75px);
+            outline: none;
+        }
+
+        .layout-map-page .room:focus,
+        .layout-map-page .room:active {
+            outline: none;
+        }
+
+        .layout-map-page .layout-note {
+            display: none;
+            margin: 0;
+            color: var(--layout-muted);
+            font-size: 0.92rem;
+        }
+
+        .layout-map-page .room-tooltip {
+            position: fixed;
+            z-index: 2500;
+            display: none;
+            max-width: 260px;
+            padding: 8px 10px;
+            border: 1px solid rgba(15, 23, 42, 0.14);
+            border-radius: 10px;
+            background: rgba(15, 23, 42, 0.92);
+            color: #ffffff;
+            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.24);
+            font-size: 0.78rem;
+            font-weight: 800;
+            line-height: 1.35;
+            pointer-events: none;
+            transform: translate(14px, 14px);
+            white-space: nowrap;
+        }
+
+        .layout-map-page .room-tooltip.open {
+            display: block;
+        }
+
+        .layout-map-page .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.58);
+            backdrop-filter: blur(5px);
+        }
+
+        .layout-map-page .modal-backdrop.open {
+            display: flex;
+        }
+
+        .layout-map-page .room-modal {
+            width: min(520px, 100%);
+            border-radius: 24px;
+            background: var(--layout-card);
+            box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);
+            overflow: hidden;
+        }
+
+        .layout-map-page .modal-header {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 22px 24px;
+            color: white;
+            background: linear-gradient(135deg, #0f172a, #2563eb);
+        }
+
+        .layout-map-page .modal-room-code {
+            margin: 0 0 6px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            opacity: 0.78;
+        }
+
+        .layout-map-page .modal-header h2 {
+            margin: 0;
+            font-size: 1.35rem;
+        }
+
+        .layout-map-page .modal-close {
+            width: 36px;
+            height: 36px;
+            border: 1px solid rgba(255, 255, 255, 0.32);
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+            cursor: pointer;
+            font-size: 1.35rem;
+            line-height: 1;
+        }
+
+        .layout-map-page .modal-body {
+            padding: 24px;
+        }
+
+        .layout-map-page .room-facts {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .layout-map-page .room-fact {
+            border: 1px solid var(--layout-border);
+            border-radius: 16px;
+            padding: 14px;
+            background: #f8fafc;
+        }
+
+        .layout-map-page .room-fact span {
+            display: block;
+            color: var(--layout-muted);
+            font-size: 0.74rem;
+            font-weight: 800;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+
+        .layout-map-page .room-fact strong {
+            display: block;
+            margin-top: 5px;
+            font-size: 1rem;
+        }
+
+        .layout-map-page .modal-description {
+            margin: 0;
+            color: #475569;
+            line-height: 1.65;
+        }
+
+        .layout-map-page .modal-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 0 24px 24px;
+        }
+
+        .layout-map-page .modal-action {
+            border: 0;
+            border-radius: 999px;
+            background: #e8eef7;
+            color: #1e293b;
+            cursor: pointer;
+            padding: 10px 14px;
+            font-weight: 800;
+        }
+
+        .layout-map-page .modal-action.primary {
+            background: var(--layout-blue);
+            color: white;
+        }
+
+        .layout-map-page .modal-action[hidden] {
+            display: none;
+        }
+
+        .layout-map-page .catalogue-management-modal {
+            width: min(1220px, 100%);
+            max-height: min(760px, calc(100vh - 48px));
+            border-radius: 24px;
+            background: #ffffff;
+            box-shadow: 0 28px 80px rgba(15, 23, 42, 0.28);
+            overflow: auto;
+        }
+
+        .layout-map-page .catalogue-management-body {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 14px;
+            padding: 18px;
+        }
+
+        .layout-map-page .catalogue-risk-card {
+            border: 1px solid #dbe4ee;
+            border-radius: 18px;
+            background: #f8fafc;
+            padding: 14px;
+        }
+
+        .layout-map-page .catalogue-risk-card h3 {
+            margin: 0 0 12px;
+            font-size: 1rem;
+        }
+
+        .layout-map-page .catalogue-meta-list {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .layout-map-page .catalogue-meta-item {
+            padding: 8px;
+            border-radius: 10px;
+            background: #ffffff;
+        }
+
+        .layout-map-page .catalogue-meta-item span {
+            display: block;
+            color: #64748b;
+            font-size: 0.65rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .layout-map-page .catalogue-meta-item b {
+            display: block;
+            margin-top: 3px;
+            color: #0f172a;
+            font-size: 0.78rem;
+            overflow-wrap: anywhere;
+        }
+
+        .layout-map-page .catalogue-upload-form {
+            display: grid;
+            gap: 8px;
+        }
+
+        .layout-map-page .catalogue-upload-form label {
+            display: grid;
+            gap: 4px;
+            color: #334155;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .layout-map-page .catalogue-upload-form input,
+        .layout-map-page .catalogue-upload-form textarea {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 8px;
+            font: inherit;
+            font-size: 0.8rem;
+        }
+
+        .layout-map-page .catalogue-upload-form textarea {
+            resize: vertical;
+            min-height: 64px;
+        }
+
+        .layout-map-page .catalogue-upload-form button {
+            border: 0;
+            border-radius: 999px;
+            background: #0f172a;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 10px 12px;
+            font-weight: 900;
+        }
+
+        .layout-map-page .catalogue-upload-form button:disabled {
+            cursor: progress;
+            opacity: 0.62;
+        }
+
+        .layout-map-page .catalogue-management-status {
+            padding: 0 18px 18px;
+            color: #475569;
+            font-size: 0.86rem;
+            font-weight: 700;
+        }
+
+        .layout-map-page .catalogue-management-section {
+            margin: 0 18px 18px;
+            border: 1px solid #dbe4ee;
+            border-radius: 18px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .layout-map-page .catalogue-management-section-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 12px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        .layout-map-page .catalogue-management-section-title h3 {
+            margin: 0;
+            font-size: 0.94rem;
+        }
+
+        .layout-map-page .catalogue-management-section-title span {
+            color: #64748b;
+            font-size: 0.72rem;
+            font-weight: 850;
+        }
+
+        .layout-map-page .catalogue-layout-summary,
+        .layout-map-page .catalogue-layout-grid {
+            display: grid;
+            gap: 12px;
+            padding: 12px;
+        }
+
+        .layout-map-page .catalogue-layout-summary {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .layout-map-page .catalogue-layout-grid {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            padding-top: 0;
+        }
+
+        .layout-map-page .catalogue-layout-card {
+            border: 1px solid #dbe4ee;
+            border-radius: 14px;
+            background: #f8fafc;
+            padding: 12px;
+        }
+
+        .layout-map-page .catalogue-layout-card h4 {
+            margin: 0 0 10px;
+            font-size: 0.88rem;
+        }
+
+        .layout-map-page .catalogue-layout-card label,
+        .layout-map-page .catalogue-layout-upload label {
+            display: grid;
+            gap: 5px;
+            margin-top: 8px;
+            color: #334155;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .layout-map-page .catalogue-layout-card input,
+        .layout-map-page .catalogue-layout-upload input {
+            width: 100%;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            padding: 8px;
+            font: inherit;
+            font-size: 0.8rem;
+        }
+
+        .layout-map-page .catalogue-layout-upload {
+            display: grid;
+            gap: 10px;
+            padding: 12px;
+            padding-top: 0;
+        }
+
+        .layout-map-page .catalogue-layout-upload button,
+        .layout-map-page .catalogue-tool-tab {
+            border: 0;
+            border-radius: 999px;
+            background: #0f172a;
+            color: #ffffff;
+            cursor: pointer;
+            padding: 10px 12px;
+            font-weight: 900;
+        }
+
+        .layout-map-page .catalogue-layout-upload button:disabled {
+            cursor: progress;
+            opacity: 0.62;
+        }
+
+        .layout-map-page .catalogue-tool-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .layout-map-page .catalogue-tool-tab {
+            background: #e2e8f0;
+            color: #0f172a;
+        }
+
+        .layout-map-page .catalogue-tool-tab.active {
+            background: #0f172a;
+            color: #ffffff;
+        }
+
+        .layout-map-page .catalogue-tool-frame-wrap {
+            height: 640px;
+            background: #f8fafc;
+        }
+
+        .layout-map-page .catalogue-tool-frame {
+            display: block;
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: #ffffff;
+        }
+
+        @media (max-width: 720px) {
+            .layout-map-page .layout-header {
+                min-height: 54px;
+            }
+
+            .layout-map-page .layout-header p,
+            .layout-map-page .layout-badge {
+                display: none;
+            }
+
+            .layout-map-page .catalogue-management-body {
+                grid-template-columns: 1fr;
+            }
+
+            .layout-map-page .catalogue-layout-summary,
+            .layout-map-page .catalogue-layout-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .layout-map-page .map-card {
+                padding: 6px;
+                border-radius: 14px;
+            }
+
+            .layout-map-page .room {
+                border-radius: 4px;
+            }
+
+            .layout-map-page .room-facts {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body class="layout-map-page">
+    <div id="navbar"></div>
+
+    <main class="layout-content">
+        <header class="layout-header">
+            <div>
+                <p class="eyebrow">Interactive Prototype</p>
+                <h1>
+                    <label for="layout-view-select" class="sr-only">Layout View</label>
+                    <select class="layout-view-select" id="layout-view-select" aria-label="Layout View">
+                        <option value="factory">Factory Layout</option>
+                        <option value="factory-medium">Factory - Medium Risk</option>
+                        <option value="factory-high">Factory - High Risk</option>
+                        <option value="factory-low">Factory - Low Risk</option>
+                        <option value="incoming-office-level-1">Incoming Warehouse Office - Level 1</option>
+                        <option value="incoming-office-level-2">Incoming Warehouse Office - Level 2</option>
+                    </select>
+                </h1>
+                <p>Hover over a room to highlight it, then click to view basic room information. This version uses three dummy zones only.</p>
+            </div>
+            <div class="layout-header-actions">
+                <a class="catalogue-manage-button" id="open-catalogue-management" href="/catalogue/manage">Catalogue Management</a>
+            </div>
+        </header>
+
+        <section class="map-card" id="map-card" data-layout-kind="factory" aria-label="Interactive floor plan">
+            <div class="map-wrapper">
+                <div class="map-stage">
+                    <img class="floorplan-image" id="floorplan-image" src="/static/images/stage2_layout.png?v=slide3-crop-20260521-1" alt="Factory layout">
+
+                    <svg id="room-overlay-layer" viewBox="0 0 100 100" preserveAspectRatio="none" aria-label="Room overlay map"></svg>
+                </div>
+            </div>
+            <p class="layout-note">Room rectangles are approximate placeholders and can be adjusted later against a real floor plan.</p>
+        </section>
+    </main>
+
+    <div class="modal-backdrop" id="room-modal" role="dialog" aria-modal="true" aria-labelledby="modal-room-name">
+        <article class="room-modal">
+            <div class="modal-header">
+                <div>
+                    <p class="modal-room-code" id="modal-room-code">--</p>
+                    <h2 id="modal-room-name">Room Details</h2>
+                </div>
+                <button class="modal-close" type="button" aria-label="Close room details">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="room-facts">
+                    <div class="room-fact">
+                        <span>Risk Area</span>
+                        <strong id="modal-risk-area">--</strong>
+                    </div>
+                    <div class="room-fact">
+                        <span>Asset Count</span>
+                        <strong id="modal-asset-count">--</strong>
+                    </div>
+                </div>
+                <p class="modal-description" id="modal-description">Select a room to view details.</p>
+            </div>
+            <div class="modal-actions">
+                <a class="modal-action primary" id="modal-catalogue-link" href="/catalogue/M-05">View Catalogue</a>
+            </div>
+        </article>
+    </div>
+
+    <div class="room-tooltip" id="room-tooltip" role="status" aria-live="polite"></div>
+
+    <div class="modal-backdrop" id="catalogue-management-modal" role="dialog" aria-modal="true" aria-labelledby="catalogue-management-title">
+        <article class="catalogue-management-modal">
+            <div class="modal-header">
+                <div>
+                    <p class="modal-room-code">Catalogue</p>
+                    <h2 id="catalogue-management-title">Catalogue Management</h2>
+                </div>
+                <button class="modal-close" id="close-catalogue-management" type="button" aria-label="Close catalogue management">&times;</button>
+            </div>
+            <div class="catalogue-management-body" id="catalogue-management-body"></div>
+            <div class="catalogue-management-status" id="catalogue-management-status">Paste a Google Docs link to replace the current catalogue.</div>
+            <section class="catalogue-management-section">
+                <div class="catalogue-management-section-title">
+                    <h3>PowerPoint Layout Source</h3>
+                    <span id="catalogue-layout-source-status">Loading PPT source...</span>
+                </div>
+                <div class="catalogue-layout-summary" id="catalogue-layout-summary"></div>
+                <form class="catalogue-layout-upload" id="catalogue-layout-form">
+                    <label>
+                        Replace Stage 2 PPT Deck
+                        <input name="pptx_file" type="file" accept=".pptx">
+                    </label>
+                    <div class="catalogue-layout-grid" id="catalogue-layout-grid"></div>
+                    <button type="submit">Update PPT Layout</button>
+                </form>
+            </section>
+            <section class="catalogue-management-section">
+                <div class="catalogue-management-section-title">
+                    <h3>Catalogue Tools</h3>
+                    <span id="catalogue-tool-label">Machine Mapping</span>
+                </div>
+                <div class="catalogue-tool-tabs">
+                    <button class="catalogue-tool-tab" type="button" data-catalogue-tool="machines">Machine Mapping</button>
+                    <button class="catalogue-tool-tab" type="button" data-catalogue-tool="rooms">Room Names</button>
+                    <button class="catalogue-tool-tab" type="button" data-catalogue-tool="create">Create Catalogue</button>
+                </div>
+                <div class="catalogue-tool-frame-wrap">
+                    <iframe class="catalogue-tool-frame" id="catalogue-tool-frame" title="Catalogue tool"></iframe>
+                </div>
+            </section>
+        </article>
+    </div>
+
+    <script src="/shared/navbar.js"></script>
+    <script>
+        fetch('/shared/navbar.html?v=catalogue-nav-20260429')
+            .then(res => {
+                if (!res.ok) throw new Error('Navbar failed to load');
+                return res.text();
+            })
+            .then(html => {
+                document.getElementById('navbar').innerHTML = html;
+                updateLayoutNavHeight();
+            })
+            .catch(err => console.error(err));
+
+        let roomData = {};
+        let catalogueRoomLookup = {};
+        let machineCountByRoom = {};
+        let currentLayoutView = 'factory';
+
+        const layoutViews = {
+            factory: {
+                title: 'Factory Layout',
+                kind: 'factory',
+                image: '/static/images/stage2_layout.png?v=ppt-exact-20260618-1',
+                alt: 'Factory layout',
+                dataUrl: '/static/data/room_shapes.json',
+                aspect: 3.7963,
+                maxWidth: '7680px',
+                fitMode: 'full'
+            },
+            'factory-medium': {
+                title: 'Factory - Medium Risk',
+                kind: 'factory',
+                image: '/static/images/stage2_layout.png?v=ppt-exact-20260618-1',
+                alt: 'Factory medium-risk layout',
+                dataUrl: '/static/data/room_shapes.json',
+                riskFilter: 'medium',
+                aspect: 3.7963,
+                maxWidth: '7680px',
+                fitMode: 'rooms'
+            },
+            'factory-high': {
+                title: 'Factory - High Risk',
+                kind: 'factory',
+                image: '/static/images/stage2_layout.png?v=ppt-exact-20260618-1',
+                alt: 'Factory high-risk layout',
+                dataUrl: '/static/data/room_shapes.json',
+                riskFilter: 'high',
+                aspect: 3.7963,
+                maxWidth: '7680px',
+                fitMode: 'rooms'
+            },
+            'factory-low': {
+                title: 'Factory - Low Risk',
+                kind: 'factory',
+                image: '/static/images/stage2_layout.png?v=ppt-exact-20260618-1',
+                alt: 'Factory low-risk layout',
+                dataUrl: '/static/data/room_shapes.json',
+                riskFilter: 'low',
+                aspect: 3.7963,
+                maxWidth: '7680px',
+                fitMode: 'rooms'
+            },
+            'incoming-office-level-1': {
+                title: 'Incoming Warehouse Office - Level 1',
+                kind: 'office',
+                image: '/static/images/incoming_warehouse_office_level1.png?v=ppt-exact-20260618-1',
+                alt: 'Incoming Warehouse Office Level 1 layout',
+                dataUrl: '/static/data/office_layout_shapes.json',
+                dataKey: 'incoming-office-level-1',
+                aspect: 1.875,
+                maxWidth: '3600px',
+                fitMode: 'rooms'
+            },
+            'incoming-office-level-2': {
+                title: 'Incoming Warehouse Office - Level 2',
+                kind: 'office',
+                image: '/static/images/incoming_warehouse_office_level2.png?v=ppt-exact-20260618-1',
+                alt: 'Incoming Warehouse Office Level 2 layout',
+                dataUrl: '/static/data/office_layout_shapes.json',
+                dataKey: 'incoming-office-level-2',
+                aspect: 1.2853,
+                maxWidth: '3600px',
+                fitMode: 'rooms'
+            }
+        };
+
+        const riskLabels = {
+            medium: 'Medium Risk',
+            high: 'High Risk',
+            low: 'Low Risk',
+            office: 'Office Layout'
+        };
+
+        const layoutViewSelect = document.getElementById('layout-view-select');
+        const mapCard = document.getElementById('map-card');
+        const floorplanImage = document.getElementById('floorplan-image');
+        const modal = document.getElementById('room-modal');
+        const closeModalButton = modal.querySelector('.modal-close');
+        const tooltip = document.getElementById('room-tooltip');
+        const openCatalogueManagementButton = document.getElementById('open-catalogue-management');
+        const catalogueManagementModal = document.getElementById('catalogue-management-modal');
+        const closeCatalogueManagementButton = document.getElementById('close-catalogue-management');
+        const catalogueManagementBody = document.getElementById('catalogue-management-body');
+        const catalogueManagementStatus = document.getElementById('catalogue-management-status');
+        const catalogueLayoutSummary = document.getElementById('catalogue-layout-summary');
+        const catalogueLayoutGrid = document.getElementById('catalogue-layout-grid');
+        const catalogueLayoutForm = document.getElementById('catalogue-layout-form');
+        const catalogueLayoutSourceStatus = document.getElementById('catalogue-layout-source-status');
+        const catalogueToolFrame = document.getElementById('catalogue-tool-frame');
+        const catalogueToolLabel = document.getElementById('catalogue-tool-label');
+        const riskAreaNames = {
+            medium: 'Medium Risk Catalogue',
+            high: 'High Risk Catalogue',
+            low: 'Low Risk Catalogue',
+            office: 'Incoming Warehouse Office Catalogue'
+        };
+        const catalogueTools = {
+            machines: { label: 'Machine Mapping', url: '/catalogue/manage/machines?embedded=1' },
+            rooms: { label: 'Room Names', url: '/catalogue/manage/rooms?embedded=1' },
+            create: { label: 'Create Catalogue', url: '/catalogue/manage/create?embedded=1' }
+        };
+        let catalogueLayoutSource = null;
+
+        function updateLayoutNavHeight() {
+            const navbar = document.getElementById('navbar');
+            const navHeight = navbar ? navbar.offsetHeight : 116;
+            document.body.style.setProperty('--layout-nav-height', `${navHeight}px`);
+        }
+
+        function openRoomModal(roomId) {
+            const room = roomData[roomId];
+            if (!room) return;
+
+            document.getElementById('modal-room-code').textContent = room.code;
+            document.getElementById('modal-room-name').textContent = room.name;
+            document.getElementById('modal-risk-area').textContent = riskLabels[room.risk] || room.risk || '--';
+            document.getElementById('modal-asset-count').textContent = room.assetCount ?? 0;
+            document.getElementById('modal-description').textContent = room.description || `${room.name} overlay generated from the PowerPoint layout.`;
+            const catalogueLink = document.getElementById('modal-catalogue-link');
+            const hasCatalogue = Boolean(room.code);
+            catalogueLink.hidden = !hasCatalogue;
+            if (hasCatalogue) {
+                catalogueLink.href = `/catalogue/${encodeURIComponent(room.code)}`;
+            }
+            modal.classList.add('open');
+        }
+
+        function closeRoomModal() {
+            modal.classList.remove('open');
+        }
+
+        function openCatalogueManagement() {
+            catalogueManagementModal.classList.add('open');
+            setCatalogueTool('machines');
+            loadCatalogueMetadata();
+            loadCatalogueLayoutSource();
+        }
+
+        function closeCatalogueManagement() {
+            catalogueManagementModal.classList.remove('open');
+        }
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[character]));
+        }
+
+        async function readJsonResponse(response) {
+            const text = await response.text();
+            try {
+                return JSON.parse(text);
+            } catch (error) {
+                throw new Error(text.trim().startsWith('<') ? `HTTP ${response.status}` : error.message);
+            }
+        }
+
+        async function loadStaticLayoutSourcePayload() {
+            const [configResponse, metadataResponse] = await Promise.all([
+                fetch(`/static/data/layout_source_config.json?v=${Date.now()}`),
+                fetch(`/static/data/layout_metadata.json?v=${Date.now()}`)
+            ]);
+            if (!configResponse.ok) throw new Error(`Static config HTTP ${configResponse.status}`);
+            const config = await readJsonResponse(configResponse);
+            const metadata = metadataResponse.ok ? await readJsonResponse(metadataResponse) : {};
+            const layouts = {};
+            Object.entries(config.layouts || {}).forEach(([key, details]) => {
+                layouts[key] = {
+                    ...details,
+                    width: metadata[key]?.width,
+                    height: metadata[key]?.height,
+                    aspect: metadata[key]?.aspect,
+                    room_count: metadata[key]?.room_count ?? 0
+                };
+            });
+            return {
+                source_pptx: config.source_pptx || 'layout_sources/Stage 2 PPT Layout.pptx',
+                source_name: (config.source_pptx || 'Stage 2 PPT Layout.pptx').split('/').pop(),
+                source_exists: true,
+                slide_count: 'Restart backend to detect',
+                layouts
+            };
+        }
+
+        function getCataloguePptSummary(riskArea) {
+            const layouts = catalogueLayoutSource?.layouts || {};
+            if (riskArea === 'office') {
+                const slides = [
+                    layouts['incoming-office-level-1']?.slide,
+                    layouts['incoming-office-level-2']?.slide
+                ].filter(Boolean);
+                return slides.length ? `Slides ${slides.join(', ')}` : 'Not set';
+            }
+            return layouts.factory?.slide ? `Slide ${layouts.factory.slide}` : 'Not set';
+        }
+
+        function getLayoutUsage(key) {
+            if (key === 'factory') return 'Medium, High, and Low Risk catalogue pages';
+            if (key === 'incoming-office-level-1') return 'Incoming Warehouse Office Level 1 catalogue page';
+            if (key === 'incoming-office-level-2') return 'Incoming Warehouse Office Level 2 catalogue page';
+            return 'Catalogue map';
+        }
+
+        function setCatalogueTool(toolKey) {
+            const tool = catalogueTools[toolKey] || catalogueTools.machines;
+            if (catalogueToolFrame.src !== tool.url) {
+                catalogueToolFrame.src = tool.url;
+            }
+            catalogueToolLabel.textContent = tool.label;
+            document.querySelectorAll('.catalogue-tool-tab').forEach(button => {
+                button.classList.toggle('active', button.dataset.catalogueTool === toolKey);
+            });
+        }
+
+        function renderCatalogueMetadata(metadata) {
+            catalogueManagementBody.innerHTML = '';
+
+            ['medium', 'high', 'low', 'office'].forEach(riskArea => {
+                const details = metadata[riskArea] || {};
+                const card = document.createElement('section');
+                card.className = 'catalogue-risk-card';
+                card.innerHTML = `
+                    <h3>${riskAreaNames[riskArea]}</h3>
+                    <div class="catalogue-meta-list">
+                        <div class="catalogue-meta-item">
+                            <span>Source</span>
+                            <b>${escapeHtml(details.source_url || 'Not connected')}</b>
+                        </div>
+                        <div class="catalogue-meta-item">
+                            <span>Last Updated</span>
+                            <b>${escapeHtml(details.last_updated || 'Not available')}</b>
+                        </div>
+                        <div class="catalogue-meta-item">
+                            <span>Auto Refresh</span>
+                            <b>${details.source_url ? `Every ${escapeHtml(details.refresh_interval_minutes || 5)} minutes` : 'Not connected'}</b>
+                        </div>
+                        <div class="catalogue-meta-item">
+                            <span>PPT Layout</span>
+                            <b>${escapeHtml(getCataloguePptSummary(riskArea))}</b>
+                        </div>
+                    </div>
+                    <form class="catalogue-upload-form" data-risk-area="${riskArea}">
+                        <input type="hidden" name="risk_area" value="${riskArea}">
+                        <label>
+                            Google Docs Link
+                            <input name="doc_url" type="url" value="${escapeHtml(details.source_url || '')}" placeholder="https://docs.google.com/document/d/..." required>
+                        </label>
+                        <button type="submit">Connect / Refresh Link</button>
+                    </form>
+                `;
+                catalogueManagementBody.appendChild(card);
+            });
+
+            catalogueManagementBody.querySelectorAll('.catalogue-upload-form').forEach(form => {
+                form.addEventListener('submit', submitCatalogueUpload);
+            });
+        }
+
+        async function loadCatalogueMetadata() {
+            try {
+                catalogueManagementStatus.textContent = 'Loading catalogue metadata...';
+                const response = await fetch(`/static/catalogue/catalogue_versions.json?v=${Date.now()}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const metadata = await response.json();
+                renderCatalogueMetadata(metadata);
+                catalogueManagementStatus.textContent = 'Connect a public Google Docs link. Changes are checked automatically every 5 minutes.';
+            } catch (error) {
+                console.error(error);
+                catalogueManagementStatus.textContent = 'Unable to load catalogue metadata.';
+            }
+        }
+
+        async function submitCatalogueUpload(event) {
+            event.preventDefault();
+            const form = event.currentTarget;
+            const riskArea = form.dataset.riskArea;
+            const formData = new FormData(form);
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton?.textContent || 'Connect / Refresh Link';
+
+            try {
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Connecting...';
+                }
+                catalogueManagementStatus.textContent = `Connecting ${riskAreaNames[riskArea]} to Google Docs...`;
+                const response = await fetch('/catalogue/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const payload = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(payload.error || `HTTP ${response.status}`);
+                }
+
+                catalogueManagementStatus.textContent = `${riskAreaNames[riskArea]} linked. Automatic refresh is enabled.`;
+                await loadCatalogueMetadata();
+            } catch (error) {
+                console.error(error);
+                catalogueManagementStatus.textContent = `Upload failed: ${error.message}`;
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                }
+            }
+        }
+
+        async function submitCatalogueLayoutSource(event) {
+            event.preventDefault();
+            const submitButton = catalogueLayoutForm.querySelector('button[type="submit"]');
+            const originalButtonText = submitButton?.textContent || 'Update PPT Layout';
+
+            try {
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    submitButton.textContent = 'Updating...';
+                }
+                catalogueLayoutSourceStatus.textContent = 'Rebuilding PPT layout...';
+                const response = await fetch('/api/catalogue/layout-source', {
+                    method: 'POST',
+                    body: new FormData(catalogueLayoutForm)
+                });
+                const payload = await readJsonResponse(response);
+                if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+                renderCatalogueLayoutSource(payload.layout_source);
+                catalogueLayoutSourceStatus.textContent = 'PPT layout updated';
+                await loadCatalogueRoomLookup();
+                await loadMachineCounts();
+                await applyLayoutView(layoutViewSelect.value);
+            } catch (error) {
+                console.error(error);
+                catalogueLayoutSourceStatus.textContent = `PPT update failed: ${error.message}. Restart the backend if this route was just added.`;
+            } finally {
+                if (submitButton) {
+                    submitButton.disabled = false;
+                    submitButton.textContent = originalButtonText;
+                }
+            }
+        }
+
+        function showRoomTooltip(room, event) {
+            tooltip.textContent = `${room.code} ${room.name}`;
+            tooltip.classList.add('open');
+            moveRoomTooltip(event);
+        }
+
+        async function loadCatalogueRoomLookup() {
+            try {
+                const response = await fetch(`/api/catalogue/rooms?v=${Date.now()}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const rooms = await response.json();
+                catalogueRoomLookup = Object.fromEntries(rooms.map(room => [room.code, room]));
+            } catch (error) {
+                console.warn('Catalogue room names unavailable:', error);
+                catalogueRoomLookup = {};
+            }
+        }
+
+        async function loadMachineCounts() {
+            try {
+                const [staticAssetResponse, apiAssetResponse, machineResponse] = await Promise.all([
+                    fetch(`/static/data/catalogue_asset_counts.json?v=${Date.now()}`),
+                    fetch(`/api/catalogue/asset-counts?v=${Date.now()}`).catch(() => null),
+                    fetch(`/api/catalogue/machines?v=${Date.now()}`)
+                ]);
+
+                if (!staticAssetResponse.ok) throw new Error(`Asset count HTTP ${staticAssetResponse.status}`);
+                const assetPayload = await staticAssetResponse.json();
+                if (apiAssetResponse?.ok) {
+                    Object.assign(assetPayload.counts || {}, (await apiAssetResponse.json()).counts || {});
+                }
+                const pdfCounts = Object.fromEntries(Object.entries(assetPayload.counts || {}).map(([roomCode, details]) => [
+                    String(roomCode).toUpperCase(),
+                    Number(details.asset_count) || 0
+                ]));
+
+                let machineCounts = {};
+                if (machineResponse.ok) {
+                    const machinePayload = await machineResponse.json();
+                    machineCounts = (machinePayload.machines || []).reduce((counts, machine) => {
+                        const roomCode = String(machine.room_code || '').toUpperCase();
+                        if (!roomCode) return counts;
+                        counts[roomCode] = (counts[roomCode] || 0) + 1;
+                        return counts;
+                    }, {});
+                }
+
+                machineCountByRoom = Object.assign({}, machineCounts, pdfCounts);
+            } catch (error) {
+                console.warn('Catalogue asset counts unavailable:', error);
+            }
+        }
+
+        function applyCatalogueRoomNames(rooms) {
+            return Object.fromEntries(Object.entries(rooms).map(([code, room]) => {
+                const catalogueRoom = catalogueRoomLookup[room.code || code];
+                const roomCode = String(room.code || code).toUpperCase();
+                return [
+                    code,
+                    {
+                        ...room,
+                        assetCount: machineCountByRoom[roomCode] ?? room.assetCount ?? 0,
+                        name: catalogueRoom?.name || room.name,
+                        defaultName: catalogueRoom?.default_name || room.name
+                    }
+                ];
+            }));
+        }
+
+        function moveRoomTooltip(event) {
+            if (!tooltip.classList.contains('open')) return;
+            tooltip.style.left = `${event.clientX}px`;
+            tooltip.style.top = `${event.clientY}px`;
+        }
+
+        function hideRoomTooltip() {
+            tooltip.classList.remove('open');
+        }
+
+        function attachRoomHandlers(zone) {
+            zone.addEventListener('mousedown', event => {
+                event.preventDefault();
+            });
+            zone.addEventListener('click', event => {
+                hideRoomTooltip();
+                openRoomModal(zone.dataset.room);
+                event.currentTarget.blur();
+            });
+            zone.addEventListener('mouseenter', event => {
+                const room = roomData[zone.dataset.room];
+                if (room) showRoomTooltip(room, event);
+            });
+            zone.addEventListener('mousemove', moveRoomTooltip);
+            zone.addEventListener('mouseleave', hideRoomTooltip);
+            zone.addEventListener('focus', event => {
+                const room = roomData[zone.dataset.room];
+                if (!room) return;
+
+                const rect = zone.getBoundingClientRect();
+                showRoomTooltip(room, {
+                    clientX: rect.left + rect.width,
+                    clientY: rect.top
+                });
+            });
+            zone.addEventListener('blur', hideRoomTooltip);
+            zone.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    hideRoomTooltip();
+                    openRoomModal(zone.dataset.room);
+                    event.currentTarget.blur();
+                }
+            });
+        }
+
+        function createRoomOverlay(room) {
+            const zone = document.createElementNS('http://www.w3.org/2000/svg', room.svgPath ? 'path' : 'rect');
+            zone.classList.add('room', room.risk);
+            zone.dataset.room = room.code;
+            zone.setAttribute('role', 'button');
+            zone.setAttribute('tabindex', '0');
+            zone.setAttribute('aria-label', `${room.code} ${room.name}`);
+            zone.style.setProperty('--room-fill', room.fillColor);
+            zone.style.setProperty('--room-fill-opacity', room.fillOpacity);
+            zone.style.setProperty('--room-stroke', room.strokeColor);
+            zone.style.setProperty('--room-stroke-width', `${room.strokeWidth}px`);
+
+            if (room.svgPath) {
+                zone.setAttribute('d', room.svgPath);
+            } else {
+                zone.setAttribute('x', room.left);
+                zone.setAttribute('y', room.top);
+                zone.setAttribute('width', room.width);
+                zone.setAttribute('height', room.height);
+            }
+
+            zone.style.zIndex = room.zIndex;
+            attachRoomHandlers(zone);
+            return zone;
+        }
+
+        function prepareRoomLayers(rooms) {
+            const orderedRooms = Object.values(rooms).map(room => {
+                const area = Number(room.width) * Number(room.height);
+                return {
+                    ...room,
+                    area,
+                    zIndex: Math.max(1, Math.round(10000 - area * 10))
+                };
+            });
+
+            // Render largest rooms first and smaller rooms above them so sub-rooms stay clickable.
+            return orderedRooms.sort((a, b) => b.area - a.area);
+        }
+
+        function applyLayoutView(viewKey) {
+            const view = layoutViews[viewKey] || layoutViews.factory;
+            currentLayoutView = viewKey;
+            document.body.style.setProperty('--layout-map-aspect', view.aspect);
+            document.body.style.setProperty('--layout-map-max-width', view.maxWidth);
+            mapCard.dataset.layoutKind = view.kind;
+            floorplanImage.src = view.image;
+            floorplanImage.alt = view.alt;
+            loadRoomOverlays(viewKey);
+        }
+
+        function getRoomBounds(rooms) {
+            return Object.values(rooms).reduce((bounds, room) => {
+                bounds.left = Math.min(bounds.left, room.left);
+                bounds.top = Math.min(bounds.top, room.top);
+                bounds.right = Math.max(bounds.right, room.left + room.width);
+                bounds.bottom = Math.max(bounds.bottom, room.top + room.height);
+                return bounds;
+            }, {
+                left: Number.POSITIVE_INFINITY,
+                top: Number.POSITIVE_INFINITY,
+                right: Number.NEGATIVE_INFINITY,
+                bottom: Number.NEGATIVE_INFINITY
+            });
+        }
+
+        function renderCatalogueLayoutSource(payload) {
+            catalogueLayoutSource = payload;
+            const layouts = payload.layouts || {};
+            catalogueLayoutSummary.innerHTML = `
+                <div class="catalogue-meta-item"><span>Deck</span><b>${escapeHtml(payload.source_name || payload.source_pptx || 'Not set')}</b></div>
+                <div class="catalogue-meta-item"><span>Slides</span><b>${escapeHtml(payload.slide_count || 'Unknown')}</b></div>
+                <div class="catalogue-meta-item"><span>Status</span><b>${payload.source_exists ? 'Ready' : 'Missing deck'}</b></div>
+            `;
+            catalogueLayoutGrid.innerHTML = Object.entries(layouts).map(([key, details]) => `
+                <section class="catalogue-layout-card">
+                    <h4>${escapeHtml(details.label || key)}</h4>
+                    <div class="catalogue-meta-list">
+                        <div class="catalogue-meta-item"><span>Used By</span><b>${escapeHtml(getLayoutUsage(key))}</b></div>
+                        <div class="catalogue-meta-item"><span>Current Slide</span><b>Slide ${escapeHtml(details.slide || 1)}</b></div>
+                        <div class="catalogue-meta-item"><span>Rooms</span><b>${escapeHtml(details.room_count ?? 0)}</b></div>
+                        <div class="catalogue-meta-item"><span>Image</span><b>${escapeHtml(details.image || '')}</b></div>
+                    </div>
+                    <label>
+                        Slide Number
+                        <input name="slide:${escapeHtml(key)}" type="number" min="1" step="1" value="${escapeHtml(details.slide || 1)}" required>
+                    </label>
+                    <label>
+                        PPT Picture Name
+                        <input name="picture:${escapeHtml(key)}" value="${escapeHtml(details.picture || '')}" required>
+                    </label>
+                    <label>
+                        Export Width
+                        <input name="target_width:${escapeHtml(key)}" type="number" min="800" max="10000" step="100" value="${escapeHtml(details.target_width || 3600)}" required>
+                    </label>
+                </section>
+            `).join('');
+        }
+
+        async function loadCatalogueLayoutSource() {
+            try {
+                catalogueLayoutSourceStatus.textContent = 'Loading PPT source...';
+                const response = await fetch(`/api/catalogue/layout-source?v=${Date.now()}`);
+                const payload = await readJsonResponse(response);
+                if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+                renderCatalogueLayoutSource(payload);
+                renderCatalogueMetadata(await readJsonResponse(await fetch(`/static/catalogue/catalogue_versions.json?v=${Date.now()}`)));
+                catalogueLayoutSourceStatus.textContent = 'PPT source ready';
+            } catch (error) {
+                console.error(error);
+                try {
+                    const fallbackPayload = await loadStaticLayoutSourcePayload();
+                    renderCatalogueLayoutSource(fallbackPayload);
+                    renderCatalogueMetadata(await readJsonResponse(await fetch(`/static/catalogue/catalogue_versions.json?v=${Date.now()}`)));
+                    catalogueLayoutSourceStatus.textContent = 'Showing saved PPT mapping. Restart backend before uploading a new deck.';
+                } catch (fallbackError) {
+                    console.error(fallbackError);
+                    catalogueLayoutSourceStatus.textContent = `PPT source unavailable: ${fallbackError.message}`;
+                }
+            }
+        }
+
+        function fitCurrentLayout() {
+            const view = layoutViews[currentLayoutView] || layoutViews.factory;
+            const wrapper = document.querySelector('.map-wrapper');
+            const stage = document.querySelector('.map-stage');
+            if (!wrapper || !stage) return;
+
+            const bounds = view.fitMode === 'rooms' && Object.keys(roomData).length
+                ? getRoomBounds(roomData)
+                : { left: 0, top: 0, right: 100, bottom: 100 };
+            const stageWidth = stage.offsetWidth || 1;
+            const stageHeight = stage.offsetHeight || 1;
+            const contentWidth = (bounds.right - bounds.left) / 100 * stageWidth;
+            const contentHeight = (bounds.bottom - bounds.top) / 100 * stageHeight;
+            const scale = Math.min(
+                wrapper.clientWidth * (view.fitMode === 'rooms' ? 0.94 : 0.99) / contentWidth,
+                wrapper.clientHeight * (view.fitMode === 'rooms' ? 0.92 : 0.96) / contentHeight
+            );
+            const centerX = (bounds.left + bounds.right) / 200 * stageWidth;
+            const centerY = (bounds.top + bounds.bottom) / 200 * stageHeight;
+            const x = wrapper.clientWidth / 2 - centerX * scale;
+            const y = wrapper.clientHeight / 2 - centerY * scale;
+            stage.style.transform = `translate(${x}px, ${y}px) scale(${scale})`;
+        }
+
+        async function loadRoomOverlays(viewKey = currentLayoutView) {
+            try {
+                const view = layoutViews[viewKey] || layoutViews.factory;
+                const response = await fetch(`${view.dataUrl}?v=${Date.now()}`);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                const payload = await response.json();
+                const layoutRooms = view.dataKey ? payload[view.dataKey] || {} : payload;
+                roomData = view.riskFilter
+                    ? Object.fromEntries(Object.entries(layoutRooms).filter(([, room]) => room.risk === view.riskFilter))
+                    : layoutRooms;
+                roomData = applyCatalogueRoomNames(roomData);
+                const overlayLayer = document.getElementById('room-overlay-layer');
+                overlayLayer.innerHTML = '';
+
+                prepareRoomLayers(roomData).filter(room => room.interactive !== false).forEach(room => {
+                    overlayLayer.appendChild(createRoomOverlay(room));
+                });
+                window.requestAnimationFrame(() => window.requestAnimationFrame(fitCurrentLayout));
+            } catch (error) {
+                console.error('Room overlay data failed to load:', error);
+            }
+        }
+
+        const requestedLayoutView = new URLSearchParams(window.location.search).get('view');
+        if (requestedLayoutView && layoutViews[requestedLayoutView]) {
+            layoutViewSelect.value = requestedLayoutView;
+        }
+        Promise.allSettled([loadCatalogueRoomLookup(), loadMachineCounts()])
+            .finally(() => applyLayoutView(layoutViewSelect.value));
+        updateLayoutNavHeight();
+        floorplanImage.addEventListener('load', () => {
+            window.requestAnimationFrame(() => window.requestAnimationFrame(fitCurrentLayout));
+        });
+        window.addEventListener('resize', () => {
+            updateLayoutNavHeight();
+            window.requestAnimationFrame(fitCurrentLayout);
+        });
+        layoutViewSelect.addEventListener('change', event => {
+            const viewKey = event.target.value;
+            const url = new URL(window.location.href);
+            if (viewKey === 'factory') {
+                url.searchParams.delete('view');
+            } else {
+                url.searchParams.set('view', viewKey);
+            }
+            window.history.replaceState({}, '', url);
+            applyLayoutView(viewKey);
+        });
+
+        openCatalogueManagementButton.addEventListener('click', event => {
+            event.preventDefault();
+            openCatalogueManagement();
+        });
+        closeCatalogueManagementButton.addEventListener('click', closeCatalogueManagement);
+        catalogueLayoutForm.addEventListener('submit', submitCatalogueLayoutSource);
+        document.querySelectorAll('.catalogue-tool-tab').forEach(button => {
+            button.addEventListener('click', () => setCatalogueTool(button.dataset.catalogueTool));
+        });
+        catalogueManagementModal.addEventListener('click', event => {
+            if (event.target === catalogueManagementModal) closeCatalogueManagement();
+        });
+        closeModalButton.addEventListener('click', closeRoomModal);
+        modal.addEventListener('click', event => {
+            if (event.target === modal) closeRoomModal();
+        });
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape') {
+                closeRoomModal();
+                closeCatalogueManagement();
+            }
+        });
+        document.addEventListener('scroll', hideRoomTooltip, true);
+    </script>
+</body>
+</html>

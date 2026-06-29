@@ -1,0 +1,35 @@
+{
+  "factory": {
+    "label": "Factory Layout",
+    "source_pptx": "layout_sources/Stage 2 PPT Layout.pptx",
+    "slide": 3,
+    "picture": "Picture 4",
+    "image": "stage2_layout.png",
+    "target_width": 7680,
+    "width": 7680,
+    "height": 2023,
+    "aspect": 3.7963
+  },
+  "incoming-office-level-1": {
+    "label": "Incoming Warehouse Office - Level 1",
+    "source_pptx": "layout_sources/Stage 2 PPT Layout.pptx",
+    "slide": 4,
+    "picture": "Picture 10",
+    "image": "incoming_warehouse_office_level1.png",
+    "target_width": 3600,
+    "width": 3600,
+    "height": 1920,
+    "aspect": 1.875
+  },
+  "incoming-office-level-2": {
+    "label": "Incoming Warehouse Office - Level 2",
+    "source_pptx": "layout_sources/Stage 2 PPT Layout.pptx",
+    "slide": 5,
+    "picture": "Picture 9",
+    "image": "incoming_warehouse_office_level2.png",
+    "target_width": 3600,
+    "width": 3600,
+    "height": 2801,
+    "aspect": 1.2853
+  }
+}

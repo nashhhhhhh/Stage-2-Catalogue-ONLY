@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATS Stage 2 | Machine Mapping</title>
+    <link rel="stylesheet" href="/shared/navbar.css?v=nav-restore-20260628">
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: #f3f7fb;
+            color: #0f172a;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+
+        .page {
+            min-height: 100vh;
+            display: grid;
+            grid-template-rows: auto 1fr;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 14px 20px;
+            border-bottom: 1px solid #dbe4ee;
+            background: #ffffff;
+        }
+
+        h1 {
+            margin: 0;
+            font-size: 1.15rem;
+            line-height: 1.2;
+        }
+
+        .header-subtitle {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 750;
+        }
+
+        .back-link {
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: #0f172a;
+            color: #ffffff;
+            padding: 8px 12px;
+            font-size: 0.78rem;
+            font-weight: 850;
+            text-decoration: none;
+        }
+
+        .workspace {
+            min-height: 0;
+            display: grid;
+            grid-template-columns: minmax(380px, 44%) minmax(420px, 56%);
+            gap: 12px;
+            padding: 12px;
+        }
+
+        .panel {
+            min-height: 0;
+            border: 1px solid #dbe4ee;
+            border-radius: 8px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) 150px;
+            gap: 8px;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            min-height: 36px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #0f172a;
+            padding: 8px 10px;
+            font: inherit;
+            font-size: 0.82rem;
+        }
+
+        textarea {
+            min-height: 74px;
+            resize: vertical;
+        }
+
+        label {
+            display: grid;
+            gap: 5px;
+            color: #475569;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .machine-list {
+            height: calc(100vh - 126px);
+            overflow: auto;
+        }
+
+        .machine-row {
+            width: 100%;
+            display: grid;
+            gap: 5px;
+            border: 0;
+            border-bottom: 1px solid #e2e8f0;
+            background: #ffffff;
+            color: inherit;
+            cursor: pointer;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .machine-row:hover,
+        .machine-row.active {
+            background: #eff6ff;
+        }
+
+        .machine-row strong {
+            font-size: 0.88rem;
+        }
+
+        .machine-row span {
+            color: #64748b;
+            font-size: 0.74rem;
+            font-weight: 750;
+        }
+
+        .form-wrap {
+            height: calc(100vh - 82px);
+            overflow: auto;
+            padding: 14px;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+        }
+
+        .room-editor {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            gap: 10px;
+            align-items: end;
+            margin-bottom: 14px;
+            padding: 12px;
+            border: 1px solid #dbe4ee;
+            border-radius: 8px;
+            background: #f8fafc;
+        }
+
+        .room-default {
+            margin: 4px 0 0;
+            color: #64748b;
+            font-size: 0.74rem;
+            font-weight: 750;
+        }
+
+        .full {
+            grid-column: 1 / -1;
+        }
+
+        .section-title {
+            grid-column: 1 / -1;
+            margin: 6px 0 -2px;
+            color: #0f172a;
+            font-size: 0.86rem;
+            font-weight: 900;
+        }
+
+        .actions {
+            position: sticky;
+            bottom: 0;
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+            margin: 14px -14px -14px;
+            padding: 12px 14px;
+            border-top: 1px solid #e2e8f0;
+            background: #ffffff;
+        }
+
+        button {
+            min-height: 36px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #0f172a;
+            cursor: pointer;
+            padding: 8px 12px;
+            font: inherit;
+            font-size: 0.8rem;
+            font-weight: 850;
+        }
+
+        .primary {
+            border-color: #0284c7;
+            background: #0284c7;
+            color: #ffffff;
+        }
+
+        .danger {
+            border-color: #fecaca;
+            background: #fff1f2;
+            color: #be123c;
+        }
+
+        .status {
+            align-self: center;
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 800;
+        }
+
+        body.embedded .page {
+            min-height: 100vh;
+            grid-template-rows: 1fr;
+        }
+
+        body.embedded header {
+            display: none;
+        }
+
+        body.embedded .workspace {
+            padding: 0;
+        }
+
+        body.embedded .machine-list,
+        body.embedded .form-wrap {
+            height: calc(100vh - 44px);
+        }
+
+        @media (max-width: 980px) {
+            .workspace {
+                grid-template-columns: 1fr;
+            }
+
+            .machine-list,
+            .form-wrap {
+                height: auto;
+                max-height: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        if (new URLSearchParams(window.location.search).get('embedded') === '1') {
+            document.body.classList.add('embedded');
+        }
+    </script>
+    <main class="page">
+        <header>
+            <div>
+                <h1>Machine Mapping</h1>
+                <p class="header-subtitle" id="source-status">Loading machine list...</p>
+            </div>
+            <a class="back-link" id="back-link" href="/catalogue/manage">Back to Catalogue Management</a>
+        </header>
+
+        <section class="workspace">
+            <aside class="panel">
+                <div class="toolbar">
+                    <input id="search-input" type="search" placeholder="Search machines, brands, rooms">
+                    <select id="room-filter"></select>
+                </div>
+                <div class="machine-list" id="machine-list"></div>
+            </aside>
+
+            <section class="panel">
+                <form class="form-wrap" id="machine-form">
+                    <input type="hidden" id="machine-id">
+                    <div class="form-grid">
+                        <label>
+                            Catalogue Room
+                            <select id="room-code"></select>
+                        </label>
+                        <label>
+                            Mapping Confidence
+                            <select id="mapping-confidence">
+                                <option value="manual">Manual</option>
+                                <option value="high">High</option>
+                                <option value="medium">Medium</option>
+                                <option value="low">Low</option>
+                            </select>
+                        </label>
+                        <label>
+                            Reference
+                            <input id="reference" type="text">
+                        </label>
+                        <label>
+                            Source Room
+                            <input id="source-room" type="text">
+                        </label>
+                        <label class="full">
+                            Machine Name
+                            <input id="machine-name" type="text" required>
+                        </label>
+                        <label>
+                            Brand / Model
+                            <input id="brand" type="text">
+                        </label>
+                        <label>
+                            Area
+                            <input id="area" type="text">
+                        </label>
+                        <label>
+                            Quantity
+                            <input id="quantity" type="number" min="0" step="0.01">
+                        </label>
+                        <label>
+                            Target Capacity
+                            <input id="target-capacity" type="text">
+                        </label>
+                        <label>
+                            Capacity Unit
+                            <input id="capacity-unit" type="text" placeholder="kg/hr, L, trays/hr">
+                        </label>
+                        <label class="full">
+                            Mapping Note
+                            <textarea id="mapping-note"></textarea>
+                        </label>
+
+                        <h2 class="section-title">Dimensions</h2>
+                        <label>
+                            Width mm
+                            <input id="width-mm" type="text">
+                        </label>
+                        <label>
+                            Length mm
+                            <input id="length-mm" type="text">
+                        </label>
+                        <label>
+                            Height mm
+                            <input id="height-mm" type="text">
+                        </label>
+
+                        <h2 class="section-title">Utilities</h2>
+                        <label>
+                            Electrical kW
+                            <input id="electrical-kw" type="text">
+                        </label>
+                        <label>
+                            Phase
+                            <input id="phase" type="text">
+                        </label>
+                        <label>
+                            Gas
+                            <input id="gas" type="text">
+                        </label>
+                        <label>
+                            Cold Water
+                            <input id="cold-water" type="text">
+                        </label>
+                        <label>
+                            Hot Water
+                            <input id="hot-water" type="text">
+                        </label>
+                        <label>
+                            Drainage
+                            <input id="drainage" type="text">
+                        </label>
+                        <label>
+                            Compressed Air
+                            <input id="compressed-air" type="text">
+                        </label>
+                        <label>
+                            Indirect Steam
+                            <input id="steam-indirect" type="text">
+                        </label>
+                        <label>
+                            Direct Steam
+                            <input id="steam-direct" type="text">
+                        </label>
+                        <label>
+                            Live Load
+                            <input id="live-load" type="text">
+                        </label>
+                    </div>
+                    <div class="actions">
+                        <div>
+                            <button type="button" id="new-button">New Machine</button>
+                            <button type="button" class="danger" id="delete-button">Delete</button>
+                        </div>
+                        <div class="status" id="save-status"></div>
+                        <button type="submit" class="primary">Save Machine</button>
+                    </div>
+                </form>
+            </section>
+        </section>
+    </main>
+
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const initialRoom = (params.get('room') || '').toUpperCase();
+        const fields = {
+            id: document.getElementById('machine-id'),
+            room_code: document.getElementById('room-code'),
+            mapping_confidence: document.getElementById('mapping-confidence'),
+            reference: document.getElementById('reference'),
+            source_room: document.getElementById('source-room'),
+            machine_name: document.getElementById('machine-name'),
+            brand: document.getElementById('brand'),
+            area: document.getElementById('area'),
+            quantity: document.getElementById('quantity'),
+            target_capacity: document.getElementById('target-capacity'),
+            capacity_unit: document.getElementById('capacity-unit'),
+            mapping_note: document.getElementById('mapping-note'),
+            width_mm: document.getElementById('width-mm'),
+            length_mm: document.getElementById('length-mm'),
+            height_mm: document.getElementById('height-mm'),
+            electrical_kw: document.getElementById('electrical-kw'),
+            phase: document.getElementById('phase'),
+            gas: document.getElementById('gas'),
+            cold_water: document.getElementById('cold-water'),
+            hot_water: document.getElementById('hot-water'),
+            drainage: document.getElementById('drainage'),
+            compressed_air: document.getElementById('compressed-air'),
+            steam_indirect: document.getElementById('steam-indirect'),
+            steam_direct: document.getElementById('steam-direct'),
+            live_load: document.getElementById('live-load')
+        };
+        const roomFilter = document.getElementById('room-filter');
+        const searchInput = document.getElementById('search-input');
+        const machineList = document.getElementById('machine-list');
+        const sourceStatus = document.getElementById('source-status');
+        const saveStatus = document.getElementById('save-status');
+        const backLink = document.getElementById('back-link');
+        let rooms = [];
+        let machines = [];
+        let selectedId = '';
+
+        function valueOrBlank(value) {
+            return value === null || value === undefined ? '' : String(value);
+        }
+
+        function escapeHtml(value) {
+            return valueOrBlank(value)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function fillRoomOptions() {
+            const options = [
+                '<option value="">Unmapped</option>',
+                ...rooms.map(room => `<option value="${escapeHtml(room.code)}">${escapeHtml(room.code)} - ${escapeHtml(room.name)}</option>`)
+            ].join('');
+            fields.room_code.innerHTML = options;
+            roomFilter.innerHTML = `<option value="">All Rooms</option>${options}`;
+            if (initialRoom) {
+                roomFilter.value = initialRoom;
+                fields.room_code.value = initialRoom;
+            }
+        }
+
+        function capacityDisplay(machine) {
+            return machine.capacity_display || [machine.capacity, machine.capacity_unit].filter(Boolean).join(' ') || 'No capacity';
+        }
+
+        function machineSearchText(machine) {
+            return [
+                machine.reference,
+                machine.room_code,
+                machine.source_room,
+                machine.machine_name,
+                machine.brand,
+                machine.area,
+                machine.capacity,
+                machine.capacity_unit,
+                machine.mapping_note
+            ].join(' ').toLowerCase();
+        }
+
+        function filteredMachines() {
+            const room = roomFilter.value;
+            const query = searchInput.value.trim().toLowerCase();
+            return machines.filter(machine => {
+                const roomMatch = !room || machine.room_code === room;
+                const queryMatch = !query || machineSearchText(machine).includes(query);
+                return roomMatch && queryMatch;
+            });
+        }
+
+        function renderList() {
+            const rows = filteredMachines();
+            if (!rows.length) {
+                machineList.innerHTML = '<div class="machine-row"><strong>No machines found</strong><span></span></div>';
+                return;
+            }
+            machineList.innerHTML = rows.map(machine => `
+                <button class="machine-row ${machine.id === selectedId ? 'active' : ''}" type="button" data-id="${escapeHtml(machine.id)}">
+                    <strong>${escapeHtml(machine.machine_name || 'Unnamed machine')}</strong>
+                    <span>${escapeHtml(machine.room_code || 'Unmapped')} · ${escapeHtml(machine.reference)} · ${escapeHtml(capacityDisplay(machine))}</span>
+                </button>
+            `).join('');
+            machineList.querySelectorAll('.machine-row[data-id]').forEach(row => {
+                row.addEventListener('click', () => selectMachine(row.dataset.id));
+            });
+        }
+
+        function clearForm() {
+            selectedId = '';
+            Object.values(fields).forEach(field => {
+                if (field.tagName === 'SELECT') return;
+                field.value = '';
+            });
+            fields.mapping_confidence.value = 'manual';
+            fields.room_code.value = roomFilter.value || initialRoom || '';
+            renderList();
+        }
+
+        function selectMachine(id) {
+            const machine = machines.find(row => row.id === id);
+            if (!machine) return;
+            selectedId = id;
+            fields.id.value = machine.id || '';
+            fields.room_code.value = machine.room_code || '';
+            fields.mapping_confidence.value = machine.mapping_confidence || 'manual';
+            fields.reference.value = machine.reference || '';
+            fields.source_room.value = machine.source_room || '';
+            fields.machine_name.value = machine.machine_name || '';
+            fields.brand.value = machine.brand || '';
+            fields.area.value = machine.area || '';
+            fields.quantity.value = valueOrBlank(machine.quantity);
+            fields.target_capacity.value = machine.capacity || '';
+            fields.capacity_unit.value = machine.capacity_unit || '';
+            fields.mapping_note.value = machine.mapping_note || '';
+            fields.width_mm.value = machine.dimensions?.width_mm || '';
+            fields.length_mm.value = machine.dimensions?.length_mm || '';
+            fields.height_mm.value = machine.dimensions?.height_mm || '';
+            fields.electrical_kw.value = machine.utilities?.electrical_kw || '';
+            fields.phase.value = machine.utilities?.phase || '';
+            fields.gas.value = machine.utilities?.gas || '';
+            fields.cold_water.value = machine.utilities?.cold_water || '';
+            fields.hot_water.value = machine.utilities?.hot_water || '';
+            fields.drainage.value = machine.utilities?.drainage || '';
+            fields.compressed_air.value = machine.utilities?.compressed_air || '';
+            fields.steam_indirect.value = machine.utilities?.steam_indirect || '';
+            fields.steam_direct.value = machine.utilities?.steam_direct || '';
+            fields.live_load.value = machine.utilities?.live_load || '';
+            renderList();
+        }
+
+        function formPayload() {
+            return {
+                id: fields.id.value || undefined,
+                room_code: fields.room_code.value,
+                mapping_confidence: fields.mapping_confidence.value,
+                reference: fields.reference.value,
+                source_room: fields.source_room.value,
+                machine_name: fields.machine_name.value,
+                brand: fields.brand.value,
+                area: fields.area.value,
+                quantity: fields.quantity.value,
+                target_capacity: fields.target_capacity.value,
+                capacity_unit: fields.capacity_unit.value,
+                mapping_note: fields.mapping_note.value,
+                dimensions: {
+                    width_mm: fields.width_mm.value,
+                    length_mm: fields.length_mm.value,
+                    height_mm: fields.height_mm.value
+                },
+                utilities: {
+                    electrical_kw: fields.electrical_kw.value,
+                    phase: fields.phase.value,
+                    gas: fields.gas.value,
+                    cold_water: fields.cold_water.value,
+                    hot_water: fields.hot_water.value,
+                    drainage: fields.drainage.value,
+                    compressed_air: fields.compressed_air.value,
+                    steam_indirect: fields.steam_indirect.value,
+                    steam_direct: fields.steam_direct.value,
+                    live_load: fields.live_load.value
+                }
+            };
+        }
+
+        async function loadData() {
+            const [roomResponse, machineResponse] = await Promise.all([
+                fetch('/api/catalogue/rooms'),
+                fetch(`/api/catalogue/machines?v=${Date.now()}`)
+            ]);
+            rooms = await roomResponse.json();
+            const machinePayload = await machineResponse.json();
+            machines = machinePayload.machines || [];
+            sourceStatus.textContent = `${machines.length} machines mapped · ${machinePayload.source?.name || 'Editable catalogue data'}`;
+            fillRoomOptions();
+            renderList();
+            const first = filteredMachines()[0];
+            if (first) selectMachine(first.id);
+            else clearForm();
+        }
+
+        document.getElementById('machine-form').addEventListener('submit', async event => {
+            event.preventDefault();
+            saveStatus.textContent = 'Saving...';
+            const response = await fetch('/api/catalogue/machines', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formPayload())
+            });
+            if (!response.ok) {
+                saveStatus.textContent = 'Save failed';
+                return;
+            }
+            saveStatus.textContent = 'Saved';
+            await loadData();
+        });
+
+        document.getElementById('delete-button').addEventListener('click', async () => {
+            if (!fields.id.value) return;
+            saveStatus.textContent = 'Deleting...';
+            const response = await fetch(`/api/catalogue/machines/${encodeURIComponent(fields.id.value)}`, {
+                method: 'DELETE'
+            });
+            saveStatus.textContent = response.ok ? 'Deleted' : 'Delete failed';
+            await loadData();
+        });
+
+        document.getElementById('new-button').addEventListener('click', clearForm);
+        roomFilter.addEventListener('change', () => {
+            renderList();
+            const first = filteredMachines()[0];
+            if (first) selectMachine(first.id);
+            else clearForm();
+        });
+        searchInput.addEventListener('input', renderList);
+
+        loadData().catch(error => {
+            console.error(error);
+            sourceStatus.textContent = 'Machine data could not be loaded';
+        });
+    </script>
+</body>
+</html>

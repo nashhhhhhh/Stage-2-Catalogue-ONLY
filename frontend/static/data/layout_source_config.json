@@ -1,0 +1,26 @@
+{
+  "source_pptx": "layout_sources/Stage 2 PPT Layout.pptx",
+  "layouts": {
+    "factory": {
+      "label": "Factory Layout",
+      "slide": 3,
+      "picture": "Picture 4",
+      "image": "stage2_layout.png",
+      "target_width": 7680
+    },
+    "incoming-office-level-1": {
+      "label": "Incoming Warehouse Office - Level 1",
+      "slide": 4,
+      "picture": "Picture 10",
+      "image": "incoming_warehouse_office_level1.png",
+      "target_width": 3600
+    },
+    "incoming-office-level-2": {
+      "label": "Incoming Warehouse Office - Level 2",
+      "slide": 5,
+      "picture": "Picture 9",
+      "image": "incoming_warehouse_office_level2.png",
+      "target_width": 3600
+    }
+  }
+}

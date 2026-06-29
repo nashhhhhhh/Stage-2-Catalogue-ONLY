@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATS Stage 2 | Create Catalogue</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background: #f3f7fb;
+            color: #0f172a;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            padding: 16px 22px;
+            border-bottom: 1px solid #dbe4ee;
+            background: #ffffff;
+        }
+        h1 { margin: 0; font-size: 1.22rem; }
+        .subtitle { margin: 4px 0 0; color: #64748b; font-size: 0.82rem; font-weight: 750; }
+        .back-link,
+        button,
+        .view-link {
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font: inherit;
+            font-size: 0.82rem;
+            font-weight: 850;
+            text-decoration: none;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            min-height: 36px;
+            padding: 8px 12px;
+            background: #0f172a;
+            color: #ffffff;
+        }
+        main {
+            padding: 14px;
+            display: grid;
+            grid-template-columns: minmax(320px, 430px) minmax(0, 1fr);
+            gap: 14px;
+        }
+        .panel {
+            border: 1px solid #dbe4ee;
+            border-radius: 8px;
+            background: #ffffff;
+            overflow: hidden;
+        }
+        .panel-title {
+            padding: 13px 14px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+        .panel-title h2 { margin: 0; font-size: 0.98rem; }
+        form {
+            display: grid;
+            gap: 10px;
+            padding: 14px;
+        }
+        .field-row {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 10px;
+        }
+        label {
+            display: grid;
+            gap: 5px;
+            color: #475569;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        input {
+            width: 100%;
+            min-height: 38px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 8px 10px;
+            background: #ffffff;
+            color: #0f172a;
+            font: inherit;
+            font-size: 0.82rem;
+            letter-spacing: 0;
+        }
+        input[type="file"] {
+            padding: 7px;
+        }
+        button {
+            min-height: 38px;
+            cursor: pointer;
+            background: #0284c7;
+            border-color: #0284c7;
+            color: #ffffff;
+        }
+        button:disabled {
+            cursor: progress;
+            opacity: 0.62;
+        }
+        .status {
+            min-height: 40px;
+            padding: 0 14px 14px;
+            color: #64748b;
+            font-size: 0.8rem;
+            font-weight: 800;
+            line-height: 1.45;
+        }
+        .catalogue-list {
+            display: grid;
+            gap: 10px;
+            padding: 12px;
+        }
+        .catalogue-card {
+            display: grid;
+            gap: 8px;
+            border: 1px solid #dbe4ee;
+            border-radius: 8px;
+            padding: 12px;
+            background: #ffffff;
+        }
+        .catalogue-card h3 {
+            margin: 0;
+            font-size: 0.94rem;
+            line-height: 1.25;
+        }
+        .meta {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 8px;
+            color: #475569;
+            font-size: 0.76rem;
+        }
+        .meta div {
+            display: grid;
+            gap: 3px;
+            min-width: 0;
+        }
+        .meta span {
+            color: #94a3b8;
+            font-weight: 900;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+        .meta b {
+            color: #0f172a;
+            overflow-wrap: anywhere;
+        }
+        .card-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .view-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 34px;
+            padding: 7px 10px;
+            background: #0f172a;
+            color: #ffffff;
+        }
+        .empty {
+            padding: 18px;
+            color: #64748b;
+            font-size: 0.84rem;
+            font-weight: 800;
+        }
+        @media (max-width: 980px) {
+            main { grid-template-columns: 1fr; }
+            .meta { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        }
+        body.embedded header { display: none; }
+        body.embedded main { padding: 0; }
+        @media (max-width: 620px) {
+            header { align-items: flex-start; flex-direction: column; }
+            .field-row, .meta { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <script>
+        if (new URLSearchParams(window.location.search).get('embedded') === '1') {
+            document.body.classList.add('embedded');
+        }
+    </script>
+    <header>
+        <div>
+            <h1>Create Catalogue</h1>
+            <p class="subtitle">Generate a clickable catalogue map from a PowerPoint layout and Google Docs catalogue.</p>
+        </div>
+        <a class="back-link" href="/catalogue/manage">Back to Management</a>
+    </header>
+    <main>
+        <section class="panel">
+            <div class="panel-title">
+                <h2>New Catalogue</h2>
+            </div>
+            <form id="create-form">
+                <label>
+                    Catalogue Name
+                    <input name="title" type="text" placeholder="Stage 3 High Risk" required>
+                </label>
+                <label>
+                    Google Docs Link
+                    <input name="doc_url" type="url" placeholder="https://docs.google.com/document/d/..." required>
+                </label>
+                <label>
+                    PowerPoint Map
+                    <input name="pptx_file" type="file" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" required>
+                </label>
+                <div class="field-row">
+                    <label>
+                        Slide Number
+                        <input name="slide_number" type="number" min="1" step="1" value="1" required>
+                    </label>
+                    <label>
+                        Image Width
+                        <input name="target_width" type="number" min="800" max="10000" step="100" value="3600" required>
+                    </label>
+                </div>
+                <label>
+                    Picture Name
+                    <input name="picture_name" type="text" placeholder="Auto-detect largest picture">
+                </label>
+                <button type="submit" id="create-button">Create Catalogue</button>
+            </form>
+            <div class="status" id="status">Ready.</div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-title">
+                <h2>Custom Catalogues</h2>
+            </div>
+            <div class="catalogue-list" id="catalogue-list"></div>
+        </section>
+    </main>
+
+    <script>
+        const form = document.getElementById('create-form');
+        const button = document.getElementById('create-button');
+        const statusLine = document.getElementById('status');
+        const list = document.getElementById('catalogue-list');
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[char]));
+        }
+
+        function setBusy(isBusy) {
+            button.disabled = isBusy;
+            button.textContent = isBusy ? 'Creating...' : 'Create Catalogue';
+        }
+
+        function renderCatalogues(items) {
+            if (!items.length) {
+                list.innerHTML = '<div class="empty">No custom catalogues yet.</div>';
+                return;
+            }
+
+            list.innerHTML = items.map(item => `
+                <article class="catalogue-card">
+                    <h3>${escapeHtml(item.title)}</h3>
+                    <div class="meta">
+                        <div><span>Rooms</span><b>${escapeHtml(item.room_count || 0)}</b></div>
+                        <div><span>Slide</span><b>${escapeHtml(item.slide_number || 1)}</b></div>
+                        <div><span>Picture</span><b>${escapeHtml(item.picture_name || 'Auto')}</b></div>
+                        <div><span>Created</span><b>${escapeHtml(item.created_at || '')}</b></div>
+                    </div>
+                    <div class="card-actions">
+                        <a class="view-link" href="${escapeHtml(item.view_url)}">View Catalogue</a>
+                    </div>
+                </article>
+            `).join('');
+        }
+
+        async function loadCatalogues() {
+            try {
+                const response = await fetch(`/api/catalogue/custom?v=${Date.now()}`);
+                const payload = await response.json();
+                if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+                renderCatalogues(payload);
+            } catch (error) {
+                console.error(error);
+                list.innerHTML = '<div class="empty">Unable to load custom catalogues.</div>';
+            }
+        }
+
+        form.addEventListener('submit', async event => {
+            event.preventDefault();
+            setBusy(true);
+            statusLine.textContent = 'Creating catalogue...';
+
+            try {
+                const response = await fetch('/api/catalogue/custom', {
+                    method: 'POST',
+                    body: new FormData(form)
+                });
+                const payload = await response.json();
+                if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+                const created = payload.catalogue;
+                statusLine.innerHTML = `Created ${escapeHtml(created.title)} with ${escapeHtml(created.room_count)} rooms. <a href="${escapeHtml(created.view_url)}">Open catalogue</a>.`;
+                form.reset();
+                form.elements.slide_number.value = 1;
+                form.elements.target_width.value = 3600;
+                await loadCatalogues();
+            } catch (error) {
+                console.error(error);
+                statusLine.textContent = `Create failed: ${error.message}`;
+            } finally {
+                setBusy(false);
+            }
+        });
+
+        loadCatalogues();
+    </script>
+</body>
+</html>

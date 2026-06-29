@@ -1,0 +1,495 @@
+{
+  "generated_at": "2026-06-28T22:29:50",
+  "counts": {
+    "M-01": {
+      "asset_count": 22,
+      "page": 13,
+      "source": "catalogue_pdf"
+    },
+    "M-02": {
+      "asset_count": 108,
+      "page": 15,
+      "source": "catalogue_pdf"
+    },
+    "M-03": {
+      "asset_count": 22,
+      "page": 22,
+      "source": "catalogue_pdf"
+    },
+    "M-04": {
+      "asset_count": 5,
+      "page": 24,
+      "source": "catalogue_pdf"
+    },
+    "M-05": {
+      "asset_count": 58,
+      "page": 25,
+      "source": "catalogue_pdf"
+    },
+    "M-06": {
+      "asset_count": 14,
+      "page": 36,
+      "source": "catalogue_pdf"
+    },
+    "M-07": {
+      "asset_count": 30,
+      "page": 37,
+      "source": "catalogue_pdf"
+    },
+    "M-08": {
+      "asset_count": 11,
+      "page": 39,
+      "source": "catalogue_pdf"
+    },
+    "M-09": {
+      "asset_count": 30,
+      "page": 41,
+      "source": "catalogue_pdf"
+    },
+    "M-10": {
+      "asset_count": 9,
+      "page": 42,
+      "source": "catalogue_pdf"
+    },
+    "L-01": {
+      "asset_count": 28,
+      "page": 17,
+      "source": "catalogue_pdf"
+    },
+    "L-02": {
+      "asset_count": 19,
+      "page": 22,
+      "source": "catalogue_pdf"
+    },
+    "L-03": {
+      "asset_count": 27,
+      "page": 23,
+      "source": "catalogue_pdf"
+    },
+    "L-04": {
+      "asset_count": 36,
+      "page": 24,
+      "source": "catalogue_pdf"
+    },
+    "L-05": {
+      "asset_count": 32,
+      "page": 25,
+      "source": "catalogue_pdf"
+    },
+    "L-06": {
+      "asset_count": 45,
+      "page": 26,
+      "source": "catalogue_pdf"
+    },
+    "L-07": {
+      "asset_count": 24,
+      "page": 27,
+      "source": "catalogue_pdf"
+    },
+    "L-08": {
+      "asset_count": 16,
+      "page": 30,
+      "source": "catalogue_pdf"
+    },
+    "L-09": {
+      "asset_count": 18,
+      "page": 32,
+      "source": "catalogue_pdf"
+    },
+    "L-10": {
+      "asset_count": 31,
+      "page": 34,
+      "source": "catalogue_pdf"
+    },
+    "L-11": {
+      "asset_count": 36,
+      "page": 38,
+      "source": "catalogue_pdf"
+    },
+    "L-12": {
+      "asset_count": 15,
+      "page": 41,
+      "source": "catalogue_pdf"
+    },
+    "L-13": {
+      "asset_count": 21,
+      "page": 43,
+      "source": "catalogue_pdf"
+    },
+    "L-14": {
+      "asset_count": 8,
+      "page": 45,
+      "source": "catalogue_pdf"
+    },
+    "L-15": {
+      "asset_count": 15,
+      "page": 46,
+      "source": "catalogue_pdf"
+    },
+    "L-16": {
+      "asset_count": 8,
+      "page": 50,
+      "source": "catalogue_pdf"
+    },
+    "L-17": {
+      "asset_count": 14,
+      "page": 51,
+      "source": "catalogue_pdf"
+    },
+    "L-18": {
+      "asset_count": 14,
+      "page": 53,
+      "source": "catalogue_pdf"
+    },
+    "L-19": {
+      "asset_count": 3,
+      "page": 55,
+      "source": "catalogue_pdf"
+    },
+    "L-20": {
+      "asset_count": 64,
+      "page": 56,
+      "source": "catalogue_pdf"
+    },
+    "L-21": {
+      "asset_count": 112,
+      "page": 58,
+      "source": "catalogue_pdf"
+    },
+    "L-22": {
+      "asset_count": 19,
+      "page": 65,
+      "source": "catalogue_pdf"
+    },
+    "L-23": {
+      "asset_count": 12,
+      "page": 67,
+      "source": "catalogue_pdf"
+    },
+    "L-24": {
+      "asset_count": 13,
+      "page": 69,
+      "source": "catalogue_pdf"
+    },
+    "L-25": {
+      "asset_count": 6,
+      "page": 70,
+      "source": "catalogue_pdf"
+    },
+    "L-26": {
+      "asset_count": 14,
+      "page": 71,
+      "source": "catalogue_pdf"
+    },
+    "L-27": {
+      "asset_count": 40,
+      "page": 72,
+      "source": "catalogue_pdf"
+    },
+    "L-28": {
+      "asset_count": 36,
+      "page": 74,
+      "source": "catalogue_pdf"
+    },
+    "L-29": {
+      "asset_count": 39,
+      "page": 76,
+      "source": "catalogue_pdf"
+    },
+    "L-30": {
+      "asset_count": 37,
+      "page": 77,
+      "source": "catalogue_pdf"
+    },
+    "L-31": {
+      "asset_count": 42,
+      "page": 78,
+      "source": "catalogue_pdf"
+    },
+    "L-32": {
+      "asset_count": 46,
+      "page": 80,
+      "source": "catalogue_pdf"
+    },
+    "L-33": {
+      "asset_count": 13,
+      "page": 83,
+      "source": "catalogue_pdf"
+    },
+    "L-34": {
+      "asset_count": 22,
+      "page": 84,
+      "source": "catalogue_pdf"
+    },
+    "L-35": {
+      "asset_count": 14,
+      "page": 86,
+      "source": "catalogue_pdf"
+    },
+    "L-36": {
+      "asset_count": 22,
+      "page": 88,
+      "source": "catalogue_pdf"
+    },
+    "L-37": {
+      "asset_count": 12,
+      "page": 90,
+      "source": "catalogue_pdf"
+    },
+    "L-38": {
+      "asset_count": 21,
+      "page": 92,
+      "source": "catalogue_pdf"
+    },
+    "L-39": {
+      "asset_count": 18,
+      "page": 94,
+      "source": "catalogue_pdf"
+    },
+    "L-40": {
+      "asset_count": 47,
+      "page": 95,
+      "source": "catalogue_pdf"
+    },
+    "L-41": {
+      "asset_count": 17,
+      "page": 97,
+      "source": "catalogue_pdf"
+    },
+    "L-42": {
+      "asset_count": 27,
+      "page": 98,
+      "source": "catalogue_pdf"
+    },
+    "L-43": {
+      "asset_count": 34,
+      "page": 99,
+      "source": "catalogue_pdf"
+    },
+    "L-44": {
+      "asset_count": 28,
+      "page": 102,
+      "source": "catalogue_pdf"
+    },
+    "L-45": {
+      "asset_count": 74,
+      "page": 103,
+      "source": "catalogue_pdf"
+    },
+    "L-46": {
+      "asset_count": 40,
+      "page": 104,
+      "source": "catalogue_pdf"
+    },
+    "L-47": {
+      "asset_count": 38,
+      "page": 105,
+      "source": "catalogue_pdf"
+    },
+    "L-48": {
+      "asset_count": 29,
+      "page": 106,
+      "source": "catalogue_pdf"
+    },
+    "L-49": {
+      "asset_count": 4,
+      "page": 107,
+      "source": "catalogue_pdf"
+    },
+    "L-50": {
+      "asset_count": 19,
+      "page": 108,
+      "source": "catalogue_pdf"
+    },
+    "L-51": {
+      "asset_count": 64,
+      "page": 111,
+      "source": "catalogue_pdf"
+    },
+    "L-52": {
+      "asset_count": 12,
+      "page": 113,
+      "source": "catalogue_pdf"
+    },
+    "L-53": {
+      "asset_count": 18,
+      "page": 115,
+      "source": "catalogue_pdf"
+    },
+    "L-54": {
+      "asset_count": 10,
+      "page": 118,
+      "source": "catalogue_pdf"
+    },
+    "H-01": {
+      "asset_count": 21,
+      "page": 14,
+      "source": "catalogue_pdf"
+    },
+    "H-02": {
+      "asset_count": 99,
+      "page": 15,
+      "source": "catalogue_pdf"
+    },
+    "H-03": {
+      "asset_count": 47,
+      "page": 18,
+      "source": "catalogue_pdf"
+    },
+    "H-04": {
+      "asset_count": 26,
+      "page": 19,
+      "source": "catalogue_pdf"
+    },
+    "H-05": {
+      "asset_count": 24,
+      "page": 20,
+      "source": "catalogue_pdf"
+    },
+    "H-06": {
+      "asset_count": 20,
+      "page": 21,
+      "source": "catalogue_pdf"
+    },
+    "H-07": {
+      "asset_count": 48,
+      "page": 22,
+      "source": "catalogue_pdf"
+    },
+    "H-08": {
+      "asset_count": 20,
+      "page": 23,
+      "source": "catalogue_pdf"
+    },
+    "H-09": {
+      "asset_count": 20,
+      "page": 24,
+      "source": "catalogue_pdf"
+    },
+    "H-10": {
+      "asset_count": 35,
+      "page": 25,
+      "source": "catalogue_pdf"
+    },
+    "H-11": {
+      "asset_count": 6,
+      "page": 26,
+      "source": "catalogue_pdf"
+    },
+    "H-12": {
+      "asset_count": 6,
+      "page": 27,
+      "source": "catalogue_pdf"
+    },
+    "H-13": {
+      "asset_count": 5,
+      "page": 28,
+      "source": "catalogue_pdf"
+    },
+    "H-14": {
+      "asset_count": 14,
+      "page": 29,
+      "source": "catalogue_pdf"
+    },
+    "H-15": {
+      "asset_count": 12,
+      "page": 30,
+      "source": "catalogue_pdf"
+    },
+    "H-16": {
+      "asset_count": 26,
+      "page": 31,
+      "source": "catalogue_pdf"
+    },
+    "H-17": {
+      "asset_count": 16,
+      "page": 32,
+      "source": "catalogue_pdf"
+    },
+    "H-18": {
+      "asset_count": 77,
+      "page": 33,
+      "source": "catalogue_pdf"
+    },
+    "H-19": {
+      "asset_count": 24,
+      "page": 38,
+      "source": "catalogue_pdf"
+    },
+    "O-01": {
+      "asset_count": 13,
+      "page": 15,
+      "source": "catalogue_pdf"
+    },
+    "O-02": {
+      "asset_count": 8,
+      "page": 17,
+      "source": "catalogue_pdf"
+    },
+    "O-03": {
+      "asset_count": 9,
+      "page": 19,
+      "source": "catalogue_pdf"
+    },
+    "O-04": {
+      "asset_count": 9,
+      "page": 20,
+      "source": "catalogue_pdf"
+    },
+    "O-05": {
+      "asset_count": 7,
+      "page": 21,
+      "source": "catalogue_pdf"
+    },
+    "O-06": {
+      "asset_count": 10,
+      "page": 22,
+      "source": "catalogue_pdf"
+    },
+    "O-07": {
+      "asset_count": 3,
+      "page": 23,
+      "source": "catalogue_pdf"
+    },
+    "O-08": {
+      "asset_count": 13,
+      "page": 24,
+      "source": "catalogue_pdf"
+    },
+    "O-09": {
+      "asset_count": 13,
+      "page": 25,
+      "source": "catalogue_pdf"
+    },
+    "O-10": {
+      "asset_count": 22,
+      "page": 26,
+      "source": "catalogue_pdf"
+    },
+    "O-11": {
+      "asset_count": 15,
+      "page": 28,
+      "source": "catalogue_pdf"
+    },
+    "O-12": {
+      "asset_count": 15,
+      "page": 33,
+      "source": "catalogue_pdf"
+    },
+    "O-13": {
+      "asset_count": 7,
+      "page": 36,
+      "source": "catalogue_pdf"
+    },
+    "O-14": {
+      "asset_count": 4,
+      "page": 38,
+      "source": "catalogue_pdf"
+    },
+    "O-15": {
+      "asset_count": 7,
+      "page": 39,
+      "source": "catalogue_pdf"
+    }
+  }
+}

@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SATS Stage 2 | Custom Catalogue</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            height: 100vh;
+            overflow: hidden;
+            background: #eef3f8;
+            color: #0f172a;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        }
+        .page {
+            height: 100vh;
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+            gap: 8px;
+            padding: 8px 10px 10px;
+        }
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            padding: 10px 16px;
+            border: 1px solid #dbe4ee;
+            border-radius: 8px;
+            background: #ffffff;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+        }
+        h1 { margin: 0; font-size: 1.08rem; line-height: 1.25; }
+        .subtitle { margin: 3px 0 0; color: #64748b; font-size: 0.78rem; font-weight: 750; }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 34px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: #0f172a;
+            color: #ffffff;
+            font-size: 0.8rem;
+            font-weight: 850;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .split {
+            min-height: 0;
+            display: grid;
+            grid-template-columns: minmax(460px, 56%) minmax(360px, 44%);
+            gap: 8px;
+        }
+        .panel {
+            min-height: 0;
+            border: 1px solid #dbe4ee;
+            border-radius: 8px;
+            background: #ffffff;
+            overflow: hidden;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.07);
+        }
+        .map-panel {
+            display: grid;
+            grid-template-rows: auto minmax(0, 1fr);
+        }
+        .panel-title {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f8fafc;
+        }
+        .panel-title h2 { margin: 0; font-size: 0.92rem; }
+        .room-pill {
+            color: #0369a1;
+            font-size: 0.76rem;
+            font-weight: 900;
+        }
+        .map-wrap {
+            min-height: 0;
+            overflow: auto;
+            background: #f8fafc;
+        }
+        .map-stage {
+            position: relative;
+            width: 100%;
+            min-width: 760px;
+            aspect-ratio: var(--catalogue-aspect, 2);
+        }
+        .map-stage img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            user-select: none;
+        }
+        svg {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+        }
+        .room-shape {
+            fill: var(--room-fill);
+            fill-opacity: var(--room-fill-opacity);
+            stroke: var(--room-stroke);
+            stroke-width: var(--room-stroke-width);
+            vector-effect: non-scaling-stroke;
+            cursor: pointer;
+            pointer-events: all;
+            transition: fill 0.16s ease, stroke 0.16s ease, filter 0.16s ease;
+        }
+        .room-shape:hover,
+        .room-shape:focus-visible {
+            filter: saturate(1.16) brightness(1.02);
+            outline: none;
+        }
+        .room-shape.selected {
+            fill: #0ea5e9;
+            fill-opacity: 0.48;
+            stroke: #0284c7;
+            stroke-width: 2.5px;
+        }
+        .pdf-panel {
+            display: grid;
+            grid-template-rows: auto auto minmax(0, 1fr);
+        }
+        .room-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(68px, 1fr));
+            gap: 7px;
+            max-height: 96px;
+            padding: 9px 10px;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f4f7fb;
+            overflow-y: auto;
+        }
+        .room-button {
+            min-height: 32px;
+            border: 1px solid #d4deea;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #26364d;
+            cursor: pointer;
+            padding: 7px 9px;
+            font: inherit;
+            font-size: 0.74rem;
+            font-weight: 800;
+        }
+        .room-button.active {
+            border-color: #0284c7;
+            background: #0284c7;
+            color: #ffffff;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: 0;
+            background: #ffffff;
+        }
+        .missing {
+            display: grid;
+            place-items: center;
+            height: 100vh;
+            padding: 24px;
+            color: #64748b;
+            font-size: 0.92rem;
+            font-weight: 850;
+            text-align: center;
+        }
+        @media (max-width: 980px) {
+            body { overflow: auto; height: auto; }
+            .page { height: auto; min-height: 100vh; }
+            .split { grid-template-columns: 1fr; }
+            .panel { min-height: 420px; }
+        }
+        @media (max-width: 620px) {
+            header { align-items: flex-start; flex-direction: column; }
+            .map-stage { min-width: 620px; }
+        }
+    </style>
+</head>
+<body>
+    {% if not custom_catalogue %}
+    <div class="missing">
+        <div>
+            <p>Custom catalogue not found.</p>
+            <a class="back-link" href="/catalogue/manage/create">Back to Create Catalogue</a>
+        </div>
+    </div>
+    {% else %}
+    <div class="page">
+        <header>
+            <div>
+                <h1>{{ custom_catalogue.title }}</h1>
+                <p class="subtitle">{{ custom_catalogue.room_count }} rooms · Slide {{ custom_catalogue.slide_number }} · {{ custom_catalogue.picture_name }}</p>
+            </div>
+            <a class="back-link" href="/catalogue/manage/create">Back to Create Catalogue</a>
+        </header>
+        <main class="split">
+            <section class="panel map-panel">
+                <div class="panel-title">
+                    <h2>Catalogue Map</h2>
+                    <span class="room-pill" id="selected-room-label">Select a room</span>
+                </div>
+                <div class="map-wrap">
+                    <div class="map-stage" id="map-stage">
+                        <img id="map-image" alt="">
+                        <svg id="room-overlay" viewBox="0 0 100 100" preserveAspectRatio="none"></svg>
+                    </div>
+                </div>
+            </section>
+            <section class="panel pdf-panel">
+                <div class="panel-title">
+                    <h2>Catalogue PDF</h2>
+                    <span class="room-pill" id="selected-room-code"></span>
+                </div>
+                <div class="room-list" id="room-list"></div>
+                <iframe id="pdf-frame" title="Catalogue PDF"></iframe>
+            </section>
+        </main>
+    </div>
+    <script id="catalogue-data" type="application/json">{{ custom_catalogue | tojson }}</script>
+    <script>
+        const catalogue = JSON.parse(document.getElementById('catalogue-data').textContent);
+        const stage = document.getElementById('map-stage');
+        const mapImage = document.getElementById('map-image');
+        const overlay = document.getElementById('room-overlay');
+        const roomList = document.getElementById('room-list');
+        const pdfFrame = document.getElementById('pdf-frame');
+        const selectedRoomLabel = document.getElementById('selected-room-label');
+        const selectedRoomCode = document.getElementById('selected-room-code');
+        const rooms = Object.values(catalogue.rooms || {}).sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
+
+        function escapeHtml(value) {
+            return String(value ?? '').replace(/[&<>"']/g, char => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            }[char]));
+        }
+
+        function setPdfPage(room) {
+            const pdfUrl = catalogue.layout.pdf;
+            if (!pdfUrl) {
+                pdfFrame.removeAttribute('src');
+                return;
+            }
+            const page = room?.page || 1;
+            pdfFrame.src = `${pdfUrl}#page=${page}`;
+        }
+
+        function selectRoom(code) {
+            const room = rooms.find(item => item.code === code) || rooms[0];
+            if (!room) return;
+            document.querySelectorAll('.room-shape').forEach(shape => shape.classList.toggle('selected', shape.dataset.code === room.code));
+            document.querySelectorAll('.room-button').forEach(button => button.classList.toggle('active', button.dataset.code === room.code));
+            selectedRoomLabel.textContent = `${room.code} · ${room.name}`;
+            selectedRoomCode.textContent = room.code;
+            setPdfPage(room);
+        }
+
+        function makeShape(room) {
+            const namespace = 'http://www.w3.org/2000/svg';
+            const element = document.createElementNS(namespace, room.svgPath ? 'path' : 'rect');
+            if (room.svgPath) {
+                element.setAttribute('d', room.svgPath);
+            } else {
+                element.setAttribute('x', room.left);
+                element.setAttribute('y', room.top);
+                element.setAttribute('width', room.width);
+                element.setAttribute('height', room.height);
+            }
+            element.classList.add('room-shape');
+            element.dataset.code = room.code;
+            element.style.setProperty('--room-fill', room.fillColor || '#2563eb');
+            element.style.setProperty('--room-fill-opacity', room.fillOpacity ?? 0.34);
+            element.style.setProperty('--room-stroke', room.strokeColor || '#1d4ed8');
+            element.style.setProperty('--room-stroke-width', `${room.strokeWidth || 1}px`);
+            element.setAttribute('tabindex', '0');
+            element.setAttribute('role', 'button');
+            element.setAttribute('aria-label', `${room.code} ${room.name}`);
+            element.addEventListener('click', () => selectRoom(room.code));
+            element.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    selectRoom(room.code);
+                }
+            });
+            return element;
+        }
+
+        function render() {
+            stage.style.setProperty('--catalogue-aspect', catalogue.layout.aspect || 2);
+            mapImage.src = catalogue.layout.image;
+            overlay.innerHTML = '';
+            rooms.forEach(room => overlay.appendChild(makeShape(room)));
+            roomList.innerHTML = rooms.map(room => `
+                <button class="room-button" type="button" data-code="${escapeHtml(room.code)}">${escapeHtml(room.code)}</button>
+            `).join('');
+            roomList.querySelectorAll('.room-button').forEach(button => {
+                button.addEventListener('click', () => selectRoom(button.dataset.code));
+            });
+            selectRoom(rooms[0]?.code);
+        }
+
+        render();
+    </script>
+    {% endif %}
+</body>
+</html>
