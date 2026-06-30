@@ -1,41 +1,50 @@
 <header class="top-header">
     <div class="brand">
-        <img src="/shared/assets/SATS_Logo.png" class="brand-logo" alt="SATS Logo">
         <div class="pulse"></div>
-        <h1 class="brand-title">
-            Monitoring System <span class="brand-subtitle">| Stage 2</span>
-        </h1>
+        <h1 class="brand-title">Stage 2 Catalogue</h1>
     </div>
     <div id="clock" class="header-clock"></div>
 </header>
 
 <nav class="main-nav">
 
-    <button class="nav-btn" data-nav="overview" onclick="location.href='/Overview/index.html'">
+    <a class="nav-btn catalogue-nav-item" data-nav="catalogue-machines" href="/catalogue/manage/machines">
+        Machine Mapping
+    </a>
+
+    <a class="nav-btn catalogue-nav-item" data-nav="catalogue-rooms" href="/catalogue/manage/rooms">
+        Room Names
+    </a>
+
+    <a class="nav-btn catalogue-nav-item" data-nav="catalogue-create" href="/catalogue/manage/create">
+        Create Catalogue
+    </a>
+
+    <button class="nav-btn standard-nav-item" data-nav="overview" onclick="location.href='/Overview/index.html'">
         Overview
     </button>
 
-    <button class="nav-btn" data-nav="cctv" onclick="location.href='/CCTV/index.html'">
+    <button class="nav-btn standard-nav-item" data-nav="cctv" onclick="location.href='/CCTV/index.html'">
         CCTV
     </button>
 
-    <button class="nav-btn" data-nav="freezer" onclick="location.href='/Spiral Blast Freezer/index.html'">
+    <button class="nav-btn standard-nav-item" data-nav="freezer" onclick="location.href='/Spiral Blast Freezer/index.html'">
         Freezer
     </button>
 
-    <button class="nav-btn" data-nav="temperature" onclick="location.href='/Temperature/index.html'">
+    <button class="nav-btn standard-nav-item" data-nav="temperature" onclick="location.href='/Temperature/index.html'">
         Temperature
     </button>
 
-    <button class="nav-btn" data-nav="lighting" onclick="location.href='/Lighting/index.html'">
+    <button class="nav-btn standard-nav-item" data-nav="lighting" onclick="location.href='/Lighting/index.html'">
         Lighting
     </button>
 
-    <button class="nav-btn" data-nav="layout" onclick="location.href='/layout'">
+    <button class="nav-btn standard-nav-item" data-nav="layout" onclick="location.href='/layout'">
         Catalogue
     </button>
 
-    <div class="nav-item">
+    <div class="nav-item standard-nav-item">
         <button class="nav-btn" data-nav="maintenance" onclick="location.href='/Maintenance/index.html'">Maintenance ▾</button>
         <div class="dropdown-menu">
             <a href="/Maintenance/index.html">Overview</a>
@@ -46,7 +55,7 @@
         </div>
     </div>
 
-    <div class="nav-item">
+    <div class="nav-item standard-nav-item">
         <button class="nav-btn">Utilities ▾</button>
         <div class="dropdown-menu">
             <a href="/Utilities/Air Compressor/index.html">Air Compressor</a>
@@ -64,7 +73,7 @@
         </div>
     </div>
 
-    <div class="nav-item">
+    <div class="nav-item standard-nav-item">
         <button class="nav-btn" data-nav="projection" onclick="location.href='/Projection/index.html'">Projection ▾</button>
         <div class="dropdown-menu">
             <a href="/Projection/index.html">Overview</a>
@@ -75,7 +84,7 @@
         </div>
     </div>
 
-    <div class="nav-item">
+    <div class="nav-item standard-nav-item">
         <button class="nav-btn nav-btn-wip">Kitchen Equipment <span class="nav-wip-badge">WIP</span> ▾</button>
         <div class="dropdown-menu">
             <a href="/Kitchen Equipment/Hobart/index.html">Hobart</a>

@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-    <link rel="stylesheet" href="/shared/navbar.css?v=nav-restore-20260628">
+    <link rel="stylesheet" href="/shared/navbar.css?v=stage2-catalogue-functions-20260630">
     <style>
         body.layout-map-page {
             --layout-bg: #eef3f8;
@@ -760,9 +760,9 @@
         </article>
     </div>
 
-    <script src="/shared/navbar.js"></script>
+    <script src="/shared/navbar.js?v=stage2-catalogue-functions-20260630"></script>
     <script>
-        fetch('/shared/navbar.html?v=catalogue-nav-20260429')
+        fetch('/shared/navbar.html?v=stage2-catalogue-functions-20260630', { cache: 'no-store' })
             .then(res => {
                 if (!res.ok) throw new Error('Navbar failed to load');
                 return res.text();

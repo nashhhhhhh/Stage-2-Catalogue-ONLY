@@ -122,12 +122,15 @@ html, body {
   background: none;
   border: none;
   color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
   padding: 18px 20px;
   cursor: pointer;
   font-size: 0.75rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  text-decoration: none;
   transition: 0.25s;
   white-space: nowrap;
 }
@@ -337,6 +340,33 @@ html, body {
 .catalogue-nav-context .nav-kitchen-equipment,
 .catalogue-nav-context .nav-report-export {
   display: none;
+}
+
+.catalogue-nav-item {
+  display: none;
+}
+
+.catalogue-nav-context .standard-nav-item {
+  display: none;
+}
+
+.catalogue-nav-context .catalogue-nav-item {
+  display: inline-flex;
+}
+
+.catalogue-nav-context .brand-logo,
+.catalogue-nav-context .brand-subtitle {
+  display: none;
+}
+
+.catalogue-nav-context .brand-title {
+  font-size: 0;
+}
+
+.catalogue-nav-context .brand-title::before {
+  content: 'Stage 2 Catalogue';
+  font-size: 1.1rem;
+  font-weight: 600;
 }
 
 .btn-export {

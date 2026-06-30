@@ -64,6 +64,16 @@ document.addEventListener('DOMContentLoaded', () => {
     // 1. ACTIVE NAV DETECTION
     // Handles top-level buttons
     document.querySelectorAll('.nav-btn[data-nav]').forEach(btn => {
+        if (btn.classList.contains('catalogue-nav-item')) {
+            const href = btn.getAttribute('href');
+            if (!href) return;
+            const linkPath = new URL(href, window.location.origin).pathname.toLowerCase();
+            if (path === linkPath || path.startsWith(`${linkPath}/`)) {
+                btn.classList.add('active');
+            }
+            return;
+        }
+
         const key = btn.dataset.nav;
         if (path.includes(key.toLowerCase()) || (key === 'maintenance' && path.includes('/downtime/'))) {
             btn.classList.add('active');
