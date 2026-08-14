@@ -1171,10 +1171,11 @@
 
                 available.forEach(item => {
                     const layout = item.layout || {};
-                    const mapLayouts = Array.isArray(item.layouts) && item.layouts.length
+                    const hasExplicitLayouts = Array.isArray(item.layouts) && item.layouts.length > 0;
+                    const mapLayouts = hasExplicitLayouts
                         ? item.layouts
                         : [{
-                            key: `slide-${item.slide_number || 1}`,
+                            key: '',
                             label: 'Map 1',
                             slide_number: item.slide_number || 1,
                             ...layout
@@ -1194,7 +1195,9 @@
                             alt: `${item.title || item.slug} ${mapLayout.label || `map ${layoutIndex + 1}`}`,
                             dataUrl: `/api/catalogue/custom/${encodeURIComponent(item.slug)}`,
                             dataKey: 'rooms',
-                            layoutKey: mapLayout.key,
+                            // Legacy single-map catalogues do not have room.layoutKey.
+                            // Only filter rooms when the catalogue explicitly supplies layouts.
+                            layoutKey: hasExplicitLayouts ? mapLayout.key : '',
                             aspect: Number(mapLayout.aspect) || 2,
                             maxWidth: `${Math.max(800, Number(mapLayout.width) || 3600)}px`,
                             fitMode: 'full',

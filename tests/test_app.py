@@ -389,6 +389,8 @@ class CatalogueAppTests(unittest.TestCase):
         custom_page = (ROOT / "frontend" / "custom_catalogue_view.html").read_text(encoding="utf-8")
         self.assertIn("imageVersion", layout_page)
         self.assertIn("imageVersion", custom_page)
+        self.assertIn("const hasExplicitLayouts", layout_page)
+        self.assertIn("layoutKey: hasExplicitLayouts ? mapLayout.key : ''", layout_page)
         self.assertIn("mapLayouts", custom_page)
         self.assertIn("room.layoutKey", custom_page)
 

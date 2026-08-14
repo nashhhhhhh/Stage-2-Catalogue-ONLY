@@ -5,7 +5,7 @@
     "doc_url": "https://docs.google.com/document/d/1O0SuG_9jlFNGdLKwxgxo5Is5btxzos9Jn4aCbwui8sA/edit?usp=sharing&tab=t.dcvktn77r0x6",
     "created_at": "2026-08-14 13:35:46",
     "updated_at": "2026-08-14 13:58:31",
-    "last_checked": "2026-08-14 14:16:46",
+    "last_checked": "2026-08-14 14:51:54",
     "last_updated": "2026-08-14 13:35:46",
     "refresh_error": "",
     "auto_refresh": true,
@@ -1220,15 +1220,21 @@
     "title": "Water Treatment Plant",
     "doc_url": "https://docs.google.com/document/d/1NBjHKRBiQ_E2RmX2XAiTkexKc0czpZqwMVyfQLwe0es/edit?usp=sharing",
     "created_at": "2026-08-13 10:35:07",
-    "updated_at": "2026-08-13 10:37:44",
-    "last_checked": "2026-08-13 10:37:37",
-    "last_updated": "2026-08-13 10:37:37",
+    "updated_at": "2026-08-14 14:58:19",
+    "last_checked": "2026-08-14 14:58:13",
+    "last_updated": "2026-08-14 14:58:13",
     "refresh_error": "",
     "auto_refresh": true,
     "refresh_interval_minutes": 5,
     "source_pptx": "data/custom_catalogue_uploads/water-treatment-plant.pptx",
     "slide_number": 1,
+    "slide_numbers": [
+      1
+    ],
     "picture_name": "Picture 8",
+    "picture_names": [
+      "Picture 8"
+    ],
     "room_count": 1,
     "room_overrides": {},
     "layout": {
@@ -1238,6 +1244,24 @@
       "height": 1364,
       "aspect": 2.6393
     },
+    "layouts": [
+      {
+        "key": "slide-1",
+        "label": "Map 1 \u00b7 Slide 1",
+        "slide_number": 1,
+        "picture_name": "Picture 8",
+        "picture_names": [
+          "Picture 8"
+        ],
+        "image": "/static/custom_catalogues/water-treatment-plant/layout.png",
+        "width": 3600,
+        "height": 1364,
+        "aspect": 2.6393,
+        "room_codes": [
+          "C-01"
+        ]
+      }
+    ],
     "rooms": {
       "C-01": {
         "code": "C-01",
@@ -1249,10 +1273,12 @@
         "width": 97.9798,
         "height": 96.1802,
         "svgPath": "M 0.9259 3.6357 L 98.4007 3.6357 L 98.7374 99.8159 L 68.4344 99.3716 L 68.3502 88.7096 L 0.7576 88.7096 L 0.9259 3.6357 Z",
-        "fillColor": "#2563EB",
+        "fillColor": "#0E2841",
         "fillOpacity": 0.36,
-        "strokeColor": "#2563EB",
+        "strokeColor": "#0E2841",
         "strokeWidth": 1,
+        "layoutKey": "slide-1",
+        "slideNumber": 1,
         "page": 3,
         "defaultName": "WTP 2nd Floor",
         "defaultPage": 3
@@ -1264,15 +1290,21 @@
     "title": "Waste Water Treatment Plant",
     "doc_url": "https://docs.google.com/document/d/1bJ0YFeJogaNX9qSSdLt-1xH1vpJ55VKiJAQZzafdXXM/edit?usp=sharing",
     "created_at": "2026-08-13 10:07:28",
-    "updated_at": "2026-08-13 13:33:35",
-    "last_checked": "2026-08-13 13:33:23",
-    "last_updated": "2026-08-13 13:33:23",
+    "updated_at": "2026-08-14 14:58:21",
+    "last_checked": "2026-08-14 14:58:13",
+    "last_updated": "2026-08-14 14:58:13",
     "refresh_error": "",
     "auto_refresh": true,
     "refresh_interval_minutes": 5,
     "source_pptx": "data/custom_catalogue_uploads/waste-water-treatment-plant.pptx",
     "slide_number": 1,
+    "slide_numbers": [
+      1
+    ],
     "picture_name": "Picture 2",
+    "picture_names": [
+      "Picture 2"
+    ],
     "room_count": 1,
     "room_overrides": {},
     "layout": {
@@ -1282,6 +1314,24 @@
       "height": 2396,
       "aspect": 1.5025
     },
+    "layouts": [
+      {
+        "key": "slide-1",
+        "label": "Map 1 \u00b7 Slide 1",
+        "slide_number": 1,
+        "picture_name": "Picture 2",
+        "picture_names": [
+          "Picture 2"
+        ],
+        "image": "/static/custom_catalogues/waste-water-treatment-plant/layout.png",
+        "width": 3600,
+        "height": 2396,
+        "aspect": 1.5025,
+        "room_codes": [
+          "C-01"
+        ]
+      }
+    ],
     "rooms": {
       "C-01": {
         "code": "C-01",
@@ -1297,6 +1347,8 @@
         "fillOpacity": 0.21,
         "strokeColor": "#196B24",
         "strokeWidth": 1.0,
+        "layoutKey": "slide-1",
+        "slideNumber": 1,
         "page": 3,
         "defaultName": "WWTP 2nd Floor",
         "defaultPage": 3
@@ -1308,15 +1360,21 @@
     "title": "Stage 2 Canteen",
     "doc_url": "https://docs.google.com/document/d/18eh0i5jf_EIXEl-cOo0VsWi3Pj-5WvrcV6WD6y3K66I/edit?usp=sharing",
     "created_at": "2026-08-04 15:56:14",
-    "updated_at": "2026-08-11 11:02:20",
-    "last_checked": "2026-08-11 11:01:47",
-    "last_updated": "2026-08-11 11:01:47",
+    "updated_at": "2026-08-14 15:00:00",
+    "last_checked": "2026-08-14 14:58:13",
+    "last_updated": "2026-08-14 14:58:13",
     "refresh_error": "",
     "auto_refresh": true,
     "refresh_interval_minutes": 5,
     "source_pptx": "data/custom_catalogue_uploads/stage-2-canteen.pptx",
     "slide_number": 1,
+    "slide_numbers": [
+      1
+    ],
     "picture_name": "Picture 6",
+    "picture_names": [
+      "Picture 6"
+    ],
     "room_count": 3,
     "room_overrides": {},
     "layout": {
@@ -1326,6 +1384,26 @@
       "height": 1986,
       "aspect": 1.8127
     },
+    "layouts": [
+      {
+        "key": "slide-1",
+        "label": "Map 1 \u00b7 Slide 1",
+        "slide_number": 1,
+        "picture_name": "Picture 6",
+        "picture_names": [
+          "Picture 6"
+        ],
+        "image": "/static/custom_catalogues/stage-2-canteen/layout.png",
+        "width": 3600,
+        "height": 1986,
+        "aspect": 1.8127,
+        "room_codes": [
+          "C-01",
+          "C-02",
+          "C-03"
+        ]
+      }
+    ],
     "rooms": {
       "C-01": {
         "code": "C-01",
@@ -1341,6 +1419,8 @@
         "fillOpacity": 0.18,
         "strokeColor": "#EAB308",
         "strokeWidth": 1.0,
+        "layoutKey": "slide-1",
+        "slideNumber": 1,
         "page": 17,
         "defaultName": "Dish Store & Washing Area",
         "defaultPage": 17
@@ -1359,6 +1439,8 @@
         "fillOpacity": 0.18,
         "strokeColor": "#EAB308",
         "strokeWidth": 1.0,
+        "layoutKey": "slide-1",
+        "slideNumber": 1,
         "page": 16,
         "defaultName": "Kitchen Area",
         "defaultPage": 16
@@ -1377,6 +1459,8 @@
         "fillOpacity": 0.18,
         "strokeColor": "#E5AF08",
         "strokeWidth": 1.0,
+        "layoutKey": "slide-1",
+        "slideNumber": 1,
         "page": 14,
         "defaultName": "Canteen Area",
         "defaultPage": 14
@@ -1388,15 +1472,21 @@
     "title": "Stage 2 Maintenance Office and Laundry Rooms",
     "doc_url": "https://docs.google.com/document/d/15CX4sSyLqvlxwBtSKHW6XlH4SD7Vz_7XQuQ_YkAtJHE/edit?usp=sharing",
     "created_at": "2026-08-04 09:03:36",
-    "updated_at": "2026-08-11 14:10:22",
-    "last_checked": "2026-08-11 14:09:55",
-    "last_updated": "2026-08-11 14:09:55",
+    "updated_at": "2026-08-14 15:00:08",
+    "last_checked": "2026-08-14 14:58:14",
+    "last_updated": "2026-08-14 14:58:14",
     "refresh_error": "",
     "auto_refresh": true,
     "refresh_interval_minutes": 5,
     "source_pptx": "data/custom_catalogue_uploads/stage-2-maintenance-office-and-laundry-rooms.pptx",
     "slide_number": 1,
+    "slide_numbers": [
+      1
+    ],
     "picture_name": "Picture 6",
+    "picture_names": [
+      "Picture 6"
+    ],
     "room_count": 5,
     "room_overrides": {},
     "layout": {
@@ -1406,6 +1496,28 @@
       "height": 1965,
       "aspect": 1.8321
     },
+    "layouts": [
+      {
+        "key": "slide-1",
+        "label": "Map 1 \u00b7 Slide 1",
+        "slide_number": 1,
+        "picture_name": "Picture 6",
+        "picture_names": [
+          "Picture 6"
+        ],
+        "image": "/static/custom_catalogues/stage-2-maintenance-office-and-laundry-rooms/layout.png",
+        "width": 3600,
+        "height": 1965,
+        "aspect": 1.8321,
+        "room_codes": [
+          "C-01",
+          "C-02",
+          "C-03",
+          "C-04",
+          "C-05"
+        ]
+      }
+    ],
     "rooms": {
       "C-01": {
         "code": "C-01",
@@ -1421,6 +1533,8 @@
         "fillOpacity": 0.18,
         "strokeColor": "#C00000",
         "strokeWidth": 1.0,
+        "layoutKey": "slide-1",
+        "slideNumber": 1,
         "page": 20,
         "defaultName": "Laundry Washer RM 2",
         "defaultPage": 20
@@ -1439,6 +1553,8 @@
         "fillOpacity": 0.18,
         "strokeColor": "#C00000",
         "strokeWidth": 1.0,
+        "layoutKey": "slide-1",
+        "slideNumber": 1,
         "page": 19,
         "defaultName": "Laundry Dryer RM 2",
         "defaultPage": 19
@@ -1457,6 +1573,8 @@
         "fillOpacity": 0.18,
         "strokeColor": "#C00000",
         "strokeWidth": 1.0,
+        "layoutKey": "slide-1",
+        "slideNumber": 1,
         "page": 18,
         "defaultName": "Laundry Washer RM 1",
         "defaultPage": 18
@@ -1475,6 +1593,8 @@
         "fillOpacity": 0.18,
         "strokeColor": "#C00000",
         "strokeWidth": 1.0,
+        "layoutKey": "slide-1",
+        "slideNumber": 1,
         "page": 17,
         "defaultName": "Laundry Dryer RM 1",
         "defaultPage": 17
@@ -1493,6 +1613,8 @@
         "fillOpacity": 0.18,
         "strokeColor": "#C00000",
         "strokeWidth": 1.0,
+        "layoutKey": "slide-1",
+        "slideNumber": 1,
         "page": 14,
         "defaultName": "Maintenance Office",
         "defaultPage": 14

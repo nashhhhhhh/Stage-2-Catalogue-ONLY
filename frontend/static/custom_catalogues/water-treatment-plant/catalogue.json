@@ -3,15 +3,21 @@
   "title": "Water Treatment Plant",
   "doc_url": "https://docs.google.com/document/d/1NBjHKRBiQ_E2RmX2XAiTkexKc0czpZqwMVyfQLwe0es/edit?usp=sharing",
   "created_at": "2026-08-13 10:35:07",
-  "updated_at": "2026-08-13 10:37:44",
-  "last_checked": "2026-08-13 10:37:28",
-  "last_updated": "2026-08-13 10:37:28",
+  "updated_at": "2026-08-14 14:58:19",
+  "last_checked": "2026-08-13 10:37:37",
+  "last_updated": "2026-08-13 10:37:37",
   "refresh_error": "",
   "auto_refresh": true,
   "refresh_interval_minutes": 5,
   "source_pptx": "data/custom_catalogue_uploads/water-treatment-plant.pptx",
   "slide_number": 1,
+  "slide_numbers": [
+    1
+  ],
   "picture_name": "Picture 8",
+  "picture_names": [
+    "Picture 8"
+  ],
   "room_count": 1,
   "room_overrides": {},
   "layout": {
@@ -21,6 +27,24 @@
     "height": 1364,
     "aspect": 2.6393
   },
+  "layouts": [
+    {
+      "key": "slide-1",
+      "label": "Map 1 \u00b7 Slide 1",
+      "slide_number": 1,
+      "picture_name": "Picture 8",
+      "picture_names": [
+        "Picture 8"
+      ],
+      "image": "/static/custom_catalogues/water-treatment-plant/layout.png",
+      "width": 3600,
+      "height": 1364,
+      "aspect": 2.6393,
+      "room_codes": [
+        "C-01"
+      ]
+    }
+  ],
   "rooms": {
     "C-01": {
       "code": "C-01",
@@ -32,10 +56,12 @@
       "width": 97.9798,
       "height": 96.1802,
       "svgPath": "M 0.9259 3.6357 L 98.4007 3.6357 L 98.7374 99.8159 L 68.4344 99.3716 L 68.3502 88.7096 L 0.7576 88.7096 L 0.9259 3.6357 Z",
-      "fillColor": "#2563EB",
+      "fillColor": "#0E2841",
       "fillOpacity": 0.36,
-      "strokeColor": "#2563EB",
+      "strokeColor": "#0E2841",
       "strokeWidth": 1,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
       "page": 3,
       "defaultName": "WTP 2nd Floor",
       "defaultPage": 3

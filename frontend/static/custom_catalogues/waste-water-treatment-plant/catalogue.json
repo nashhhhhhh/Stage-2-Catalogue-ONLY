@@ -3,15 +3,21 @@
   "title": "Waste Water Treatment Plant",
   "doc_url": "https://docs.google.com/document/d/1bJ0YFeJogaNX9qSSdLt-1xH1vpJ55VKiJAQZzafdXXM/edit?usp=sharing",
   "created_at": "2026-08-13 10:07:28",
-  "updated_at": "2026-08-13 13:33:35",
-  "last_checked": "2026-08-13 11:54:32",
-  "last_updated": "2026-08-13 11:54:32",
+  "updated_at": "2026-08-14 14:58:21",
+  "last_checked": "2026-08-13 13:33:23",
+  "last_updated": "2026-08-13 13:33:23",
   "refresh_error": "",
   "auto_refresh": true,
   "refresh_interval_minutes": 5,
   "source_pptx": "data/custom_catalogue_uploads/waste-water-treatment-plant.pptx",
   "slide_number": 1,
+  "slide_numbers": [
+    1
+  ],
   "picture_name": "Picture 2",
+  "picture_names": [
+    "Picture 2"
+  ],
   "room_count": 1,
   "room_overrides": {},
   "layout": {
@@ -21,6 +27,24 @@
     "height": 2396,
     "aspect": 1.5025
   },
+  "layouts": [
+    {
+      "key": "slide-1",
+      "label": "Map 1 \u00b7 Slide 1",
+      "slide_number": 1,
+      "picture_name": "Picture 2",
+      "picture_names": [
+        "Picture 2"
+      ],
+      "image": "/static/custom_catalogues/waste-water-treatment-plant/layout.png",
+      "width": 3600,
+      "height": 2396,
+      "aspect": 1.5025,
+      "room_codes": [
+        "C-01"
+      ]
+    }
+  ],
   "rooms": {
     "C-01": {
       "code": "C-01",
@@ -36,6 +60,8 @@
       "fillOpacity": 0.21,
       "strokeColor": "#196B24",
       "strokeWidth": 1.0,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
       "page": 3,
       "defaultName": "WWTP 2nd Floor",
       "defaultPage": 3

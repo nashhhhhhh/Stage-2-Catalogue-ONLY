@@ -3,15 +3,21 @@
   "title": "Stage 2 Maintenance Office and Laundry Rooms",
   "doc_url": "https://docs.google.com/document/d/15CX4sSyLqvlxwBtSKHW6XlH4SD7Vz_7XQuQ_YkAtJHE/edit?usp=sharing",
   "created_at": "2026-08-04 09:03:36",
-  "updated_at": "2026-08-11 14:10:22",
-  "last_checked": "2026-08-11 13:49:16",
-  "last_updated": "2026-08-11 13:49:16",
+  "updated_at": "2026-08-14 15:00:08",
+  "last_checked": "2026-08-14 14:58:14",
+  "last_updated": "2026-08-14 14:58:14",
   "refresh_error": "",
   "auto_refresh": true,
   "refresh_interval_minutes": 5,
   "source_pptx": "data/custom_catalogue_uploads/stage-2-maintenance-office-and-laundry-rooms.pptx",
   "slide_number": 1,
+  "slide_numbers": [
+    1
+  ],
   "picture_name": "Picture 6",
+  "picture_names": [
+    "Picture 6"
+  ],
   "room_count": 5,
   "room_overrides": {},
   "layout": {
@@ -21,6 +27,28 @@
     "height": 1965,
     "aspect": 1.8321
   },
+  "layouts": [
+    {
+      "key": "slide-1",
+      "label": "Map 1 \u00b7 Slide 1",
+      "slide_number": 1,
+      "picture_name": "Picture 6",
+      "picture_names": [
+        "Picture 6"
+      ],
+      "image": "/static/custom_catalogues/stage-2-maintenance-office-and-laundry-rooms/layout.png",
+      "width": 3600,
+      "height": 1965,
+      "aspect": 1.8321,
+      "room_codes": [
+        "C-01",
+        "C-02",
+        "C-03",
+        "C-04",
+        "C-05"
+      ]
+    }
+  ],
   "rooms": {
     "C-01": {
       "code": "C-01",
@@ -36,6 +64,8 @@
       "fillOpacity": 0.18,
       "strokeColor": "#C00000",
       "strokeWidth": 1.0,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
       "page": 20,
       "defaultName": "Laundry Washer RM 2",
       "defaultPage": 20
@@ -54,6 +84,8 @@
       "fillOpacity": 0.18,
       "strokeColor": "#C00000",
       "strokeWidth": 1.0,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
       "page": 19,
       "defaultName": "Laundry Dryer RM 2",
       "defaultPage": 19
@@ -72,6 +104,8 @@
       "fillOpacity": 0.18,
       "strokeColor": "#C00000",
       "strokeWidth": 1.0,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
       "page": 18,
       "defaultName": "Laundry Washer RM 1",
       "defaultPage": 18
@@ -90,6 +124,8 @@
       "fillOpacity": 0.18,
       "strokeColor": "#C00000",
       "strokeWidth": 1.0,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
       "page": 17,
       "defaultName": "Laundry Dryer RM 1",
       "defaultPage": 17
@@ -108,6 +144,8 @@
       "fillOpacity": 0.18,
       "strokeColor": "#C00000",
       "strokeWidth": 1.0,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
       "page": 14,
       "defaultName": "Maintenance Office",
       "defaultPage": 14

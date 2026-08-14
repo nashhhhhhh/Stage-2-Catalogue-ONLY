@@ -3,15 +3,21 @@
   "title": "Stage 2 Canteen",
   "doc_url": "https://docs.google.com/document/d/18eh0i5jf_EIXEl-cOo0VsWi3Pj-5WvrcV6WD6y3K66I/edit?usp=sharing",
   "created_at": "2026-08-04 15:56:14",
-  "updated_at": "2026-08-11 11:02:20",
-  "last_checked": "2026-08-11 09:37:27",
-  "last_updated": "2026-08-11 09:37:27",
+  "updated_at": "2026-08-14 15:00:00",
+  "last_checked": "2026-08-14 14:58:13",
+  "last_updated": "2026-08-14 14:58:13",
   "refresh_error": "",
   "auto_refresh": true,
   "refresh_interval_minutes": 5,
   "source_pptx": "data/custom_catalogue_uploads/stage-2-canteen.pptx",
   "slide_number": 1,
+  "slide_numbers": [
+    1
+  ],
   "picture_name": "Picture 6",
+  "picture_names": [
+    "Picture 6"
+  ],
   "room_count": 3,
   "room_overrides": {},
   "layout": {
@@ -21,6 +27,26 @@
     "height": 1986,
     "aspect": 1.8127
   },
+  "layouts": [
+    {
+      "key": "slide-1",
+      "label": "Map 1 \u00b7 Slide 1",
+      "slide_number": 1,
+      "picture_name": "Picture 6",
+      "picture_names": [
+        "Picture 6"
+      ],
+      "image": "/static/custom_catalogues/stage-2-canteen/layout.png",
+      "width": 3600,
+      "height": 1986,
+      "aspect": 1.8127,
+      "room_codes": [
+        "C-01",
+        "C-02",
+        "C-03"
+      ]
+    }
+  ],
   "rooms": {
     "C-01": {
       "code": "C-01",
@@ -36,6 +62,8 @@
       "fillOpacity": 0.18,
       "strokeColor": "#EAB308",
       "strokeWidth": 1.0,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
       "page": 17,
       "defaultName": "Dish Store & Washing Area",
       "defaultPage": 17
@@ -54,6 +82,8 @@
       "fillOpacity": 0.18,
       "strokeColor": "#EAB308",
       "strokeWidth": 1.0,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
       "page": 16,
       "defaultName": "Kitchen Area",
       "defaultPage": 16
@@ -72,6 +102,8 @@
       "fillOpacity": 0.18,
       "strokeColor": "#E5AF08",
       "strokeWidth": 1.0,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
       "page": 14,
       "defaultName": "Canteen Area",
       "defaultPage": 14
