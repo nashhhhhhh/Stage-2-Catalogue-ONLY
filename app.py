@@ -8,6 +8,7 @@ import re
 import subprocess
 import sys
 import threading
+import time
 from datetime import datetime
 from urllib.parse import parse_qs, urlencode, urlparse
 from urllib.request import ProxyHandler, Request, build_opener
@@ -21,7 +22,17 @@ DATA_DIR = os.path.join(BASE_DIR, "data")
 BACKEND_DIR = os.path.join(BASE_DIR, "backend")
 sys.path.insert(0, BACKEND_DIR)
 
-from custom_catalogue_service import create_custom_catalogue, get_custom_catalogue, load_custom_catalogues
+from custom_catalogue_service import (
+    create_custom_catalogue,
+    get_pdf_contents_links,
+    get_custom_catalogue,
+    load_custom_catalogues,
+    match_pdf_headers_to_rooms,
+    match_pdf_pages_to_rooms,
+    rebuild_custom_catalogue,
+    save_custom_catalogues,
+    upsert_custom_catalogue_room,
+)
 from machine_catalogue_service import (
     apply_room_overrides,
     delete_machine,
@@ -43,6 +54,19 @@ app = Flask(
     template_folder=FRONTEND_DIR,
 )
 app.config["SEND_FILE_MAX_AGE_DEFAULT"] = 300
+
+
+@app.after_request
+def prevent_stale_custom_catalogue_assets(response):
+    if request.path.startswith((
+        "/api/catalogue/custom",
+        "/static/custom_catalogues/",
+        "/catalogue/custom/",
+    )) or request.path in {"/", "/layout"}:
+        response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+        response.headers["Pragma"] = "no-cache"
+        response.headers["Expires"] = "0"
+    return response
 
 FRONTEND_STATIC_DATA_DIR = os.path.join(FRONTEND_DIR, "static", "data")
 LAYOUT_SOURCE_CONFIG_PATH = os.path.join(FRONTEND_STATIC_DATA_DIR, "layout_source_config.json")
@@ -81,7 +105,11 @@ _CATALOGUE_REFRESH_STATE = {}
 _CATALOGUE_REFRESH_LOCK = threading.Lock()
 _CATALOGUE_METADATA_LOCK = threading.Lock()
 _CATALOGUE_TOC_CACHE = {}
+_CATALOGUE_ROOM_PAGE_CACHE = {}
 _CATALOGUE_ASSET_COUNT_CACHE = {}
+_CUSTOM_CATALOGUE_REFRESH_STATE = {}
+_CUSTOM_CATALOGUE_REFRESH_LOCK = threading.Lock()
+_CUSTOM_CATALOGUE_REGISTRY_LOCK = threading.Lock()
 
 
 def read_json_file(path, fallback):
@@ -143,18 +171,40 @@ def download_google_doc_pdf(doc_url):
 
     parsed_url = urlparse(doc_url.strip())
     tab_id = parse_qs(parsed_url.query).get("tab", [""])[0]
-    export_params = {"format": "pdf"}
-    if tab_id:
-        export_params["tab"] = tab_id
-
-    export_url = f"https://docs.google.com/document/d/{doc_id}/export?{urlencode(export_params)}"
+    # Google can cache repeated export URLs for a short time. A unique query
+    # value makes a manual refresh retrieve the current document contents.
     opener = build_opener(ProxyHandler({}))
-    with opener.open(Request(export_url, headers={"User-Agent": "Mozilla/5.0"}), timeout=180) as response:
-        pdf_bytes = response.read()
-
-    if not pdf_bytes.startswith(b"%PDF"):
-        raise ValueError("Google Docs did not return a PDF. Check that the document is shared for viewing.")
-    return pdf_bytes, doc_id
+    last_error = None
+    for attempt in range(3):
+        export_params = {
+            "format": "pdf",
+            "_refresh": str(int(datetime.now().timestamp() * 1_000_000)),
+        }
+        if tab_id:
+            export_params["tab"] = tab_id
+        export_url = f"https://docs.google.com/document/d/{doc_id}/export?{urlencode(export_params)}"
+        try:
+            with opener.open(Request(export_url, headers={
+                "User-Agent": "Mozilla/5.0",
+                "Cache-Control": "no-cache, no-store, max-age=0",
+                "Pragma": "no-cache",
+            }), timeout=180) as response:
+                pdf_bytes = response.read()
+            if pdf_bytes.startswith(b"%PDF"):
+                return pdf_bytes, doc_id
+            last_error = ValueError(
+                "Google Docs did not return a PDF. Check that the document is shared so anyone with the link can view it."
+            )
+        except Exception as error:
+            last_error = error
+        if attempt < 2:
+            time.sleep(0.75 * (attempt + 1))
+    if isinstance(last_error, ValueError):
+        raise last_error
+    raise RuntimeError(
+        "Google Docs could not be downloaded after 3 attempts. Check sharing permissions and try again. "
+        f"Technical detail: {last_error}"
+    ) from last_error
 
 
 def get_catalogue_pdf_version(pdf_url):
@@ -214,6 +264,34 @@ def get_pdf_contents_link_pages(pdf_url):
     cache_key = (pdf_path, signature)
     if cache_key in _CATALOGUE_TOC_CACHE:
         return _CATALOGUE_TOC_CACHE[cache_key]
+
+    # PyMuPDF resolves Google Docs named destinations without loading and
+    # scanning the complete PDF byte stream. Catalogue links use the same
+    # wide, 108-point-indented rectangles in each exported document.
+    if fitz:
+        try:
+            with fitz.open(pdf_path) as document:
+                link_pages = []
+                for page in document:
+                    for link in page.get_links():
+                        rectangle = link.get("from")
+                        destination_page = link.get("page")
+                        if (
+                            rectangle
+                            and isinstance(destination_page, int)
+                            and destination_page >= 0
+                            and abs(rectangle.x0 - 108) < 0.5
+                            and rectangle.width > 250
+                        ):
+                            link_pages.append(destination_page + 1)
+                if link_pages:
+                    _CATALOGUE_TOC_CACHE[cache_key] = link_pages
+                    return link_pages
+        except Exception:
+            # Retain the byte-level parser below for unusual PDFs that
+            # PyMuPDF cannot open or whose links it cannot resolve.
+            pass
+
     try:
         with open(pdf_path, "rb") as pdf_file:
             pdf_bytes = pdf_file.read()
@@ -259,10 +337,66 @@ def apply_catalogue_toc_pages(catalogue_map):
     for room_entries in risk_groups.values():
         room_entries.sort(key=lambda item: item[0])
         pdf_url = next((details.get("pdf") for _, details in room_entries if details.get("pdf")), "")
-        toc_pages = get_pdf_contents_link_pages(pdf_url)
-        if len(toc_pages) >= len(room_entries):
-            for index, (code, _) in enumerate(room_entries):
-                updated_map[code]["page"] = toc_pages[index]
+        pdf_path = get_catalogue_pdf_path(pdf_url) if pdf_url else ""
+        signature = get_file_signature(pdf_path) if pdf_path else None
+        if not signature:
+            continue
+
+        room_signature = tuple(
+            (code, details.get("name", ""), details.get("page"))
+            for code, details in room_entries
+        )
+        cache_key = (pdf_path, signature, room_signature)
+        detected_pages = _CATALOGUE_ROOM_PAGE_CACHE.get(cache_key)
+        if detected_pages is None:
+            detected_pages = {}
+            try:
+                with open(pdf_path, "rb") as pdf_file:
+                    pdf_bytes = pdf_file.read()
+                rooms = {
+                    code: {**details, "code": code}
+                    for code, details in room_entries
+                }
+
+                # Match the Google Docs contents links by room code/name first.
+                # Unlike the old positional mapper, one missing contents entry
+                # does not shift or disable every room below it.
+                matched_rooms, link_match_count = match_pdf_pages_to_rooms(
+                    rooms,
+                    get_pdf_contents_links(pdf_bytes),
+                )
+
+                # Visible headings at the top of each PDF page are the final
+                # source of truth. They double-check links and correct shifted
+                # page numbers after pages are inserted in Google Docs.
+                verified_rooms, header_match_count = match_pdf_headers_to_rooms(
+                    matched_rooms,
+                    pdf_bytes,
+                )
+                if link_match_count or header_match_count:
+                    detected_pages = {
+                        code: int(room["page"])
+                        for code, room in verified_rooms.items()
+                        if room.get("page") not in (None, "")
+                    }
+            except Exception:
+                detected_pages = {}
+
+            # Retain the original all-or-nothing positional fallback only for
+            # unusual PDFs where neither link text nor visible headings can be
+            # read reliably.
+            if not detected_pages:
+                toc_pages = get_pdf_contents_link_pages(pdf_url)
+                if len(toc_pages) >= len(room_entries):
+                    detected_pages = {
+                        code: toc_pages[index]
+                        for index, (code, _) in enumerate(room_entries)
+                    }
+            _CATALOGUE_ROOM_PAGE_CACHE[cache_key] = detected_pages
+
+        for code, page_number in detected_pages.items():
+            if code in updated_map:
+                updated_map[code]["page"] = page_number
     return updated_map
 
 
@@ -291,8 +425,10 @@ def load_all_catalogue_metadata():
 def save_all_catalogue_metadata(metadata):
     metadata_path = get_catalogue_metadata_path()
     os.makedirs(os.path.dirname(metadata_path), exist_ok=True)
-    with open(metadata_path, "w", encoding="utf-8") as metadata_file:
+    temp_path = f"{metadata_path}.tmp"
+    with open(temp_path, "w", encoding="utf-8") as metadata_file:
         json.dump(metadata, metadata_file, indent=2)
+    os.replace(temp_path, metadata_path)
 
 
 def refresh_catalogue_from_source(risk_area, force=False):
@@ -328,6 +464,7 @@ def refresh_catalogue_from_source(risk_area, force=False):
                 pdf_file.write(pdf_bytes)
             os.replace(temp_path, pdf_path)
             _CATALOGUE_TOC_CACHE.clear()
+            _CATALOGUE_ROOM_PAGE_CACHE.clear()
             _CATALOGUE_ASSET_COUNT_CACHE.clear()
 
         with _CATALOGUE_METADATA_LOCK:
@@ -375,6 +512,88 @@ def schedule_catalogue_refresh(risk_area, force=False):
     ).start()
 
 
+def update_custom_catalogue_metadata(slug, updates):
+    with _CUSTOM_CATALOGUE_REGISTRY_LOCK:
+        catalogues = load_custom_catalogues()
+        updated_catalogue = None
+        for catalogue in catalogues:
+            if catalogue.get("slug") == slug:
+                catalogue.update(updates)
+                updated_catalogue = catalogue
+                break
+        if updated_catalogue is not None:
+            save_custom_catalogues(catalogues)
+        return updated_catalogue
+
+
+def refresh_custom_catalogue_from_source(slug, force=False):
+    catalogue = get_custom_catalogue(slug)
+    if not catalogue:
+        return False
+    source_url = (catalogue.get("doc_url") or "").strip()
+    if not source_url:
+        return False
+
+    now = datetime.now()
+    with _CUSTOM_CATALOGUE_REFRESH_LOCK:
+        state = _CUSTOM_CATALOGUE_REFRESH_STATE.setdefault(slug, {"running": False, "last_attempt": None})
+        last_attempt = state.get("last_attempt")
+        if state["running"] or (
+            not force
+            and last_attempt
+            and (now - last_attempt).total_seconds() < CATALOGUE_AUTO_REFRESH_SECONDS
+        ):
+            return False
+        state["running"] = True
+        state["last_attempt"] = now
+
+    try:
+        pdf_bytes, _doc_id = download_google_doc_pdf(source_url)
+        pdf_url = (catalogue.get("layout") or {}).get("pdf", "")
+        pdf_path = get_catalogue_pdf_path(pdf_url) if pdf_url else ""
+        existing_digest = ""
+        if pdf_path and os.path.exists(pdf_path):
+            with open(pdf_path, "rb") as existing_file:
+                existing_digest = hashlib.sha256(existing_file.read()).hexdigest()
+        changed = hashlib.sha256(pdf_bytes).hexdigest() != existing_digest
+        if changed:
+            rebuild_custom_catalogue(slug, pdf_bytes=pdf_bytes)
+
+        updates = {
+            "auto_refresh": True,
+            "refresh_interval_minutes": CATALOGUE_AUTO_REFRESH_SECONDS // 60,
+            "last_checked": now.strftime("%Y-%m-%d %H:%M:%S"),
+            "refresh_error": "",
+        }
+        if changed or not catalogue.get("last_updated"):
+            updates["last_updated"] = now.strftime("%Y-%m-%d %H:%M:%S")
+        update_custom_catalogue_metadata(slug, updates)
+        return changed
+    except Exception as error:
+        update_custom_catalogue_metadata(slug, {
+            "auto_refresh": True,
+            "refresh_interval_minutes": CATALOGUE_AUTO_REFRESH_SECONDS // 60,
+            "last_checked": now.strftime("%Y-%m-%d %H:%M:%S"),
+            "refresh_error": str(error),
+        })
+        return False
+    finally:
+        with _CUSTOM_CATALOGUE_REFRESH_LOCK:
+            _CUSTOM_CATALOGUE_REFRESH_STATE[slug]["running"] = False
+
+
+def schedule_custom_catalogue_refresh(slug, force=False):
+    catalogue = get_custom_catalogue(slug)
+    if not catalogue or not (catalogue.get("doc_url") or "").strip():
+        return
+    threading.Thread(
+        target=refresh_custom_catalogue_from_source,
+        args=(slug, force),
+        daemon=True,
+        name=f"custom-catalogue-refresh-{slug}",
+    ).start()
+
+
 def apply_current_catalogue_files(catalogue_map):
     metadata = load_all_catalogue_metadata()
     versioned_map = {}
@@ -415,20 +634,76 @@ def count_catalogue_page_assets(pdf_path, page_number):
     return count
 
 
+def count_catalogue_assets_for_pages(pdf_path, page_numbers):
+    """Count several catalogue pages while opening the PDF only once."""
+    results = {}
+    if not fitz or not pdf_path:
+        return results
+    signature = get_file_signature(pdf_path)
+    if not signature:
+        return results
+
+    requested_pages = sorted({int(page) for page in page_numbers if page})
+    uncached_pages = []
+    for page_number in requested_pages:
+        cache_key = (pdf_path, signature, page_number)
+        if cache_key in _CATALOGUE_ASSET_COUNT_CACHE:
+            results[page_number] = _CATALOGUE_ASSET_COUNT_CACHE[cache_key]
+        else:
+            uncached_pages.append(page_number)
+
+    if not uncached_pages:
+        return results
+
+    try:
+        with fitz.open(pdf_path) as document:
+            for page_number in uncached_pages:
+                page_index = page_number - 1
+                if page_index < 0 or page_index >= document.page_count:
+                    continue
+                text = normalize_catalogue_pdf_text(document[page_index].get_text())
+                count = 0
+                for line in text.splitlines():
+                    match = re.match(r"\s*[●•]\s*(\d+)\b", line)
+                    if match:
+                        count += int(match.group(1))
+                cache_key = (pdf_path, signature, page_number)
+                _CATALOGUE_ASSET_COUNT_CACHE[cache_key] = count
+                results[page_number] = count
+    except Exception:
+        return results
+    return results
+
+
 def build_catalogue_asset_counts():
     current_catalogue_map = apply_catalogue_toc_pages(
         apply_room_overrides(apply_current_catalogue_files(CATALOGUE_PAGE_MAP))
     )
     counts = {}
+    rooms_by_pdf = {}
     for code, details in current_catalogue_map.items():
         pdf_url = details.get("pdf")
         page_number = details.get("page")
-        count = count_catalogue_page_assets(get_catalogue_pdf_path(pdf_url), page_number) if pdf_url else None
+        if pdf_url and page_number:
+            pdf_path = get_catalogue_pdf_path(pdf_url)
+            rooms_by_pdf.setdefault(pdf_path, []).append((code, int(page_number)))
         counts[code] = {
-            "asset_count": count if count is not None else 0,
+            "asset_count": 0,
             "page": page_number,
-            "source": "catalogue_pdf" if count is not None else "missing",
+            "source": "missing",
         }
+
+    for pdf_path, room_entries in rooms_by_pdf.items():
+        page_counts = count_catalogue_assets_for_pages(
+            pdf_path,
+            (page_number for _, page_number in room_entries),
+        )
+        for code, page_number in room_entries:
+            if page_number in page_counts:
+                counts[code].update({
+                    "asset_count": page_counts[page_number],
+                    "source": "catalogue_pdf",
+                })
     return counts
 
 
@@ -494,6 +769,93 @@ def build_layout_source_payload():
         "slide_count": get_pptx_slide_count(pptx_path) if os.path.exists(pptx_path) else None,
         "layouts": layouts,
     }
+
+
+def build_catalogue_management_payload():
+    metadata = load_all_catalogue_metadata()
+    layout_source = build_layout_source_payload()
+    built_in_titles = {
+        "medium": "Factory - Medium Risk",
+        "high": "Factory - High Risk",
+        "low": "Factory - Low Risk",
+        "office": "Incoming Warehouse Office",
+    }
+    catalogues = []
+    for risk_area, title in built_in_titles.items():
+        details = metadata.get(risk_area, {})
+        layout_keys = ["incoming-office-level-1", "incoming-office-level-2"] if risk_area == "office" else ["factory"]
+        catalogues.append({
+            "id": f"area:{risk_area}",
+            "kind": "area",
+            "risk_area": risk_area,
+            "title": title,
+            "source_url": details.get("source_url", ""),
+            "last_checked": details.get("last_checked", ""),
+            "last_updated": details.get("last_updated", ""),
+            "refresh_error": details.get("refresh_error", ""),
+            "refresh_interval_minutes": details.get("refresh_interval_minutes", CATALOGUE_AUTO_REFRESH_SECONDS // 60),
+            "source_pptx": layout_source.get("source_pptx", ""),
+            "source_name": layout_source.get("source_name", ""),
+            "source_exists": layout_source.get("source_exists", False),
+            "slide_count": layout_source.get("slide_count"),
+            "shared_layout": True,
+            "layouts": {
+                key: layout_source.get("layouts", {}).get(key, {})
+                for key in layout_keys
+            },
+        })
+
+    for item in load_custom_catalogues():
+        slug = item.get("slug")
+        if not slug:
+            continue
+        layout = item.get("layout") or {}
+        source_pptx = item.get("source_pptx", "")
+        source_pptx_path = os.path.join(BASE_DIR, source_pptx) if source_pptx else ""
+        saved_layouts = item.get("layouts") or [{
+            "key": "custom",
+            "label": item.get("title") or slug,
+            "slide_number": item.get("slide_number", 1),
+            "picture_name": item.get("picture_name", ""),
+            "image": layout.get("image", ""),
+            "width": layout.get("width"),
+            "height": layout.get("height"),
+            "aspect": layout.get("aspect"),
+            "room_codes": list((item.get("rooms") or {}).keys()),
+            "room_count": item.get("room_count", len(item.get("rooms") or {})),
+        }]
+        catalogues.append({
+            "id": f"custom:{slug}",
+            "kind": "custom",
+            "slug": slug,
+            "title": item.get("title") or slug,
+            "source_url": item.get("doc_url", ""),
+            "last_checked": item.get("last_checked", ""),
+            "last_updated": item.get("last_updated", item.get("updated_at", "")),
+            "refresh_error": item.get("refresh_error", ""),
+            "refresh_interval_minutes": item.get("refresh_interval_minutes", CATALOGUE_AUTO_REFRESH_SECONDS // 60),
+            "source_pptx": source_pptx,
+            "source_name": os.path.basename(source_pptx),
+            "source_exists": bool(source_pptx_path and os.path.isfile(source_pptx_path)),
+            "slide_count": get_pptx_slide_count(source_pptx_path) if source_pptx_path else None,
+            "shared_layout": False,
+            "room_count": item.get("room_count", len(item.get("rooms") or {})),
+            "layouts": {
+                saved_layout.get("key", f"slide-{saved_layout.get('slide_number', 1)}"): {
+                    "label": saved_layout.get("label") or item.get("title") or slug,
+                    "slide": saved_layout.get("slide_number", 1),
+                    "picture": saved_layout.get("picture_name", ""),
+                    "target_width": layout.get("width", 3600),
+                    "width": saved_layout.get("width"),
+                    "height": saved_layout.get("height"),
+                    "aspect": saved_layout.get("aspect"),
+                    "image": saved_layout.get("image", ""),
+                    "room_count": saved_layout.get("room_count", len(saved_layout.get("room_codes") or [])),
+                }
+                for saved_layout in saved_layouts
+            },
+        })
+    return {"catalogues": catalogues}
 
 
 def rebuild_layout_sources():
@@ -578,6 +940,12 @@ def catalogue_create_page():
 @app.route("/catalogue/custom/<slug>")
 def custom_catalogue_view(slug):
     catalogue = get_custom_catalogue(slug)
+    if catalogue:
+        schedule_custom_catalogue_refresh(slug)
+        catalogue = copy.deepcopy(catalogue)
+        pdf_url = (catalogue.get("layout") or {}).get("pdf", "")
+        catalogue["pdfVersion"] = get_catalogue_pdf_version(pdf_url)
+        catalogue["refresh_interval_minutes"] = CATALOGUE_AUTO_REFRESH_SECONDS // 60
     return render_template("custom_catalogue_view.html", custom_catalogue=catalogue), 200 if catalogue else 404
 
 
@@ -600,6 +968,11 @@ def catalogue_status(risk_area):
 @app.route("/api/catalogue/layout-source")
 def catalogue_layout_source():
     return jsonify(build_layout_source_payload())
+
+
+@app.route("/api/catalogue/management/catalogues")
+def catalogue_management_catalogues():
+    return jsonify(build_catalogue_management_payload())
 
 
 @app.route("/api/catalogue/layout-source", methods=["POST"])
@@ -668,14 +1041,17 @@ def catalogue_asset_counts():
 
 @app.route("/api/catalogue/rooms")
 def catalogue_rooms():
-    current_catalogue_map = apply_room_overrides(apply_current_catalogue_files(CATALOGUE_PAGE_MAP))
+    current_catalogue_map = apply_catalogue_toc_pages(
+        apply_room_overrides(apply_current_catalogue_files(CATALOGUE_PAGE_MAP))
+    )
     layout_labels = {
         "high": "Factory - High Risk",
         "medium": "Factory - Medium Risk",
         "low": "Factory - Low Risk",
         "office": "Incoming Warehouse Office",
     }
-    room_rows = [
+    selected_catalogue = request.args.get("catalogue", "").strip()
+    built_in_rows = [
         {
             "code": code,
             "name": details.get("name", ""),
@@ -684,16 +1060,77 @@ def catalogue_rooms():
             "page": details.get("page"),
             "risk_key": get_catalogue_risk_key(code),
             "layout": layout_labels.get(get_catalogue_risk_key(code), "Factory"),
+            "catalogue_id": f"area:{get_catalogue_risk_key(code)}",
         }
         for code, details in current_catalogue_map.items()
     ]
-    return jsonify(sorted(room_rows, key=lambda row: (row["layout"], row["code"])))
+    if not selected_catalogue:
+        return jsonify(sorted(built_in_rows, key=lambda row: (row["layout"], row["code"])))
+    if selected_catalogue.startswith("area:"):
+        risk_key = selected_catalogue.removeprefix("area:")
+        if risk_key not in {"medium", "high", "low", "office"}:
+            return jsonify({"error": "Invalid catalogue"}), 400
+        return jsonify(sorted(
+            (row for row in built_in_rows if row["risk_key"] == risk_key),
+            key=lambda row: row["code"],
+        ))
+    if selected_catalogue.startswith("custom:"):
+        slug = selected_catalogue.removeprefix("custom:")
+        catalogue = get_custom_catalogue(slug)
+        if not catalogue:
+            return jsonify({"error": "Catalogue not found"}), 404
+        rows = [
+            {
+                "code": code,
+                "name": details.get("name", ""),
+                "default_name": details.get("defaultName", details.get("name", "")),
+                "name_override": (catalogue.get("room_overrides") or {}).get(code, {}).get("name", ""),
+                "page": details.get("page"),
+                "risk_key": "catalogue",
+                "layout": catalogue.get("title", slug),
+                "catalogue_id": f"custom:{catalogue['slug']}",
+            }
+            for code, details in (catalogue.get("rooms") or {}).items()
+        ]
+        return jsonify(sorted(rows, key=lambda row: row["code"]))
+    return jsonify({"error": "Invalid catalogue"}), 400
+
+
+@app.route("/api/catalogue/room-catalogues")
+def catalogue_room_catalogues():
+    current_catalogue_map = apply_room_overrides(apply_current_catalogue_files(CATALOGUE_PAGE_MAP))
+    built_in_labels = {
+        "medium": "Factory - Medium Risk",
+        "high": "Factory - High Risk",
+        "low": "Factory - Low Risk",
+        "office": "Incoming Warehouse Office",
+    }
+    counts = {key: 0 for key in built_in_labels}
+    for code in current_catalogue_map:
+        risk_key = get_catalogue_risk_key(code)
+        if risk_key in counts:
+            counts[risk_key] += 1
+    catalogues = [
+        {"id": f"area:{key}", "title": title, "room_count": counts[key]}
+        for key, title in built_in_labels.items()
+    ]
+    catalogues.extend({
+        "id": f"custom:{item.get('slug')}",
+        "title": item.get("title") or item.get("slug"),
+        "room_count": item.get("room_count", len(item.get("rooms") or {})),
+    } for item in load_custom_catalogues() if item.get("slug"))
+    return jsonify(catalogues)
 
 
 @app.route("/api/catalogue/rooms", methods=["POST"])
 def save_catalogue_room():
+    payload = request.get_json(silent=True) or {}
+    catalogue_id = str(payload.get("catalogue_id") or "").strip()
     try:
-        room = upsert_room_override(request.get_json(silent=True) or {})
+        if catalogue_id.startswith("custom:"):
+            room = upsert_custom_catalogue_room(catalogue_id.removeprefix("custom:"), payload)
+        else:
+            room = upsert_room_override(payload)
     except ValueError as error:
         return jsonify({"error": str(error)}), 400
     return jsonify({"room": room})
@@ -709,8 +1146,11 @@ def list_custom_catalogue_api():
             "created_at": item.get("created_at"),
             "updated_at": item.get("updated_at"),
             "slide_number": item.get("slide_number"),
+            "slide_numbers": item.get("slide_numbers", [item.get("slide_number", 1)]),
             "picture_name": item.get("picture_name"),
             "room_count": item.get("room_count", len(item.get("rooms", {}))),
+            "layout": item.get("layout", {}),
+            "layouts": item.get("layouts", []),
             "view_url": f"/catalogue/custom/{item.get('slug')}",
         }
         for item in load_custom_catalogues()
@@ -723,6 +1163,184 @@ def get_custom_catalogue_api(slug):
     if not catalogue:
         return jsonify({"error": "Custom catalogue not found"}), 404
     return jsonify(catalogue)
+
+
+@app.route("/api/catalogue/custom/<slug>/status")
+def custom_catalogue_status(slug):
+    catalogue = get_custom_catalogue(slug)
+    if not catalogue:
+        return jsonify({"error": "Custom catalogue not found"}), 404
+    schedule_custom_catalogue_refresh(slug)
+    pdf_url = (catalogue.get("layout") or {}).get("pdf", "")
+    return jsonify({
+        "slug": slug,
+        "version": get_catalogue_pdf_version(pdf_url),
+        "metadata": {
+            "auto_refresh": bool(catalogue.get("doc_url")),
+            "refresh_interval_minutes": CATALOGUE_AUTO_REFRESH_SECONDS // 60,
+            "last_checked": catalogue.get("last_checked", ""),
+            "last_updated": catalogue.get("last_updated", catalogue.get("updated_at", "")),
+            "refresh_error": catalogue.get("refresh_error", ""),
+        },
+    })
+
+
+@app.route("/api/catalogue/<risk_area>/refresh", methods=["POST"])
+def refresh_area_catalogue_api(risk_area):
+    normalized_risk = risk_area.strip().lower()
+    if normalized_risk not in {"medium", "high", "low", "office"}:
+        return jsonify({"error": "Invalid catalogue area"}), 400
+    if not load_catalogue_metadata(normalized_risk).get("source_url"):
+        return jsonify({"error": "This catalogue does not have a Google Docs source link"}), 400
+
+    changed = refresh_catalogue_from_source(normalized_risk, force=True)
+    metadata = load_catalogue_metadata(normalized_risk)
+    current_file = metadata.get("current_file", "")
+    pdf_url = get_catalogue_pdf_url(current_file) if current_file else ""
+    refresh_error = metadata.get("refresh_error", "")
+    response = {
+        "changed": changed,
+        "version": get_catalogue_pdf_version(pdf_url) if pdf_url else "missing",
+        "metadata": metadata,
+    }
+    if refresh_error:
+        response["error"] = refresh_error
+        return jsonify(response), 502
+    return jsonify(response)
+
+
+@app.route("/api/catalogue/custom/<slug>/refresh", methods=["POST"])
+def refresh_custom_catalogue_api(slug):
+    if not get_custom_catalogue(slug):
+        return jsonify({"error": "Custom catalogue not found"}), 404
+    changed = refresh_custom_catalogue_from_source(slug, force=True)
+    catalogue = get_custom_catalogue(slug) or {}
+    pdf_url = (catalogue.get("layout") or {}).get("pdf", "")
+    refresh_error = catalogue.get("refresh_error", "")
+    response = {
+        "changed": changed,
+        "version": get_catalogue_pdf_version(pdf_url),
+        "metadata": {
+            "last_checked": catalogue.get("last_checked", ""),
+            "last_updated": catalogue.get("last_updated", catalogue.get("updated_at", "")),
+            "refresh_error": refresh_error,
+        },
+    }
+    if refresh_error:
+        response["error"] = refresh_error
+        return jsonify(response), 502
+    return jsonify(response)
+
+
+@app.route("/api/catalogue/custom/<slug>/rebuild", methods=["POST"])
+def rebuild_custom_catalogue_api(slug):
+    try:
+        catalogue = rebuild_custom_catalogue(slug)
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 400
+    except Exception as error:
+        return jsonify({"error": f"Unable to rebuild the custom catalogue: {error}"}), 500
+    return jsonify({
+        "catalogue": {
+            "slug": catalogue["slug"],
+            "title": catalogue["title"],
+            "room_count": catalogue["room_count"],
+            "view_url": f"/catalogue/custom/{catalogue['slug']}",
+        }
+    })
+
+
+@app.route("/api/catalogue/custom/<slug>/update", methods=["POST"])
+def update_custom_catalogue_api(slug):
+    current = get_custom_catalogue(slug)
+    if not current:
+        return jsonify({"error": "Catalogue not found"}), 404
+
+    title = request.form.get("title", current.get("title", "")).strip()
+    doc_url = request.form.get("doc_url", current.get("doc_url", "")).strip()
+    pptx_file = request.files.get("pptx_file")
+    if not title:
+        return jsonify({"error": "Catalogue name is required"}), 400
+    if not doc_url:
+        return jsonify({"error": "Google Docs link is required"}), 400
+    if pptx_file and pptx_file.filename and not pptx_file.filename.lower().endswith(".pptx"):
+        return jsonify({"error": "Upload a .pptx PowerPoint file"}), 400
+
+    current_pdf_url = (current.get("layout") or {}).get("pdf", "")
+    current_pdf_path = get_catalogue_pdf_path(current_pdf_url) if current_pdf_url else ""
+    source_changed = doc_url != (current.get("doc_url") or "").strip()
+    try:
+        if source_changed or not current_pdf_path or not os.path.isfile(current_pdf_path):
+            pdf_bytes, _doc_id = download_google_doc_pdf(doc_url)
+        else:
+            with open(current_pdf_path, "rb") as pdf_file:
+                pdf_bytes = pdf_file.read()
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 400
+    except Exception as error:
+        return jsonify({"error": f"Unable to reach the public Google Doc. Technical detail: {error}"}), 502
+
+    source_pptx = os.path.join(BASE_DIR, current.get("source_pptx", ""))
+    temp_path = ""
+    if pptx_file and pptx_file.filename:
+        temp_dir = os.path.join(DATA_DIR, "custom_catalogue_uploads", "_incoming")
+        os.makedirs(temp_dir, exist_ok=True)
+        temp_name = secure_filename(f"{current['slug']}-{pptx_file.filename}") or f"{current['slug']}-catalogue.pptx"
+        temp_path = os.path.join(temp_dir, temp_name)
+        pptx_file.save(temp_path)
+        source_pptx = temp_path
+    elif not os.path.isfile(source_pptx):
+        return jsonify({"error": "The saved PowerPoint source for this catalogue is missing"}), 400
+
+    picture_name = request.form.get("picture_name")
+    if picture_name is None:
+        picture_name = current.get("picture_name", "")
+    try:
+        catalogue = create_custom_catalogue(
+            title,
+            doc_url,
+            source_pptx,
+            pdf_bytes,
+            {
+                "slug": current["slug"],
+                "created_at": current.get("created_at"),
+                "slide_numbers": request.form.get(
+                    "slide_numbers",
+                    request.form.get("slide_number", ",".join(map(str, current.get("slide_numbers", [current.get("slide_number", 1)])))),
+                ),
+                "slide_number": request.form.get(
+                    "slide_number",
+                    request.form.get("slide_numbers", current.get("slide_number", 1)),
+                ),
+                "picture_name": picture_name,
+                "target_width": request.form.get("target_width", (current.get("layout") or {}).get("width", 3600)),
+                "last_checked": current.get("last_checked", "") if not source_changed else "",
+                "last_updated": current.get("last_updated", "") if not source_changed else "",
+                "refresh_error": "",
+                "refresh_interval_minutes": current.get("refresh_interval_minutes", CATALOGUE_AUTO_REFRESH_SECONDS // 60),
+                "room_overrides": current.get("room_overrides", {}),
+            },
+        )
+    except ValueError as error:
+        return jsonify({"error": str(error)}), 400
+    except Exception as error:
+        return jsonify({"error": f"Unable to rebuild the catalogue: {error}"}), 500
+    finally:
+        if temp_path:
+            try:
+                os.remove(temp_path)
+            except FileNotFoundError:
+                pass
+
+    return jsonify({
+        "success": True,
+        "catalogue": {
+            "slug": catalogue["slug"],
+            "title": catalogue["title"],
+            "room_count": catalogue["room_count"],
+            "view_url": f"/catalogue/custom/{catalogue['slug']}",
+        },
+    })
 
 
 @app.route("/api/catalogue/custom", methods=["POST"])
@@ -756,7 +1374,7 @@ def create_custom_catalogue_api():
             temp_path,
             pdf_bytes,
             {
-                "slide_number": request.form.get("slide_number", "1"),
+                "slide_numbers": request.form.get("slide_numbers", request.form.get("slide_number", "all")),
                 "picture_name": request.form.get("picture_name", ""),
                 "target_width": request.form.get("target_width", "3600"),
             },
@@ -765,6 +1383,11 @@ def create_custom_catalogue_api():
         return jsonify({"error": str(error)}), 400
     except Exception as error:
         return jsonify({"error": f"Unable to process the PowerPoint file: {error}"}), 500
+    finally:
+        try:
+            os.remove(temp_path)
+        except FileNotFoundError:
+            pass
     return jsonify({
         "catalogue": {
             "slug": catalogue["slug"],
@@ -813,6 +1436,7 @@ def upload_catalogue():
     }
     save_all_catalogue_metadata(metadata)
     _CATALOGUE_TOC_CACHE.clear()
+    _CATALOGUE_ROOM_PAGE_CACHE.clear()
     _CATALOGUE_ASSET_COUNT_CACHE.clear()
     return jsonify({"success": True, "risk_area": risk_area, "metadata": metadata[risk_area]})
 

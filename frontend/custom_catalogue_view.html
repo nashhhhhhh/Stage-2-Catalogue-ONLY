@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SATS Stage 2 | Custom Catalogue</title>
+    <title>SATS Stage 2 | Catalogue Explorer</title>
     <style>
         * { box-sizing: border-box; }
         body {
@@ -22,18 +22,70 @@
             padding: 8px 10px 10px;
         }
         header {
+            position: sticky;
+            top: 8px;
+            z-index: 50;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 14px;
-            padding: 10px 16px;
-            border: 1px solid #dbe4ee;
-            border-radius: 8px;
-            background: #ffffff;
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.07);
+            padding: 11px 14px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            border-radius: 16px;
+            background:
+                radial-gradient(circle at 72% -80%, rgba(14, 165, 233, 0.28), transparent 42%),
+                linear-gradient(115deg, #081525 0%, #0d1c30 58%, #10243a 100%);
+            box-shadow: 0 16px 34px rgba(3, 11, 24, 0.2);
+            overflow: hidden;
         }
-        h1 { margin: 0; font-size: 1.08rem; line-height: 1.25; }
-        .subtitle { margin: 3px 0 0; color: #64748b; font-size: 0.78rem; font-weight: 750; }
+        header::after {
+            content: "";
+            position: absolute;
+            right: 22%;
+            bottom: 0;
+            width: 180px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+        }
+        .catalogue-brand {
+            min-width: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .catalogue-heading { min-width: 0; }
+        .catalogue-kicker {
+            margin: 0 0 3px;
+            color: #38bdf8;
+            font-size: 0.64rem;
+            font-weight: 850;
+            letter-spacing: 0.13em;
+            text-transform: uppercase;
+        }
+        .brand-mark {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            display: grid;
+            place-items: center;
+            border: 1px solid rgba(125, 211, 252, 0.36);
+            border-radius: 11px;
+            background: rgba(14, 165, 233, 0.12);
+            color: #7dd3fc;
+        }
+        .brand-mark svg,
+        .nav-action svg {
+            position: static;
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+        h1 { margin: 0; color: #f8fafc; font-size: 1.08rem; line-height: 1.25; }
+        .subtitle { margin: 3px 0 0; color: #94a3b8; font-size: 0.78rem; font-weight: 750; }
         .back-link {
             display: inline-flex;
             align-items: center;
@@ -48,6 +100,67 @@
             text-decoration: none;
             white-space: nowrap;
         }
+        .header-actions {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .switcher-wrap { display: grid; gap: 3px; }
+        .switcher-wrap label {
+            color: #7dd3fc;
+            font-size: 0.61rem;
+            font-weight: 850;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+        }
+        .catalogue-switcher {
+            width: min(280px, 27vw);
+            min-height: 34px;
+            padding: 7px 34px 7px 11px;
+            border: 1px solid rgba(148, 163, 184, 0.28);
+            border-radius: 9px;
+            background: #f8fafc;
+            color: #0f172a;
+            font: inherit;
+            font-size: 0.76rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .nav-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            min-height: 34px;
+            padding: 8px 10px;
+            border: 1px solid rgba(148, 163, 184, 0.24);
+            border-radius: 9px;
+            background: rgba(255, 255, 255, 0.07);
+            color: #e2e8f0;
+            font-size: 0.76rem;
+            font-weight: 850;
+            text-decoration: none;
+            white-space: nowrap;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .nav-action:hover { border-color: rgba(125, 211, 252, 0.5); background: rgba(14, 165, 233, 0.13); color: #fff; }
+        .catalogue-help-button { width: 34px; padding: 8px; color: #7dd3fc; font-size: 0.9rem; }
+        .refresh-button {
+            min-height: 34px;
+            padding: 8px 12px;
+            border: 1px solid rgba(56, 189, 248, 0.32);
+            border-radius: 8px;
+            background: rgba(14, 165, 233, 0.13);
+            color: #e0f2fe;
+            cursor: pointer;
+            font: inherit;
+            font-size: 0.8rem;
+            font-weight: 850;
+        }
+        .refresh-button:disabled { cursor: wait; opacity: 0.65; }
+        .refresh-note { color: #7dd3fc; font-size: 0.69rem; font-weight: 700; }
         .split {
             min-height: 0;
             display: grid;
@@ -64,7 +177,7 @@
         }
         .map-panel {
             display: grid;
-            grid-template-rows: auto minmax(0, 1fr);
+            grid-template-rows: auto auto minmax(0, 1fr);
         }
         .panel-title {
             display: flex;
@@ -80,6 +193,33 @@
             color: #0369a1;
             font-size: 0.76rem;
             font-weight: 900;
+        }
+        .map-section-list {
+            display: flex;
+            gap: 7px;
+            padding: 8px 10px;
+            overflow-x: auto;
+            border-bottom: 1px solid #e2e8f0;
+            background: #f4f7fb;
+        }
+        .map-section-list[hidden] { display: none; }
+        .map-section-button {
+            flex: 0 0 auto;
+            min-height: 31px;
+            padding: 6px 11px;
+            border: 1px solid #cbd8e8;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #334155;
+            font: inherit;
+            font-size: 0.75rem;
+            font-weight: 900;
+            cursor: pointer;
+        }
+        .map-section-button.active {
+            border-color: #2563eb;
+            background: #2563eb;
+            color: #ffffff;
         }
         .map-wrap {
             min-height: 0;
@@ -100,7 +240,7 @@
             object-fit: contain;
             user-select: none;
         }
-        svg {
+        #room-overlay {
             position: absolute;
             inset: 0;
             width: 100%;
@@ -115,6 +255,8 @@
             cursor: pointer;
             pointer-events: all;
             transition: fill 0.16s ease, stroke 0.16s ease, filter 0.16s ease;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
         }
         .room-shape:hover,
         .room-shape:focus-visible {
@@ -126,6 +268,10 @@
             fill-opacity: 0.48;
             stroke: #0284c7;
             stroke-width: 2.5px;
+        }
+        .room-shape:focus,
+        .room-shape:active {
+            outline: none;
         }
         .pdf-panel {
             display: grid;
@@ -158,11 +304,65 @@
             background: #0284c7;
             color: #ffffff;
         }
-        iframe {
+        .room-button:focus-visible {
+            outline: 2px solid #38bdf8;
+            outline-offset: 2px;
+        }
+        .pdf-stage {
+            position: relative;
             width: 100%;
             height: 100%;
-            border: 0;
+            min-height: 0;
+            padding: 12px;
+            overflow: auto;
+            background: #dfe6ee;
+        }
+        .pdf-pages {
+            display: grid;
+            gap: 14px;
+        }
+        .pdf-page {
+            position: relative;
+            width: 100%;
+            min-height: 520px;
+            margin: 0 auto;
             background: #ffffff;
+            box-shadow: 0 4px 18px rgba(15, 23, 42, 0.18);
+        }
+        .pdf-page::before {
+            content: "Page " attr(data-page);
+            position: absolute;
+            inset: 0;
+            display: grid;
+            place-items: center;
+            color: #94a3b8;
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+        .pdf-page.loaded::before { display: none; }
+        .pdf-page canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            margin: 0 auto;
+            background: #ffffff;
+        }
+        .pdf-status {
+            position: sticky;
+            top: 0;
+            z-index: 3;
+            margin: 0 0 8px;
+            padding: 8px 10px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            background: #f8fafc;
+            color: #475569;
+            font-size: 0.82rem;
+            font-weight: 850;
+            text-align: center;
+        }
+        .pdf-status[hidden] {
+            display: none;
         }
         .missing {
             display: grid;
@@ -179,9 +379,12 @@
             .page { height: auto; min-height: 100vh; }
             .split { grid-template-columns: 1fr; }
             .panel { min-height: 420px; }
+            header { align-items: flex-start; flex-direction: column; }
+            .header-actions { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+            .switcher-wrap { flex: 1 1 240px; }
+            .catalogue-switcher { width: 100%; }
         }
         @media (max-width: 620px) {
-            header { align-items: flex-start; flex-direction: column; }
             .map-stage { min-width: 620px; }
         }
     </style>
@@ -190,18 +393,41 @@
     {% if not custom_catalogue %}
     <div class="missing">
         <div>
-            <p>Custom catalogue not found.</p>
+            <p>Catalogue not found.</p>
             <a class="back-link" href="/catalogue/manage/create">Back to Create Catalogue</a>
         </div>
     </div>
     {% else %}
     <div class="page">
         <header>
-            <div>
-                <h1>{{ custom_catalogue.title }}</h1>
-                <p class="subtitle">{{ custom_catalogue.room_count }} rooms · Slide {{ custom_catalogue.slide_number }} · {{ custom_catalogue.picture_name }}</p>
+            <div class="catalogue-brand">
+                <div class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><path d="M4 5.5 12 2l8 3.5v13L12 22l-8-3.5z"></path><path d="M4 5.5 12 9l8-3.5M12 9v13"></path></svg>
+                </div>
+                <div class="catalogue-heading">
+                    <p class="catalogue-kicker">Catalogue Explorer</p>
+                    <h1>{{ custom_catalogue.title }}</h1>
+                    <p class="subtitle">{{ custom_catalogue.room_count }} rooms · {{ custom_catalogue.layouts|length if custom_catalogue.layouts else 1 }} map section{% if custom_catalogue.layouts and custom_catalogue.layouts|length != 1 %}s{% endif %}</p>
+                    <span class="refresh-note" id="refresh-note">Checks Google Docs every {{ custom_catalogue.refresh_interval_minutes }} minutes</span>
+                </div>
             </div>
-            <a class="back-link" href="/catalogue/manage/create">Back to Create Catalogue</a>
+            <div class="header-actions">
+                <a class="nav-action" href="/layout" title="Return to the full layout">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6"></path></svg>
+                    <span>Layout</span>
+                </a>
+                <div class="switcher-wrap">
+                    <label for="catalogue-switcher">Switch catalogue</label>
+                    <select class="catalogue-switcher" id="catalogue-switcher" data-active-catalogue="custom:{{ custom_catalogue.slug }}" aria-label="Switch catalogue"></select>
+                </div>
+                <button class="refresh-button" id="refresh-button" type="button">Refresh now</button>
+                <button class="nav-action catalogue-help-button" type="button" aria-label="Open catalogue guide" title="How to use Catalogue Explorer">?</button>
+                <a class="nav-action catalogue-manage-button" href="/catalogue/manage?catalogue=custom:{{ custom_catalogue.slug }}" title="Update this catalogue">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1-2.8 2.8-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.6v.2h-4V21a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1L4.2 17l.1-.1a1.7 1.7 0 0 0 .3-1.9A1.7 1.7 0 0 0 3 14H2.8v-4H3a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9L4.2 7 7 4.2l.1.1a1.7 1.7 0 0 0 1.9.3A1.7 1.7 0 0 0 10 3V2.8h4V3a1.7 1.7 0 0 0 1 1.6 1.7 1.7 0 0 0 1.9-.3l.1-.1L19.8 7l-.1.1a1.7 1.7 0 0 0-.3 1.9 1.7 1.7 0 0 0 1.6 1h.2v4H21a1.7 1.7 0 0 0-1.6 1Z"></path></svg>
+                    <span>Update</span>
+                </a>
+                <a class="nav-action" href="/catalogue/manage/rooms" title="Open room-name settings"><span>Rooms</span></a>
+            </div>
         </header>
         <main class="split">
             <section class="panel map-panel">
@@ -209,6 +435,7 @@
                     <h2>Catalogue Map</h2>
                     <span class="room-pill" id="selected-room-label">Select a room</span>
                 </div>
+                <div class="map-section-list" id="map-section-list" aria-label="Map sections" hidden></div>
                 <div class="map-wrap">
                     <div class="map-stage" id="map-stage">
                         <img id="map-image" alt="">
@@ -222,10 +449,15 @@
                     <span class="room-pill" id="selected-room-code"></span>
                 </div>
                 <div class="room-list" id="room-list"></div>
-                <iframe id="pdf-frame" title="Catalogue PDF"></iframe>
+                <div class="pdf-stage" id="pdf-stage" aria-label="Scrollable catalogue PDF">
+                    <div class="pdf-status" id="pdf-status">Loading catalogue PDF...</div>
+                    <div class="pdf-pages" id="pdf-pages"></div>
+                </div>
             </section>
         </main>
     </div>
+    <script src="/static/vendor/pdfjs/pdf.min.js"></script>
+    <script src="/static/catalogue_shell.js?v=20260811-2"></script>
     <script id="catalogue-data" type="application/json">{{ custom_catalogue | tojson }}</script>
     <script>
         const catalogue = JSON.parse(document.getElementById('catalogue-data').textContent);
@@ -233,10 +465,34 @@
         const mapImage = document.getElementById('map-image');
         const overlay = document.getElementById('room-overlay');
         const roomList = document.getElementById('room-list');
-        const pdfFrame = document.getElementById('pdf-frame');
+        const pdfStage = document.getElementById('pdf-stage');
+        const pdfPages = document.getElementById('pdf-pages');
+        const pdfStatus = document.getElementById('pdf-status');
+        const refreshButton = document.getElementById('refresh-button');
+        const refreshNote = document.getElementById('refresh-note');
         const selectedRoomLabel = document.getElementById('selected-room-label');
         const selectedRoomCode = document.getElementById('selected-room-code');
+        const mapSectionList = document.getElementById('map-section-list');
         const rooms = Object.values(catalogue.rooms || {}).sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
+        const mapLayouts = Array.isArray(catalogue.layouts) && catalogue.layouts.length
+            ? catalogue.layouts
+            : [{
+                key: `slide-${catalogue.slide_number || 1}`,
+                label: `Slide ${catalogue.slide_number || 1}`,
+                ...catalogue.layout
+            }];
+        let pdfDocument = null;
+        let pdfLoadPromise = null;
+        let pageObserver = null;
+        const renderedPages = new Set();
+        const renderingPages = new Map();
+        let currentRoom = null;
+        let currentLayout = mapLayouts[0];
+        const hardRefreshToken = new URLSearchParams(window.location.search).get('_refresh') || '';
+
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = '/static/vendor/pdfjs/pdf.worker.min.js';
+        }
 
         function escapeHtml(value) {
             return String(value ?? '').replace(/[&<>"']/g, char => ({
@@ -244,24 +500,155 @@
             }[char]));
         }
 
-        function setPdfPage(room) {
+        function loadPdfDocument() {
             const pdfUrl = catalogue.layout.pdf;
             if (!pdfUrl) {
-                pdfFrame.removeAttribute('src');
-                return;
+                pdfStatus.textContent = 'No catalogue PDF is attached.';
+                pdfStatus.hidden = false;
+                return Promise.resolve(null);
             }
-            const page = room?.page || 1;
-            pdfFrame.src = `${pdfUrl}#page=${page}`;
+            if (!window.pdfjsLib) {
+                pdfStatus.textContent = 'The PDF viewer could not be loaded.';
+                pdfStatus.hidden = false;
+                return Promise.resolve(null);
+            }
+            if (!pdfLoadPromise) {
+                pdfStatus.textContent = 'Loading catalogue PDF...';
+                pdfStatus.hidden = false;
+                const separator = pdfUrl.includes('?') ? '&' : '?';
+                const pdfParams = new URLSearchParams({
+                    v: catalogue.pdfVersion || 'current'
+                });
+                if (hardRefreshToken) pdfParams.set('_refresh', hardRefreshToken);
+                const loadingTask = pdfjsLib.getDocument({ url: `${pdfUrl}${separator}${pdfParams.toString()}` });
+                loadingTask.onProgress = progress => {
+                    if (!progress?.total) return;
+                    const bytePercent = Math.round((progress.loaded / progress.total) * 68);
+                    window.CatalogueLoading?.set(Math.min(72, 4 + bytePercent), 'Downloading catalogue document…', 'กำลังดาวน์โหลดเอกสารแค็ตตาล็อก…');
+                };
+                pdfLoadPromise = loadingTask.promise
+                    .then(async pdf => {
+                        pdfDocument = pdf;
+                        window.CatalogueLoading?.set(78, 'Preparing catalogue pages…', 'กำลังเตรียมหน้าคู่มือ…');
+                        await buildPdfPages(pdf);
+                        pdfStatus.hidden = true;
+                        return pdf;
+                    })
+                    .catch(error => {
+                        pdfLoadPromise = null;
+                        pdfStatus.textContent = `Unable to load catalogue PDF: ${error.message}`;
+                        pdfStatus.hidden = false;
+                        throw error;
+                    });
+            }
+            return pdfLoadPromise;
         }
 
-        function selectRoom(code) {
+        async function buildPdfPages(pdf) {
+            pdfPages.innerHTML = '';
+            const firstPage = await pdf.getPage(1);
+            const firstViewport = firstPage.getViewport({ scale: 1 });
+            const availableWidth = Math.max(320, pdfStage.clientWidth - 24);
+            const placeholderScale = Math.min(2, availableWidth / firstViewport.width);
+            const placeholderWidth = Math.floor(firstViewport.width * placeholderScale);
+            const placeholderHeight = Math.floor(firstViewport.height * placeholderScale);
+            for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber += 1) {
+                const wrapper = document.createElement('div');
+                wrapper.className = 'pdf-page';
+                wrapper.dataset.page = String(pageNumber);
+                wrapper.style.width = `${placeholderWidth}px`;
+                wrapper.style.minHeight = `${placeholderHeight}px`;
+                wrapper.innerHTML = '<canvas></canvas>';
+                pdfPages.appendChild(wrapper);
+            }
+            pageObserver?.disconnect();
+            pageObserver = new IntersectionObserver(entries => {
+                entries.filter(entry => entry.isIntersecting).forEach(entry => {
+                    renderPdfPage(Number(entry.target.dataset.page));
+                });
+            }, { root: pdfStage, rootMargin: '800px 0px' });
+            pdfPages.querySelectorAll('.pdf-page').forEach(page => pageObserver.observe(page));
+        }
+
+        async function renderPdfPage(pageNumber) {
+            if (renderedPages.has(pageNumber)) return;
+            if (renderingPages.has(pageNumber)) return renderingPages.get(pageNumber);
+            const renderPromise = (async () => {
+                const pdf = pdfDocument || await loadPdfDocument();
+                if (!pdf) return;
+                const safePage = Math.min(Math.max(1, pageNumber), pdf.numPages);
+                const wrapper = pdfPages.querySelector(`[data-page="${safePage}"]`);
+                if (!wrapper) return;
+                const canvas = wrapper.querySelector('canvas');
+                const page = await pdf.getPage(safePage);
+                const baseViewport = page.getViewport({ scale: 1 });
+                const availableWidth = Math.max(320, pdfStage.clientWidth - 24);
+                const scale = Math.min(2, availableWidth / baseViewport.width);
+                const viewport = page.getViewport({ scale });
+                const outputScale = Math.min(2, window.devicePixelRatio || 1);
+                const context = canvas.getContext('2d');
+                canvas.width = Math.floor(viewport.width * outputScale);
+                canvas.height = Math.floor(viewport.height * outputScale);
+                canvas.style.width = `${Math.floor(viewport.width)}px`;
+                canvas.style.height = `${Math.floor(viewport.height)}px`;
+                wrapper.style.width = `${Math.floor(viewport.width)}px`;
+                wrapper.style.minHeight = `${Math.floor(viewport.height)}px`;
+                await page.render({
+                    canvasContext: context,
+                    viewport,
+                    transform: outputScale === 1 ? null : [outputScale, 0, 0, outputScale, 0, 0]
+                }).promise;
+                wrapper.classList.add('loaded');
+                renderedPages.add(safePage);
+            })().catch(error => {
+                console.error(`Unable to render PDF page ${pageNumber}:`, error);
+            }).finally(() => renderingPages.delete(pageNumber));
+            renderingPages.set(pageNumber, renderPromise);
+            return renderPromise;
+        }
+
+        async function scrollToPdfPage(requestedPage, behavior = 'smooth') {
+            const pdf = await loadPdfDocument();
+            if (!pdf) return;
+            const pageNumber = Math.min(Math.max(1, Number(requestedPage) || 1), pdf.numPages);
+            await renderPdfPage(pageNumber);
+            const wrapper = pdfPages.querySelector(`[data-page="${pageNumber}"]`);
+            if (!wrapper) return;
+            pdfStage.scrollTo({
+                top: Math.max(0, wrapper.offsetTop - 12),
+                left: 0,
+                behavior
+            });
+        }
+
+        function selectRoom(code, options = {}) {
             const room = rooms.find(item => item.code === code) || rooms[0];
             if (!room) return;
+            if (room.layoutKey && room.layoutKey !== currentLayout?.key) {
+                showLayout(room.layoutKey);
+            }
+            currentRoom = room;
             document.querySelectorAll('.room-shape').forEach(shape => shape.classList.toggle('selected', shape.dataset.code === room.code));
             document.querySelectorAll('.room-button').forEach(button => button.classList.toggle('active', button.dataset.code === room.code));
             selectedRoomLabel.textContent = `${room.code} · ${room.name}`;
             selectedRoomCode.textContent = room.code;
-            setPdfPage(room);
+            const url = new URL(window.location.href);
+            url.searchParams.set('room', room.code);
+            window.history.replaceState({}, '', url);
+            if (options.scroll !== false) {
+                window.CatalogueLoading?.start({
+                    initial: pdfDocument ? 32 : 3,
+                    ceiling: pdfDocument ? 82 : 76,
+                    title: `Opening ${room.code} catalogue page…`,
+                    thai: `กำลังเปิดหน้าคู่มือของห้อง ${room.code}…`
+                });
+                scrollToPdfPage(room.page, options.behavior || 'smooth')
+                    .then(() => window.CatalogueLoading?.finish(`${room.code} is ready`, `ห้อง ${room.code} พร้อมใช้งาน`))
+                    .catch(error => {
+                        console.error(error);
+                        window.CatalogueLoading?.fail('Unable to load the document', 'ไม่สามารถโหลดเอกสารได้');
+                    });
+            }
         }
 
         function makeShape(room) {
@@ -284,7 +671,10 @@
             element.setAttribute('tabindex', '0');
             element.setAttribute('role', 'button');
             element.setAttribute('aria-label', `${room.code} ${room.name}`);
-            element.addEventListener('click', () => selectRoom(room.code));
+            element.addEventListener('click', event => {
+                selectRoom(room.code);
+                event.currentTarget.blur();
+            });
             element.addEventListener('keydown', event => {
                 if (event.key === 'Enter' || event.key === ' ') {
                     event.preventDefault();
@@ -294,19 +684,152 @@
             return element;
         }
 
-        function render() {
-            stage.style.setProperty('--catalogue-aspect', catalogue.layout.aspect || 2);
-            mapImage.src = catalogue.layout.image;
+        function roomsForLayout(layout) {
+            const matchingRooms = rooms.filter(room => room.layoutKey === layout.key);
+            if (matchingRooms.length) return matchingRooms;
+            return mapLayouts.length === 1 ? rooms : [];
+        }
+
+        function showLayout(layoutKey) {
+            currentLayout = mapLayouts.find(layout => layout.key === layoutKey) || mapLayouts[0];
+            stage.style.setProperty('--catalogue-aspect', currentLayout.aspect || catalogue.layout.aspect || 2);
+            const imageUrl = currentLayout.image || catalogue.layout.image || '';
+            const imageSeparator = imageUrl.includes('?') ? '&' : '?';
+            const imageVersion = encodeURIComponent(catalogue.updated_at || Date.now());
+            mapImage.src = imageUrl ? `${imageUrl}${imageSeparator}v=${imageVersion}` : '';
+            mapImage.alt = currentLayout.label || `Catalogue map slide ${currentLayout.slide_number || ''}`;
             overlay.innerHTML = '';
-            rooms.forEach(room => overlay.appendChild(makeShape(room)));
+            roomsForLayout(currentLayout).forEach(room => overlay.appendChild(makeShape(room)));
+            mapSectionList.querySelectorAll('.map-section-button').forEach(button => {
+                button.classList.toggle('active', button.dataset.layoutKey === currentLayout.key);
+            });
+            if (currentRoom) {
+                overlay.querySelectorAll('.room-shape').forEach(shape => {
+                    shape.classList.toggle('selected', shape.dataset.code === currentRoom.code);
+                });
+            }
+        }
+
+        function render() {
+            mapSectionList.hidden = mapLayouts.length <= 1;
+            mapSectionList.innerHTML = mapLayouts.map(layout => `
+                <button class="map-section-button" type="button" data-layout-key="${escapeHtml(layout.key)}">
+                    ${escapeHtml(layout.label || `Slide ${layout.slide_number || ''}`)}
+                </button>
+            `).join('');
+            mapSectionList.querySelectorAll('.map-section-button').forEach(button => {
+                button.addEventListener('click', event => {
+                    showLayout(button.dataset.layoutKey);
+                    const firstRoom = roomsForLayout(currentLayout)[0];
+                    if (firstRoom) selectRoom(firstRoom.code);
+                    event.currentTarget.blur();
+                });
+            });
             roomList.innerHTML = rooms.map(room => `
                 <button class="room-button" type="button" data-code="${escapeHtml(room.code)}">${escapeHtml(room.code)}</button>
             `).join('');
             roomList.querySelectorAll('.room-button').forEach(button => {
-                button.addEventListener('click', () => selectRoom(button.dataset.code));
+                button.addEventListener('click', event => {
+                    selectRoom(button.dataset.code);
+                    event.currentTarget.blur();
+                });
             });
-            selectRoom(rooms[0]?.code);
+            const requestedRoom = new URLSearchParams(window.location.search).get('room');
+            const initialRoom = rooms.find(room => room.code === requestedRoom) || rooms[0];
+            showLayout(initialRoom?.layoutKey || mapLayouts[0]?.key);
+            if (initialRoom) selectRoom(initialRoom.code, { behavior: 'auto' });
         }
+
+        let scrollSyncTimer = null;
+        pdfStage.addEventListener('scroll', () => {
+            window.clearTimeout(scrollSyncTimer);
+            scrollSyncTimer = window.setTimeout(() => {
+                const targetTop = pdfStage.scrollTop + 24;
+                const pages = [...pdfPages.querySelectorAll('.pdf-page')];
+                if (!pages.length) return;
+                const closest = pages.reduce((best, page) => (
+                    Math.abs(page.offsetTop - targetTop) < Math.abs(best.offsetTop - targetTop) ? page : best
+                ));
+                const visiblePage = Number(closest.dataset.page);
+                const room = rooms.find(item => Number(item.page) === visiblePage);
+                if (room && room.code !== currentRoom?.code) selectRoom(room.code, { scroll: false });
+            }, 90);
+        }, { passive: true });
+
+        async function refreshCatalogue() {
+            refreshButton.disabled = true;
+            refreshButton.textContent = 'Refreshing...';
+            refreshNote.textContent = 'Checking the Google Doc now...';
+            window.CatalogueLoading?.start({
+                initial: 2,
+                ceiling: 88,
+                title: 'Refreshing from Google Docs…',
+                thai: 'กำลังรีเฟรชข้อมูลจาก Google Docs…'
+            });
+            try {
+                const response = await fetch(`/api/catalogue/custom/${encodeURIComponent(catalogue.slug)}/refresh`, {
+                    method: 'POST',
+                    cache: 'no-store'
+                });
+                const payload = await response.json();
+                if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+                window.CatalogueLoading?.set(94, 'Rebuilding room and page data…', 'กำลังสร้างข้อมูลห้องและหน้าเอกสารใหม่…');
+                refreshNote.textContent = payload.changed
+                    ? 'Catalogue updated — loading the fresh copy...'
+                    : 'Reloading the latest copy...';
+                const refreshedUrl = new URL(window.location.href);
+                refreshedUrl.searchParams.set('_refresh', Date.now().toString());
+                window.CatalogueLoading?.finish('Refresh complete', 'รีเฟรชเสร็จสมบูรณ์');
+                await new Promise(resolve => window.setTimeout(resolve, 430));
+                window.location.replace(refreshedUrl.toString());
+                return;
+            } catch (error) {
+                refreshNote.textContent = `Refresh failed: ${error.message}`;
+                window.CatalogueLoading?.fail('Refresh failed', 'การรีเฟรชไม่สำเร็จ');
+            } finally {
+                refreshButton.disabled = false;
+                refreshButton.textContent = 'Refresh now';
+            }
+        }
+
+        async function checkCatalogueVersion() {
+            try {
+                const response = await fetch(`/api/catalogue/custom/${encodeURIComponent(catalogue.slug)}/status?v=${Date.now()}`, { cache: 'no-store' });
+                if (!response.ok) return;
+                const payload = await response.json();
+                if (payload.version && payload.version !== catalogue.pdfVersion) {
+                    const refreshedUrl = new URL(window.location.href);
+                    refreshedUrl.searchParams.set('_refresh', Date.now().toString());
+                    window.location.replace(refreshedUrl.toString());
+                    return;
+                }
+                const checked = payload.metadata?.last_checked;
+                if (checked) refreshNote.textContent = `Google Docs checked ${checked} · every ${payload.metadata.refresh_interval_minutes} minutes`;
+            } catch (error) {
+                console.warn('Catalogue refresh status unavailable:', error);
+            }
+        }
+
+        refreshButton.addEventListener('click', refreshCatalogue);
+        window.setInterval(checkCatalogueVersion, 60_000);
+
+        let resizeTimer = null;
+        window.addEventListener('resize', () => {
+            window.clearTimeout(resizeTimer);
+            resizeTimer = window.setTimeout(() => {
+                renderedPages.clear();
+                renderingPages.clear();
+                pdfPages.querySelectorAll('.pdf-page').forEach(page => {
+                    page.classList.remove('loaded');
+                    page.style.width = '';
+                    page.style.minHeight = '';
+                    const canvas = page.querySelector('canvas');
+                    canvas.width = 0;
+                    canvas.height = 0;
+                });
+                if (currentRoom) scrollToPdfPage(currentRoom.page, 'auto');
+            }, 180);
+        });
 
         render();
     </script>

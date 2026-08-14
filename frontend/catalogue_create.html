@@ -24,6 +24,8 @@
         }
         h1 { margin: 0; font-size: 1.22rem; }
         .subtitle { margin: 4px 0 0; color: #64748b; font-size: 0.82rem; font-weight: 750; }
+        .header-actions { display: flex; gap: 8px; align-items: center; }
+        .field-help { color: #64748b; font-size: 0.74rem; font-weight: 650; line-height: 1.45; }
         .back-link,
         button,
         .view-link {
@@ -42,6 +44,7 @@
             background: #0f172a;
             color: #ffffff;
         }
+        .catalogue-help-button { min-width: 38px; padding: 8px 12px; background: #ffffff; color: #0369a1; }
         main {
             padding: 14px;
             display: grid;
@@ -196,7 +199,10 @@
             <h1>Create Catalogue</h1>
             <p class="subtitle">Generate a clickable catalogue map from a PowerPoint layout and Google Docs catalogue.</p>
         </div>
-        <a class="back-link" href="/catalogue/manage">Back to Management</a>
+        <div class="header-actions">
+            <button class="catalogue-help-button" type="button" aria-label="Open bilingual tutorial" title="Tutorial · คู่มือ">?</button>
+            <a class="back-link" href="/catalogue/manage">Back to Management</a>
+        </div>
     </header>
     <main>
         <section class="panel">
@@ -209,17 +215,15 @@
                     <input name="title" type="text" placeholder="Stage 3 High Risk" required>
                 </label>
                 <label>
-                    Google Docs Link
-                    <input name="doc_url" type="url" placeholder="https://docs.google.com/document/d/..." required>
-                </label>
-                <label>
-                    PowerPoint Map
+                    1. PowerPoint Map
                     <input name="pptx_file" type="file" accept=".pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation" required>
+                    <span class="field-help">Put named AutoShape or Freeform overlays above a picture of the map. Friendly names such as Kitchen Area work; coded names such as H-51_High Risk Cooking Area also work.</span>
                 </label>
                 <div class="field-row">
                     <label>
-                        Slide Number
-                        <input name="slide_number" type="number" min="1" step="1" value="1" required>
+                        Map Slides
+                        <input name="slide_numbers" type="text" value="all" placeholder="all or 1,2" required>
+                        <span class="field-help">Use <b>all</b> to import every slide containing a map picture and room overlays, or enter slides such as <b>1,2</b> or <b>1-3</b>.</span>
                     </label>
                     <label>
                         Image Width
@@ -230,6 +234,11 @@
                     Picture Name
                     <input name="picture_name" type="text" placeholder="Auto-detect largest picture">
                 </label>
+                <label>
+                    2. Google Docs Link
+                    <input name="doc_url" type="url" placeholder="https://docs.google.com/document/d/..." required>
+                    <span class="field-help">Add this after the PowerPoint. The document must be shared so anyone with the link can view it.</span>
+                </label>
                 <button type="submit" id="create-button">Create Catalogue</button>
             </form>
             <div class="status" id="status">Ready.</div>
@@ -237,12 +246,13 @@
 
         <section class="panel">
             <div class="panel-title">
-                <h2>Custom Catalogues</h2>
+                <h2>Added Catalogues</h2>
             </div>
             <div class="catalogue-list" id="catalogue-list"></div>
         </section>
     </main>
 
+    <script src="/static/catalogue_shell.js?v=20260811-2"></script>
     <script>
         const form = document.getElementById('create-form');
         const button = document.getElementById('create-button');
@@ -260,9 +270,18 @@
             button.textContent = isBusy ? 'Creating...' : 'Create Catalogue';
         }
 
+        async function readJsonResponse(response) {
+            const responseText = await response.text();
+            try {
+                return JSON.parse(responseText);
+            } catch (error) {
+                return { error: responseText || `Server returned HTTP ${response.status}` };
+            }
+        }
+
         function renderCatalogues(items) {
             if (!items.length) {
-                list.innerHTML = '<div class="empty">No custom catalogues yet.</div>';
+                list.innerHTML = '<div class="empty">No added catalogues yet.</div>';
                 return;
             }
 
@@ -271,7 +290,7 @@
                     <h3>${escapeHtml(item.title)}</h3>
                     <div class="meta">
                         <div><span>Rooms</span><b>${escapeHtml(item.room_count || 0)}</b></div>
-                        <div><span>Slide</span><b>${escapeHtml(item.slide_number || 1)}</b></div>
+                        <div><span>Slides</span><b>${escapeHtml((item.slide_numbers || [item.slide_number || 1]).join(', '))}</b></div>
                         <div><span>Picture</span><b>${escapeHtml(item.picture_name || 'Auto')}</b></div>
                         <div><span>Created</span><b>${escapeHtml(item.created_at || '')}</b></div>
                     </div>
@@ -290,7 +309,7 @@
                 renderCatalogues(payload);
             } catch (error) {
                 console.error(error);
-                list.innerHTML = '<div class="empty">Unable to load custom catalogues.</div>';
+                list.innerHTML = '<div class="empty">Unable to load added catalogues.</div>';
             }
         }
 
@@ -298,23 +317,28 @@
             event.preventDefault();
             setBusy(true);
             statusLine.textContent = 'Creating catalogue...';
+            window.CatalogueLoading?.start({ title: 'Creating catalogue…', thai: 'กำลังสร้างแค็ตตาล็อก…', ceiling: 88 });
 
             try {
                 const response = await fetch('/api/catalogue/custom', {
                     method: 'POST',
                     body: new FormData(form)
                 });
-                const payload = await response.json();
+                const payload = await readJsonResponse(response);
                 if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
                 const created = payload.catalogue;
                 statusLine.innerHTML = `Created ${escapeHtml(created.title)} with ${escapeHtml(created.room_count)} rooms. <a href="${escapeHtml(created.view_url)}">Open catalogue</a>.`;
                 form.reset();
                 form.elements.slide_number.value = 1;
                 form.elements.target_width.value = 3600;
+                window.CatalogueLoading?.set(93, 'Loading the new catalogue…', 'กำลังโหลดแค็ตตาล็อกใหม่…');
                 await loadCatalogues();
+                window.parent?.postMessage({ type: 'catalogue-created', catalogueId: `custom:${created.slug}` }, window.location.origin);
+                window.CatalogueLoading?.finish('Catalogue created', 'สร้างแค็ตตาล็อกเสร็จสมบูรณ์');
             } catch (error) {
                 console.error(error);
                 statusLine.textContent = `Create failed: ${error.message}`;
+                window.CatalogueLoading?.fail('Catalogue creation failed', 'การสร้างแค็ตตาล็อกไม่สำเร็จ');
             } finally {
                 setBusy(false);
             }

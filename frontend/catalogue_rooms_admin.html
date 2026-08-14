@@ -45,12 +45,20 @@
         main { padding: 14px; display: grid; gap: 12px; }
         .toolbar {
             display: grid;
-            grid-template-columns: minmax(0, 1fr) 220px;
+            grid-template-columns: minmax(280px, 380px) minmax(0, 1fr);
             gap: 10px;
             border: 1px solid #dbe4ee;
             border-radius: 8px;
             background: #ffffff;
             padding: 12px;
+        }
+        .filter-field { display: grid; gap: 6px; }
+        .filter-field span {
+            color: #64748b;
+            font-size: 0.68rem;
+            font-weight: 900;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
         }
         input, select {
             width: 100%;
@@ -90,6 +98,19 @@
         .room-code { font-weight: 900; }
         .default-name { color: #64748b; font-size: 0.78rem; font-weight: 750; }
         .status { color: #64748b; font-size: 0.78rem; font-weight: 800; }
+        .empty-state {
+            min-height: 280px;
+            display: grid;
+            place-items: center;
+            padding: 30px;
+            border: 1px dashed #bfd0e2;
+            border-radius: 12px;
+            background: linear-gradient(180deg, #ffffff, #f8fbff);
+            color: #64748b;
+            text-align: center;
+        }
+        .empty-state strong { display: block; margin-bottom: 6px; color: #0f172a; font-size: 1rem; }
+        input:disabled { background: #f1f5f9; color: #94a3b8; cursor: not-allowed; }
         body.embedded header { display: none; }
         body.embedded main { padding: 0; }
         @media (max-width: 980px) {
@@ -106,7 +127,7 @@
     <header>
         <div>
             <h1>Room Names</h1>
-            <p class="subtitle">Edit catalogue room names and page mappings by layout area.</p>
+            <p class="subtitle">Choose a catalogue first, then edit only its room names and page mappings.</p>
         </div>
         <div class="header-actions">
             <a href="/catalogue/manage">Catalogue Sources</a>
@@ -116,15 +137,24 @@
     </header>
     <main>
         <section class="toolbar">
-            <input id="search-input" type="search" placeholder="Search room code or name">
-            <select id="layout-filter"></select>
+            <label class="filter-field">
+                <span>1 · Choose catalogue</span>
+                <select id="catalogue-filter" aria-label="Choose catalogue">
+                    <option value="">Select a catalogue...</option>
+                </select>
+            </label>
+            <label class="filter-field">
+                <span>2 · Find a room</span>
+                <input id="search-input" type="search" placeholder="Search room code or name" disabled>
+            </label>
         </section>
-        <div id="room-sections"></div>
+        <div id="room-sections" class="empty-state"><div><strong>Choose a catalogue to begin</strong>Only rooms from the selected catalogue will appear here.</div></div>
     </main>
     <script>
         const searchInput = document.getElementById('search-input');
-        const layoutFilter = document.getElementById('layout-filter');
+        const catalogueFilter = document.getElementById('catalogue-filter');
         const sections = document.getElementById('room-sections');
+        let catalogues = [];
         let rooms = [];
 
         function escapeHtml(value) {
@@ -133,47 +163,38 @@
             }[char]));
         }
 
-        function groupedRows() {
+        function filteredRows() {
             const query = searchInput.value.trim().toLowerCase();
-            const layout = layoutFilter.value;
             return rooms.filter(room => {
-                const matchesLayout = !layout || room.layout === layout;
                 const haystack = [room.code, room.name, room.default_name, room.risk_key].join(' ').toLowerCase();
-                return matchesLayout && (!query || haystack.includes(query));
-            }).reduce((groups, room) => {
-                (groups[room.layout] ||= []).push(room);
-                return groups;
-            }, {});
-        }
-
-        function render() {
-            const layouts = [...new Set(rooms.map(room => room.layout))].sort();
-            layoutFilter.innerHTML = '<option value="">All Layouts</option>' + layouts.map(layout => `<option value="${escapeHtml(layout)}">${escapeHtml(layout)}</option>`).join('');
-            if (!layouts.includes(layoutFilter.dataset.current)) layoutFilter.dataset.current = '';
-            if (layoutFilter.dataset.current) layoutFilter.value = layoutFilter.dataset.current;
-            renderRows();
+                return !query || haystack.includes(query);
+            });
         }
 
         function renderRows() {
-            layoutFilter.dataset.current = layoutFilter.value;
-            const groups = groupedRows();
-            sections.innerHTML = Object.keys(groups).sort().map(layout => {
-                const rows = groups[layout].sort((a, b) => a.code.localeCompare(b.code)).map(room => `
-                    <div class="room-row" data-code="${escapeHtml(room.code)}">
+            const catalogue = catalogues.find(item => item.id === catalogueFilter.value);
+            if (!catalogue) {
+                sections.className = 'empty-state';
+                sections.innerHTML = '<div><strong>Choose a catalogue to begin</strong>Only rooms from the selected catalogue will appear here.</div>';
+                return;
+            }
+            const visibleRooms = filteredRows().sort((a, b) => a.code.localeCompare(b.code, undefined, { numeric: true }));
+            const rows = visibleRooms.map(room => `
+                    <div class="room-row" data-code="${escapeHtml(room.code)}" data-catalogue-id="${escapeHtml(room.catalogue_id)}">
                         <div class="room-code">${escapeHtml(room.code)}</div>
                         <div class="default-name">${escapeHtml(room.default_name || room.name)}</div>
                         <input class="room-name-input" value="${escapeHtml(room.name)}" aria-label="Room name for ${escapeHtml(room.code)}">
                         <input class="room-page-input" type="number" min="1" step="1" value="${escapeHtml(room.page || '')}" aria-label="Catalogue page for ${escapeHtml(room.code)}">
                         <button type="button" class="save-room-button">Save</button>
                     </div>
-                `).join('');
-                return `
-                    <section class="layout-section">
-                        <div class="layout-title"><h2>${escapeHtml(layout)}</h2><span>${groups[layout].length} rooms</span></div>
-                        <div class="room-table">${rows}</div>
-                    </section>
-                `;
-            }).join('') || '<p class="status">No rooms found.</p>';
+            `).join('');
+            sections.className = '';
+            sections.innerHTML = `
+                <section class="layout-section">
+                    <div class="layout-title"><h2>${escapeHtml(catalogue.title)}</h2><span>${visibleRooms.length} of ${rooms.length} rooms</span></div>
+                    <div class="room-table">${rows || '<p class="status" style="padding:14px">No matching rooms found.</p>'}</div>
+                </section>
+            `;
             sections.querySelectorAll('.save-room-button').forEach(button => {
                 button.addEventListener('click', () => saveRoom(button.closest('.room-row')));
             });
@@ -181,32 +202,77 @@
 
         async function saveRoom(row) {
             const code = row.dataset.code;
+            const catalogueId = row.dataset.catalogueId;
             const name = row.querySelector('.room-name-input').value;
             const page = row.querySelector('.room-page-input').value;
             const button = row.querySelector('.save-room-button');
             button.textContent = 'Saving...';
-            const response = await fetch('/api/catalogue/rooms', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ code, name, page })
-            });
-            button.textContent = response.ok ? 'Saved' : 'Failed';
+            try {
+                const response = await fetch('/api/catalogue/rooms', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ catalogue_id: catalogueId, code, name, page })
+                });
+                const payload = await response.json();
+                if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+                button.textContent = 'Saved';
+                await loadRooms(catalogueId);
+            } catch (error) {
+                console.error(error);
+                button.textContent = 'Failed';
+            }
             window.setTimeout(() => button.textContent = 'Save', 1200);
-            if (response.ok) await loadRooms();
         }
 
-        async function loadRooms() {
-            const response = await fetch(`/api/catalogue/rooms?v=${Date.now()}`);
-            rooms = await response.json();
-            render();
+        async function loadRooms(catalogueId = catalogueFilter.value) {
+            if (!catalogueId) {
+                rooms = [];
+                searchInput.disabled = true;
+                renderRows();
+                return;
+            }
+            sections.className = 'empty-state';
+            sections.innerHTML = '<div><strong>Loading rooms...</strong>Please wait.</div>';
+            const response = await fetch(`/api/catalogue/rooms?catalogue=${encodeURIComponent(catalogueId)}&v=${Date.now()}`);
+            const payload = await response.json();
+            if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+            rooms = payload;
+            searchInput.disabled = false;
+            renderRows();
         }
 
         searchInput.addEventListener('input', renderRows);
-        layoutFilter.addEventListener('change', renderRows);
-        loadRooms().catch(error => {
-            console.error(error);
-            sections.innerHTML = '<p class="status">Room list could not be loaded.</p>';
+        catalogueFilter.addEventListener('change', () => {
+            searchInput.value = '';
+            const url = new URL(window.location.href);
+            if (catalogueFilter.value) url.searchParams.set('catalogue', catalogueFilter.value);
+            else url.searchParams.delete('catalogue');
+            window.history.replaceState({}, '', url);
+            loadRooms().catch(showLoadError);
         });
+
+        function showLoadError(error) {
+            console.error(error);
+            sections.className = 'empty-state';
+            sections.innerHTML = `<div><strong>Room list could not be loaded</strong>${escapeHtml(error.message)}</div>`;
+        }
+
+        async function initialize() {
+            const response = await fetch(`/api/catalogue/room-catalogues?v=${Date.now()}`);
+            const payload = await response.json();
+            if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+            catalogues = payload;
+            catalogueFilter.innerHTML = '<option value="">Select a catalogue...</option>' + catalogues.map(item => (
+                `<option value="${escapeHtml(item.id)}">${escapeHtml(item.title)} (${escapeHtml(item.room_count)} rooms)</option>`
+            )).join('');
+            const requested = new URLSearchParams(window.location.search).get('catalogue');
+            if (catalogues.some(item => item.id === requested)) {
+                catalogueFilter.value = requested;
+                await loadRooms(requested);
+            }
+        }
+
+        initialize().catch(showLoadError);
     </script>
 </body>
 </html>

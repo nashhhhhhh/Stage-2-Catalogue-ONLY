@@ -1,0 +1,70 @@
+{
+  "slug": "lpg",
+  "title": "LPG",
+  "doc_url": "https://docs.google.com/document/d/1zsUhVMpV1tVqSk3v-6QC2umKiV9aDIFo8kXVkoTMNec/edit?usp=sharing",
+  "created_at": "2026-08-13 11:09:45",
+  "updated_at": "2026-08-14 14:16:34",
+  "last_checked": "2026-08-13 13:33:38",
+  "last_updated": "2026-08-13 13:33:38",
+  "refresh_error": "",
+  "auto_refresh": true,
+  "refresh_interval_minutes": 5,
+  "source_pptx": "data/custom_catalogue_uploads/lpg.pptx",
+  "slide_number": 1,
+  "slide_numbers": [
+    1
+  ],
+  "picture_name": "Picture 2",
+  "picture_names": [
+    "Picture 2"
+  ],
+  "room_count": 1,
+  "room_overrides": {},
+  "layout": {
+    "image": "/static/custom_catalogues/lpg/layout.png",
+    "pdf": "/static/custom_catalogues/lpg/catalogue.pdf",
+    "width": 3600,
+    "height": 2244,
+    "aspect": 1.6043
+  },
+  "layouts": [
+    {
+      "key": "slide-1",
+      "label": "Map 1 \u00b7 Slide 1",
+      "slide_number": 1,
+      "picture_name": "Picture 2",
+      "picture_names": [
+        "Picture 2"
+      ],
+      "image": "/static/custom_catalogues/lpg/layout.png",
+      "width": 3600,
+      "height": 2244,
+      "aspect": 1.6043,
+      "room_codes": [
+        "C-01"
+      ]
+    }
+  ],
+  "rooms": {
+    "C-01": {
+      "code": "C-01",
+      "name": "LPG",
+      "risk": "custom",
+      "interactive": true,
+      "left": 24.1167,
+      "top": 13.7048,
+      "width": 54.3429,
+      "height": 57.8984,
+      "svgPath": null,
+      "fillColor": "#E97132",
+      "fillOpacity": 0.18,
+      "strokeColor": "#E97132",
+      "strokeWidth": 1.0,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
+      "page": 3,
+      "defaultName": "LPG",
+      "defaultPage": 3
+    }
+  }
+}

@@ -3,501 +3,436 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SATS Stage 2 | Catalogue Management</title>
+    <title>Stage 2 Catalogue | Management</title>
     <style>
         * { box-sizing: border-box; }
+        :root {
+            --navy: #111827;
+            --blue: #2563eb;
+            --cyan: #06b6d4;
+            --ink: #0f172a;
+            --muted: #64748b;
+            --line: #dbe4ee;
+            --surface: rgba(255, 255, 255, 0.94);
+        }
         body {
             margin: 0;
             min-height: 100vh;
-            background: #f3f7fb;
-            color: #0f172a;
+            color: var(--ink);
+            background:
+                radial-gradient(circle at 88% 2%, rgba(37, 99, 235, 0.14), transparent 28rem),
+                #f3f7fb;
             font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
         }
-        header {
+        .page-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 16px;
-            padding: 16px 22px;
-            border-bottom: 1px solid #dbe4ee;
-            background: #ffffff;
+            gap: 18px;
+            padding: 18px 24px;
+            color: #fff;
+            background: linear-gradient(110deg, #111827, #1e3a8a 58%, #2563eb);
         }
-        h1 { margin: 0; font-size: 1.22rem; }
-        .subtitle { margin: 4px 0 0; color: #64748b; font-size: 0.82rem; font-weight: 750; }
-        .back-link,
-        .nav-card,
-        button {
-            border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            background: #ffffff;
-            color: #0f172a;
+        .eyebrow { margin: 0 0 4px; color: #a5f3fc; font-size: .7rem; font-weight: 900; letter-spacing: .16em; text-transform: uppercase; }
+        h1 { margin: 0; font-size: 1.35rem; }
+        .subtitle { margin: 5px 0 0; color: #cbd5e1; font-size: .82rem; font-weight: 700; }
+        .back-link, button, .action-link {
+            min-height: 40px;
+            border: 1px solid var(--line);
+            border-radius: 11px;
+            padding: 9px 14px;
+            color: var(--ink);
+            background: #fff;
             font: inherit;
-            font-size: 0.82rem;
+            font-size: .82rem;
             font-weight: 850;
             text-decoration: none;
+            cursor: pointer;
         }
-        .back-link {
-            display: inline-flex;
-            align-items: center;
-            min-height: 36px;
-            padding: 8px 12px;
-            background: #0f172a;
-            color: #ffffff;
-        }
-        main { padding: 14px; display: grid; gap: 14px; }
-        .nav-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+        .back-link { border-color: rgba(255,255,255,.25); color: #fff; background: rgba(255,255,255,.1); }
+        main { display: grid; gap: 14px; padding: 16px; }
+        .quick-nav { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
         .nav-card {
             display: grid;
-            gap: 6px;
-            padding: 14px;
-            min-height: 94px;
+            gap: 5px;
+            min-height: 78px;
+            padding: 13px;
+            border: 1px solid var(--line);
+            border-radius: 15px;
+            color: var(--ink);
+            background: var(--surface);
+            text-decoration: none;
         }
-        .nav-card strong { font-size: 0.98rem; }
-        .nav-card span { color: #64748b; font-size: 0.78rem; line-height: 1.35; }
-        .nav-card.active {
-            border-color: #0284c7;
-            background: #eff6ff;
-            color: #075985;
-        }
-        .panel {
-            border: 1px solid #dbe4ee;
-            border-radius: 8px;
-            background: #ffffff;
-            overflow: hidden;
-        }
-        .panel-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            padding: 13px 14px;
-            border-bottom: 1px solid #e2e8f0;
-            background: #f8fafc;
-        }
-        .panel-title h2 { margin: 0; font-size: 0.98rem; }
-        .panel-title span { color: #64748b; font-size: 0.76rem; font-weight: 800; }
-        .catalogue-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; padding: 12px; }
-        .layout-source-form { padding: 12px; }
-        .layout-source-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-        .catalogue-card {
-            border: 1px solid #dbe4ee;
-            border-radius: 8px;
-            padding: 12px;
-            background: #ffffff;
-        }
-        .catalogue-card h3 { margin: 0 0 10px; font-size: 0.92rem; }
-        .meta { display: grid; gap: 6px; margin-bottom: 10px; }
-        .meta div { display: grid; grid-template-columns: 94px minmax(0, 1fr); gap: 8px; color: #475569; font-size: 0.76rem; }
-        .meta b { color: #0f172a; overflow-wrap: anywhere; }
-        .source-summary {
-            display: grid;
-            grid-template-columns: repeat(3, minmax(0, 1fr));
-            gap: 8px;
-            padding: 12px 12px 0;
-        }
-        .summary-item {
-            border: 1px solid #dbe4ee;
-            border-radius: 8px;
-            padding: 10px;
-            background: #f8fafc;
-            color: #475569;
-            font-size: 0.72rem;
-            font-weight: 850;
-        }
-        .summary-item b { display: block; margin-top: 4px; color: #0f172a; overflow-wrap: anywhere; }
-        form { display: grid; gap: 8px; }
-        label { display: grid; gap: 5px; color: #475569; font-size: 0.68rem; font-weight: 900; letter-spacing: 0.08em; text-transform: uppercase; }
-        input {
+        .nav-card strong { font-size: .9rem; }
+        .nav-card span { color: var(--muted); font-size: .72rem; line-height: 1.35; }
+        .nav-card.active { border-color: #60a5fa; background: #eff6ff; }
+        .panel { overflow: hidden; border: 1px solid var(--line); border-radius: 16px; background: var(--surface); box-shadow: 0 10px 35px rgba(15,23,42,.05); }
+        .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid #e5edf5; background: rgba(248,250,252,.9); }
+        .panel-head h2 { margin: 0; font-size: 1rem; }
+        .panel-head span { color: var(--muted); font-size: .75rem; font-weight: 750; }
+        .chooser { display: grid; grid-template-columns: minmax(220px, 1fr) auto; align-items: end; gap: 12px; padding: 16px; }
+        label { display: grid; gap: 6px; color: #475569; font-size: .68rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+        input, select {
             width: 100%;
-            min-height: 36px;
+            min-height: 42px;
             border: 1px solid #cbd5e1;
-            border-radius: 8px;
-            padding: 8px 10px;
+            border-radius: 11px;
+            padding: 9px 11px;
+            color: var(--ink);
+            background: #fff;
             font: inherit;
-            font-size: 0.82rem;
+            font-size: .84rem;
         }
-        button {
-            min-height: 36px;
-            cursor: pointer;
-            background: #0284c7;
-            border-color: #0284c7;
-            color: #ffffff;
+        input:focus, select:focus { outline: 3px solid rgba(37,99,235,.13); border-color: #3b82f6; }
+        .empty-state { margin: 0 16px 16px; padding: 28px; border: 1px dashed #bfdbfe; border-radius: 14px; color: #475569; background: #f8fbff; text-align: center; }
+        .editor[hidden], .empty-state[hidden], .custom-only[hidden] { display: none; }
+        .editor { display: grid; gap: 14px; padding: 0 16px 16px; }
+        .summary-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+        .summary-card { padding: 11px; border: 1px solid #e2e8f0; border-radius: 12px; background: #f8fafc; }
+        .summary-card span { display: block; color: var(--muted); font-size: .65rem; font-weight: 900; letter-spacing: .07em; text-transform: uppercase; }
+        .summary-card b { display: block; margin-top: 4px; font-size: .8rem; overflow-wrap: anywhere; }
+        .notice { padding: 11px 13px; border: 1px solid #bae6fd; border-radius: 12px; color: #075985; background: #f0f9ff; font-size: .78rem; font-weight: 750; line-height: 1.45; }
+        .edit-form { display: grid; gap: 13px; }
+        .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .wide { grid-column: 1 / -1; }
+        .section-title { margin: 2px 0 -3px; font-size: .9rem; }
+        .layout-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+        .layout-card { display: grid; gap: 10px; padding: 13px; border: 1px solid #dbe4ee; border-radius: 14px; background: #f8fafc; }
+        .layout-card h3 { margin: 0; font-size: .9rem; }
+        .layout-meta { display: flex; flex-wrap: wrap; gap: 7px; color: var(--muted); font-size: .7rem; font-weight: 800; }
+        .layout-fields { display: grid; grid-template-columns: 110px minmax(150px, 1fr) 140px; gap: 9px; }
+        .actions { display: flex; flex-wrap: wrap; gap: 9px; padding-top: 2px; }
+        .primary { border-color: var(--blue); color: #fff; background: linear-gradient(110deg, #1d4ed8, #2563eb); }
+        .secondary { border-color: #cbd5e1; color: var(--ink); background: #fff; }
+        button:disabled { cursor: progress; opacity: .58; }
+        .status { min-height: 20px; color: #475569; font-size: .8rem; font-weight: 800; }
+        .status.error { color: #b91c1c; }
+        .status.success { color: #047857; }
+        .field-help { display: block; color: #64748b; font-size: .72rem; font-weight: 700; line-height: 1.45; letter-spacing: 0; text-transform: none; }
+        .header-actions { display: flex; align-items: center; gap: 9px; }
+        .catalogue-help-button { min-width: 40px; min-height: 38px; padding: 8px 12px; border: 1px solid #bae6fd; border-radius: 10px; color: #0369a1; background: #f0f9ff; font-size: 1rem; font-weight: 900; cursor: pointer; }
+        .tool-tabs { display: flex; flex-wrap: wrap; gap: 8px; padding: 12px; border-bottom: 1px solid var(--line); }
+        .tool-tab.active { border-color: var(--blue); color: #fff; background: var(--blue); }
+        .tool-frame { display: block; width: 100%; height: min(760px, calc(100vh - 210px)); min-height: 600px; border: 0; background: #fff; }
+        body.embedded .page-header, body.embedded .quick-nav, body.embedded #tools-panel { display: none; }
+        body.embedded main { padding: 0; }
+        body.embedded .panel { border: 0; border-radius: 0; box-shadow: none; }
+        @media (max-width: 900px) {
+            .quick-nav, .summary-grid, .form-grid, .layout-grid { grid-template-columns: 1fr; }
+            .layout-fields { grid-template-columns: 1fr; }
+            .wide { grid-column: auto; }
         }
-        button:disabled { cursor: progress; opacity: 0.62; }
-        .status { padding: 0 14px 14px; color: #64748b; font-size: 0.8rem; font-weight: 800; }
-        .tool-tabs {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            padding: 12px;
-            border-bottom: 1px solid #e2e8f0;
-            background: #ffffff;
-        }
-        .tool-tab {
-            min-height: 36px;
-            border-color: #cbd5e1;
-            background: #ffffff;
-            color: #0f172a;
-        }
-        .tool-tab.active {
-            border-color: #0284c7;
-            background: #0284c7;
-            color: #ffffff;
-        }
-        .tool-frame-wrap {
-            height: min(820px, calc(100vh - 160px));
-            min-height: 620px;
-            background: #f8fafc;
-        }
-        .tool-frame {
-            display: block;
-            width: 100%;
-            height: 100%;
-            border: 0;
-            background: #ffffff;
-        }
-        @media (max-width: 980px) {
-            .nav-grid, .catalogue-grid, .layout-source-grid, .source-summary { grid-template-columns: 1fr; }
-            .tool-frame-wrap { height: 760px; min-height: 620px; }
+        @media (max-width: 620px) {
+            .page-header, .chooser { grid-template-columns: 1fr; display: grid; }
+            main { padding: 10px; }
         }
     </style>
 </head>
 <body>
-    <header>
+    <header class="page-header">
         <div>
+            <p class="eyebrow">Stage 2 Catalogue</p>
             <h1>Catalogue Management</h1>
-            <p class="subtitle">Manage catalogue sources, room labels, and machine-to-room mappings.</p>
+            <p class="subtitle">Choose one catalogue first, then update only its document and layout settings.</p>
         </div>
-        <a class="back-link" href="/layout">Back to Layout</a>
+        <div class="header-actions">
+            <button class="catalogue-help-button" type="button" aria-label="Open bilingual tutorial" title="Tutorial · คู่มือ">?</button>
+            <a class="back-link" href="/layout">Back to Layout</a>
+        </div>
     </header>
     <main>
-        <section class="nav-grid" aria-label="Catalogue management sections">
-            <a class="nav-card" href="#catalogue-sources">
-                <strong>Catalogue Sources</strong>
-                <span>Connect or refresh Google Docs catalogue links by layout area.</span>
-            </a>
-            <a class="nav-card" href="#catalogue-tools" data-tool-link="create">
-                <strong>Create Catalogue</strong>
-                <span>Upload a PowerPoint map and connect it to a Google Docs catalogue.</span>
-            </a>
-            <a class="nav-card" href="#catalogue-tools" data-tool-link="rooms">
-                <strong>Room Names</strong>
-                <span>Edit room names and catalogue page mappings by factory layout.</span>
-            </a>
-            <a class="nav-card" href="#catalogue-tools" data-tool-link="machines">
-                <strong>Machine Mapping</strong>
-                <span>Add machines, capacities, and assign each machine to a room.</span>
-            </a>
-        </section>
-        <section class="panel" id="catalogue-sources">
-            <div class="panel-title">
-                <h2>Catalogue Google Docs Links</h2>
+        <nav class="quick-nav" aria-label="Catalogue management sections">
+            <a class="nav-card active" href="#sources"><strong>Catalogue Sources</strong><span>Edit Google Docs and PowerPoint sources catalogue by catalogue.</span></a>
+            <a class="nav-card" href="#tools" data-tool-link="create"><strong>Create Catalogue</strong><span>Add a new catalogue; it will appear in this selector automatically.</span></a>
+            <a class="nav-card" href="#tools" data-tool-link="rooms"><strong>Room Names</strong><span>Choose a catalogue, then edit only its rooms and page mappings.</span></a>
+            <a class="nav-card" href="#tools" data-tool-link="machines"><strong>Machine Mapping</strong><span>Assign machines and capacities to catalogue rooms.</span></a>
+        </nav>
+
+        <section class="panel" id="sources">
+            <div class="panel-head">
+                <h2>1. Choose a catalogue</h2>
+                <span id="catalogue-count">Loading catalogues...</span>
             </div>
-            <div class="catalogue-grid" id="catalogue-grid"></div>
-            <div class="status" id="status">Loading catalogue metadata...</div>
-        </section>
-        <section class="panel">
-            <div class="panel-title">
-                <h2>PowerPoint Layout Source</h2>
-            </div>
-            <div class="source-summary" id="layout-source-summary"></div>
-            <form class="layout-source-form" id="layout-source-form">
+            <div class="chooser">
                 <label>
-                    Replace Stage 2 PPT Deck
-                    <input name="pptx_file" type="file" accept=".pptx">
+                    Catalogue to change
+                    <select id="catalogue-select">
+                        <option value="">Select a catalogue...</option>
+                    </select>
                 </label>
-                <div class="layout-source-grid" id="layout-source-grid"></div>
-                <button type="submit">Update PPT Layout</button>
-            </form>
-            <div class="status" id="layout-source-status">Loading PowerPoint layout source...</div>
-        </section>
-        <section class="panel" id="catalogue-tools">
-            <div class="panel-title">
-                <h2>Catalogue Tools</h2>
-                <span id="active-tool-label">Machine Mapping</span>
+                <a class="action-link secondary" id="view-catalogue" href="/layout" hidden>Open Catalogue</a>
             </div>
-            <div class="tool-tabs" role="tablist" aria-label="Catalogue tools">
+            <div class="empty-state" id="empty-state">
+                Select the catalogue you want to edit. New catalogues are added to this list automatically.
+            </div>
+            <div class="editor" id="editor" hidden>
+                <div class="summary-grid" id="summary-grid"></div>
+                <div class="notice" id="layout-notice"></div>
+                <form class="edit-form" id="catalogue-form">
+                    <h3 class="section-title">2. PowerPoint layout — upload first</h3>
+                    <label>
+                        Replace PowerPoint deck (optional)
+                        <input id="pptx-file" name="pptx_file" type="file" accept=".pptx">
+                        <span class="field-help">Only upload a new deck when the map, room boundaries, or room codes changed. Otherwise leave this empty.</span>
+                    </label>
+                    <div class="layout-grid" id="layout-grid"></div>
+                    <h3 class="section-title">3. Catalogue document — connect after PowerPoint</h3>
+                    <div class="form-grid">
+                        <label class="custom-only" id="title-field" hidden>
+                            Catalogue name
+                            <input id="catalogue-title" name="title" autocomplete="off">
+                        </label>
+                        <label class="wide">
+                            Public Google Docs link
+                            <input id="doc-url" name="doc_url" type="url" placeholder="https://docs.google.com/document/d/..." required>
+                            <span class="field-help">The document must be shared as “Anyone with the link can view.”</span>
+                        </label>
+                    </div>
+                    <div class="actions">
+                        <button class="primary" id="save-button" type="submit">Save &amp; Rebuild Catalogue</button>
+                        <button class="secondary" id="refresh-button" type="button">Refresh Google Doc Now</button>
+                    </div>
+                    <div class="status" id="status" aria-live="polite">Choose a catalogue to begin.</div>
+                </form>
+            </div>
+        </section>
+
+        <section class="panel" id="tools-panel">
+            <div class="panel-head"><h2>Catalogue Tools</h2><span id="active-tool-label">Room Names</span></div>
+            <div class="tool-tabs" id="tools">
+                <button class="tool-tab active" type="button" data-tool="rooms">Room Names</button>
                 <button class="tool-tab" type="button" data-tool="machines">Machine Mapping</button>
-                <button class="tool-tab" type="button" data-tool="rooms">Room Names</button>
                 <button class="tool-tab" type="button" data-tool="create">Create Catalogue</button>
             </div>
-            <div class="tool-frame-wrap">
-                <iframe class="tool-frame" id="catalogue-tool-frame" title="Catalogue management tool"></iframe>
-            </div>
+            <iframe class="tool-frame" id="tool-frame" title="Catalogue tool" src="/catalogue/manage/rooms?embedded=1"></iframe>
         </section>
     </main>
+    <script src="/static/catalogue_shell.js?v=20260811-2"></script>
     <script>
-        const embeddedTools = {
-            machines: {
-                label: 'Machine Mapping',
-                url: '/catalogue/manage/machines?embedded=1'
-            },
-            rooms: {
-                label: 'Room Names',
-                url: '/catalogue/manage/rooms?embedded=1'
-            },
-            create: {
-                label: 'Create Catalogue',
-                url: '/catalogue/manage/create?embedded=1'
-            }
-        };
-        const riskAreaNames = {
-            medium: 'Factory - Medium Risk',
-            high: 'Factory - High Risk',
-            low: 'Factory - Low Risk',
-            office: 'Incoming Warehouse Office'
-        };
-        const grid = document.getElementById('catalogue-grid');
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('embedded') === '1') document.body.classList.add('embedded');
+
+        const catalogueSelect = document.getElementById('catalogue-select');
+        const catalogueCount = document.getElementById('catalogue-count');
+        const editor = document.getElementById('editor');
+        const emptyState = document.getElementById('empty-state');
+        const summaryGrid = document.getElementById('summary-grid');
+        const layoutNotice = document.getElementById('layout-notice');
+        const catalogueForm = document.getElementById('catalogue-form');
+        const titleField = document.getElementById('title-field');
+        const catalogueTitle = document.getElementById('catalogue-title');
+        const docUrl = document.getElementById('doc-url');
+        const layoutGrid = document.getElementById('layout-grid');
+        const viewCatalogue = document.getElementById('view-catalogue');
         const statusLine = document.getElementById('status');
-        const layoutSourceSummary = document.getElementById('layout-source-summary');
-        const layoutSourceGrid = document.getElementById('layout-source-grid');
-        const layoutSourceForm = document.getElementById('layout-source-form');
-        const layoutSourceStatus = document.getElementById('layout-source-status');
-        const toolFrame = document.getElementById('catalogue-tool-frame');
+        const saveButton = document.getElementById('save-button');
+        const refreshButton = document.getElementById('refresh-button');
+        const toolFrame = document.getElementById('tool-frame');
         const activeToolLabel = document.getElementById('active-tool-label');
-        let latestMetadata = null;
-        let layoutSourcePayload = null;
+        let catalogues = [];
+        let selectedCatalogue = null;
+
+        const toolDetails = {
+            rooms: ['Room Names', '/catalogue/manage/rooms?embedded=1'],
+            machines: ['Machine Mapping', '/catalogue/manage/machines?embedded=1'],
+            create: ['Create Catalogue', '/catalogue/manage/create?embedded=1']
+        };
+        const representativeRooms = { medium: 'M-01', high: 'H-01', low: 'L-01', office: 'O-01' };
 
         function escapeHtml(value) {
-            return String(value ?? '').replace(/[&<>"']/g, char => ({
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
                 '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
-            }[char]));
+            }[character]));
         }
 
-        async function readJsonResponse(response) {
+        async function readJson(response) {
             const text = await response.text();
-            try {
-                return JSON.parse(text);
-            } catch (error) {
-                throw new Error(text.trim().startsWith('<') ? `HTTP ${response.status}` : error.message);
-            }
+            try { return JSON.parse(text); }
+            catch (error) { throw new Error(text.trim().startsWith('<') ? `HTTP ${response.status}` : error.message); }
         }
 
-        async function loadStaticLayoutSourcePayload() {
-            const [configResponse, metadataResponse] = await Promise.all([
-                fetch(`/static/data/layout_source_config.json?v=${Date.now()}`),
-                fetch(`/static/data/layout_metadata.json?v=${Date.now()}`)
-            ]);
-            if (!configResponse.ok) throw new Error(`Static config HTTP ${configResponse.status}`);
-            const config = await readJsonResponse(configResponse);
-            const metadata = metadataResponse.ok ? await readJsonResponse(metadataResponse) : {};
-            const layouts = {};
-            Object.entries(config.layouts || {}).forEach(([key, details]) => {
-                layouts[key] = {
-                    ...details,
-                    width: metadata[key]?.width,
-                    height: metadata[key]?.height,
-                    aspect: metadata[key]?.aspect,
-                    room_count: metadata[key]?.room_count ?? 0
-                };
-            });
-            return {
-                source_pptx: config.source_pptx || 'layout_sources/Stage 2 PPT Layout.pptx',
-                source_name: (config.source_pptx || 'Stage 2 PPT Layout.pptx').split('/').pop(),
-                source_exists: true,
-                slide_count: 'Restart backend to detect',
-                layouts
-            };
+        function setStatus(message, type = '') {
+            statusLine.textContent = message;
+            statusLine.className = `status ${type}`.trim();
         }
 
-        function setActiveTool(toolKey) {
-            const tool = embeddedTools[toolKey] || embeddedTools.machines;
-            toolFrame.src = tool.url;
-            activeToolLabel.textContent = tool.label;
-            document.querySelectorAll('.tool-tab').forEach(button => {
-                button.classList.toggle('active', button.dataset.tool === toolKey);
-            });
-            document.querySelectorAll('[data-tool-link]').forEach(link => {
-                link.classList.toggle('active', link.dataset.toolLink === toolKey);
-            });
-        }
-
-        function getCatalogueLayoutSummary(riskArea) {
-            const layouts = layoutSourcePayload?.layouts || {};
-            if (riskArea === 'office') {
-                const first = layouts['incoming-office-level-1'];
-                const second = layouts['incoming-office-level-2'];
-                const slides = [first?.slide, second?.slide].filter(Boolean);
-                return slides.length ? `Slides ${slides.join(', ')}` : 'Not set';
-            }
-            return layouts.factory?.slide ? `Slide ${layouts.factory.slide}` : 'Not set';
-        }
-
-        function getLayoutUsage(key) {
-            if (key === 'factory') return 'Medium, High, and Low Risk catalogue pages';
-            if (key === 'incoming-office-level-1') return 'Incoming Warehouse Office Level 1 catalogue page';
-            if (key === 'incoming-office-level-2') return 'Incoming Warehouse Office Level 2 catalogue page';
-            return 'Catalogue map';
-        }
-
-        function render(metadata) {
-            latestMetadata = metadata;
-            grid.innerHTML = '';
-            ['medium', 'high', 'low', 'office'].forEach(riskArea => {
-                const details = metadata[riskArea] || {};
-                const card = document.createElement('article');
-                card.className = 'catalogue-card';
-                card.innerHTML = `
-                    <h3>${riskAreaNames[riskArea]}</h3>
-                    <div class="meta">
-                        <div><span>Source</span><b>${escapeHtml(details.source_url || 'Not connected')}</b></div>
-                        <div><span>Updated</span><b>${escapeHtml(details.last_updated || 'Not available')}</b></div>
-                        <div><span>Refresh</span><b>${details.source_url ? `Every ${escapeHtml(details.refresh_interval_minutes || 5)} min` : 'Not connected'}</b></div>
-                        <div><span>PPT</span><b>${escapeHtml(getCatalogueLayoutSummary(riskArea))}</b></div>
+        function layoutFields(key, details) {
+            const fieldNames = selectedCatalogue.kind === 'custom'
+                ? { slide: 'slide_numbers', picture: 'picture_name', width: 'target_width' }
+                : { slide: `slide:${key}`, picture: `picture:${key}`, width: `target_width:${key}` };
+            const slideInput = selectedCatalogue.kind === 'custom'
+                ? `<input name="${fieldNames.slide}" type="text" value="${escapeHtml(details.slide || 'all')}" placeholder="all or 1,2" required>`
+                : `<input name="${fieldNames.slide}" type="number" min="1" step="1" value="${escapeHtml(details.slide || 1)}" required>`;
+            return `
+                <article class="layout-card">
+                    <h3>${escapeHtml(details.label || selectedCatalogue.title)}</h3>
+                    <div class="layout-meta">
+                        <span>${escapeHtml(details.room_count ?? 0)} rooms</span>
+                        <span>${details.width && details.height ? `${escapeHtml(details.width)} x ${escapeHtml(details.height)} px` : 'Image size pending'}</span>
                     </div>
-                    <form data-risk-area="${riskArea}">
-                        <input type="hidden" name="risk_area" value="${riskArea}">
-                        <label>
-                            Google Docs Link
-                            <input name="doc_url" type="url" value="${escapeHtml(details.source_url || '')}" placeholder="https://docs.google.com/document/d/..." required>
-                        </label>
-                        <button type="submit">Connect / Refresh Link</button>
-                    </form>
-                `;
-                grid.appendChild(card);
-            });
-            grid.querySelectorAll('form').forEach(form => form.addEventListener('submit', submitUpload));
-        }
-
-        function renderLayoutSource(payload) {
-            layoutSourcePayload = payload;
-            const layouts = payload.layouts || {};
-            layoutSourceSummary.innerHTML = `
-                <div class="summary-item">Deck<b>${escapeHtml(payload.source_name || payload.source_pptx || 'Not set')}</b></div>
-                <div class="summary-item">Slides<b>${escapeHtml(payload.slide_count || 'Unknown')}</b></div>
-                <div class="summary-item">Status<b>${payload.source_exists ? 'Ready' : 'Missing deck'}</b></div>
-            `;
-            layoutSourceGrid.innerHTML = Object.entries(layouts).map(([key, details]) => `
-                <article class="catalogue-card">
-                    <h3>${escapeHtml(details.label || key)}</h3>
-                    <div class="meta">
-                        <div><span>Used By</span><b>${escapeHtml(getLayoutUsage(key))}</b></div>
-                        <div><span>Current Slide</span><b>Slide ${escapeHtml(details.slide || 1)}</b></div>
-                        <div><span>Rooms</span><b>${escapeHtml(details.room_count ?? 0)}</b></div>
-                        <div><span>Image</span><b>${escapeHtml(details.image || '')}</b></div>
+                    <div class="layout-fields">
+                        <label>${selectedCatalogue.kind === 'custom' ? 'Slides' : 'Slide'}${slideInput}</label>
+                        <label>Picture name<input name="${fieldNames.picture}" value="${escapeHtml(details.picture || '')}" placeholder="Leave blank to use largest picture" ${selectedCatalogue.kind === 'custom' ? '' : 'required'}></label>
+                        <label>Export width<input name="${fieldNames.width}" type="number" min="800" max="10000" step="100" value="${escapeHtml(details.target_width || details.width || 3600)}" required></label>
                     </div>
-                    <label>
-                        Slide Number
-                        <input name="slide:${escapeHtml(key)}" type="number" min="1" step="1" value="${escapeHtml(details.slide || 1)}" required>
-                    </label>
-                    <label>
-                        PPT Picture Name
-                        <input name="picture:${escapeHtml(key)}" value="${escapeHtml(details.picture || '')}" required>
-                    </label>
-                    <label>
-                        Export Width
-                        <input name="target_width:${escapeHtml(key)}" type="number" min="800" max="10000" step="100" value="${escapeHtml(details.target_width || 3600)}" required>
-                    </label>
-                </article>
-            `).join('');
-            if (latestMetadata) render(latestMetadata);
+                </article>`;
         }
 
-        async function loadMetadata() {
-            try {
-                statusLine.textContent = 'Loading catalogue metadata...';
-                const response = await fetch(`/static/catalogue/catalogue_versions.json?v=${Date.now()}`);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-                render(await readJsonResponse(response));
-                statusLine.textContent = 'Paste a public Google Docs link to connect a catalogue. Current links auto-refresh in the backend.';
-            } catch (error) {
-                console.error(error);
-                statusLine.textContent = 'Unable to load catalogue metadata.';
+        function renderSelectedCatalogue() {
+            selectedCatalogue = catalogues.find(item => item.id === catalogueSelect.value) || null;
+            if (!selectedCatalogue) {
+                editor.hidden = true;
+                emptyState.hidden = false;
+                viewCatalogue.hidden = true;
+                return;
             }
-        }
-
-        async function loadLayoutSource() {
-            try {
-                layoutSourceStatus.textContent = 'Loading PowerPoint layout source...';
-                const response = await fetch(`/api/catalogue/layout-source?v=${Date.now()}`);
-                const payload = await readJsonResponse(response);
-                if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
-                renderLayoutSource(payload);
-                layoutSourceStatus.textContent = 'Set the slide and picture name for each layout, then update to rebuild the map shapes.';
-            } catch (error) {
-                console.error(error);
-                try {
-                    renderLayoutSource(await loadStaticLayoutSourcePayload());
-                    layoutSourceStatus.textContent = 'Showing saved PPT mapping. Restart backend before uploading a new deck.';
-                } catch (fallbackError) {
-                    console.error(fallbackError);
-                    layoutSourceStatus.textContent = `Unable to load PowerPoint layout source: ${fallbackError.message}`;
-                }
-            }
-        }
-
-        async function submitUpload(event) {
-            event.preventDefault();
-            const form = event.currentTarget;
-            const riskArea = form.dataset.riskArea;
-            const submitButton = form.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton?.textContent || 'Connect / Refresh Link';
-            try {
-                if (submitButton) {
-                    submitButton.disabled = true;
-                    submitButton.textContent = 'Connecting...';
-                }
-                statusLine.textContent = `Connecting ${riskAreaNames[riskArea]}...`;
-                const response = await fetch('/catalogue/upload', {
-                    method: 'POST',
-                    body: new FormData(form)
+            editor.hidden = false;
+            emptyState.hidden = true;
+            titleField.hidden = selectedCatalogue.kind !== 'custom';
+            catalogueTitle.required = selectedCatalogue.kind === 'custom';
+            catalogueTitle.value = selectedCatalogue.title || '';
+            docUrl.value = selectedCatalogue.source_url || '';
+            document.getElementById('pptx-file').value = '';
+            summaryGrid.innerHTML = `
+                <div class="summary-card"><span>Catalogue</span><b>${escapeHtml(selectedCatalogue.title)}</b></div>
+                <div class="summary-card"><span>PowerPoint</span><b>${escapeHtml(selectedCatalogue.source_name || 'Not available')}</b></div>
+                <div class="summary-card"><span>Last updated</span><b>${escapeHtml(selectedCatalogue.last_updated || 'Not available')}</b></div>
+                <div class="summary-card"><span>Auto refresh</span><b>Every ${escapeHtml(selectedCatalogue.refresh_interval_minutes || 5)} minutes</b></div>`;
+            layoutNotice.textContent = selectedCatalogue.shared_layout
+                ? 'This catalogue uses the shared Stage 2 PowerPoint deck. Only the layout used by this catalogue is shown here; replacing the deck also keeps the other built-in layout mappings.'
+                : 'This PowerPoint belongs only to this catalogue. Uploading a corrected deck updates this catalogue in place and preserves its saved room-name overrides.';
+            const layoutEntries = Object.entries(selectedCatalogue.layouts || {});
+            if (selectedCatalogue.kind === 'custom' && layoutEntries.length) {
+                const firstDetails = layoutEntries[0][1];
+                layoutGrid.innerHTML = layoutFields('custom', {
+                    ...firstDetails,
+                    label: selectedCatalogue.title,
+                    slide: layoutEntries.map(([, details]) => details.slide).join(','),
+                    room_count: layoutEntries.reduce((total, [, details]) => total + Number(details.room_count || 0), 0)
                 });
-                const payload = await response.json();
-                if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
-                statusLine.textContent = `${riskAreaNames[riskArea]} linked.`;
-                await loadMetadata();
+            } else {
+                layoutGrid.innerHTML = layoutEntries.map(([key, details]) => layoutFields(key, details)).join('');
+            }
+            if (selectedCatalogue.kind === 'custom') {
+                viewCatalogue.href = `/catalogue/custom/${encodeURIComponent(selectedCatalogue.slug)}`;
+            } else {
+                viewCatalogue.href = `/catalogue/${representativeRooms[selectedCatalogue.risk_area]}`;
+            }
+            viewCatalogue.hidden = false;
+            setStatus(selectedCatalogue.refresh_error ? `Last refresh issue: ${selectedCatalogue.refresh_error}` : 'Ready to edit this catalogue.');
+            const url = new URL(window.location.href);
+            url.searchParams.set('catalogue', selectedCatalogue.id);
+            window.history.replaceState({}, '', url);
+        }
+
+        async function loadCatalogues(preferredId = '') {
+            const showBootProgress = !catalogues.length && !preferredId;
+            if (showBootProgress) window.CatalogueLoading?.start({ title: 'Loading catalogue management…', thai: 'กำลังโหลดหน้าจัดการแค็ตตาล็อก…', ceiling: 86 });
+            catalogueCount.textContent = 'Loading catalogues...';
+            const response = await fetch(`/api/catalogue/management/catalogues?v=${Date.now()}`);
+            const payload = await readJson(response);
+            if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+            catalogues = payload.catalogues || [];
+            catalogueSelect.innerHTML = '<option value="">Select a catalogue...</option>' + catalogues.map(item =>
+                `<option value="${escapeHtml(item.id)}">${escapeHtml(item.title)}</option>`
+            ).join('');
+            catalogueCount.textContent = `${catalogues.length} catalogues available`;
+            const requested = preferredId || params.get('catalogue') || '';
+            if (catalogues.some(item => item.id === requested)) catalogueSelect.value = requested;
+            renderSelectedCatalogue();
+            if (showBootProgress) window.CatalogueLoading?.finish('Catalogue management is ready', 'หน้าจัดการแค็ตตาล็อกพร้อมใช้งาน');
+        }
+
+        async function saveSelectedCatalogue(event) {
+            event.preventDefault();
+            if (!selectedCatalogue) return;
+            saveButton.disabled = true;
+            refreshButton.disabled = true;
+            setStatus(`Saving and rebuilding ${selectedCatalogue.title}...`);
+            window.CatalogueLoading?.start({ title: `Rebuilding ${selectedCatalogue.title}…`, thai: `กำลังสร้าง ${selectedCatalogue.title} ใหม่…`, ceiling: 88 });
+            try {
+                const formData = new FormData(catalogueForm);
+                let response;
+                if (selectedCatalogue.kind === 'custom') {
+                    response = await fetch(`/api/catalogue/custom/${encodeURIComponent(selectedCatalogue.slug)}/update`, { method: 'POST', body: formData });
+                    const payload = await readJson(response);
+                    if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+                } else {
+                    response = await fetch('/api/catalogue/layout-source', { method: 'POST', body: formData });
+                    let payload = await readJson(response);
+                    if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+                    const documentData = new FormData();
+                    documentData.set('risk_area', selectedCatalogue.risk_area);
+                    documentData.set('doc_url', formData.get('doc_url'));
+                    response = await fetch('/catalogue/upload', { method: 'POST', body: documentData });
+                    payload = await readJson(response);
+                    if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
+                }
+                const selectedId = selectedCatalogue.id;
+                window.CatalogueLoading?.set(92, 'Reloading updated catalogue data…', 'กำลังโหลดข้อมูลแค็ตตาล็อกที่อัปเดต…');
+                await loadCatalogues(selectedId);
+                setStatus(`${selectedCatalogue.title} was updated and rebuilt successfully.`, 'success');
+                window.CatalogueLoading?.finish('Catalogue rebuild complete', 'สร้างแค็ตตาล็อกใหม่เสร็จสมบูรณ์');
             } catch (error) {
                 console.error(error);
-                statusLine.textContent = `Upload failed: ${error.message}`;
+                setStatus(`Update failed: ${error.message}`, 'error');
+                window.CatalogueLoading?.fail('Catalogue update failed', 'การอัปเดตแค็ตตาล็อกไม่สำเร็จ');
             } finally {
-                if (submitButton) {
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalButtonText;
-                }
+                saveButton.disabled = false;
+                refreshButton.disabled = false;
             }
         }
 
-        layoutSourceForm.addEventListener('submit', async event => {
-            event.preventDefault();
-            const submitButton = layoutSourceForm.querySelector('button[type="submit"]');
-            const originalButtonText = submitButton?.textContent || 'Update PPT Layout';
+        async function refreshSelectedCatalogue() {
+            if (!selectedCatalogue) return;
+            refreshButton.disabled = true;
+            saveButton.disabled = true;
+            setStatus(`Checking ${selectedCatalogue.title} for Google Docs changes...`);
+            window.CatalogueLoading?.start({ title: 'Refreshing from Google Docs…', thai: 'กำลังรีเฟรชข้อมูลจาก Google Docs…', ceiling: 88 });
             try {
-                if (submitButton) {
-                    submitButton.disabled = true;
-                    submitButton.textContent = 'Updating...';
-                }
-                layoutSourceStatus.textContent = 'Updating PowerPoint layout and rebuilding map shapes...';
-                const response = await fetch('/api/catalogue/layout-source', {
-                    method: 'POST',
-                    body: new FormData(layoutSourceForm)
-                });
-                const payload = await readJsonResponse(response);
+                const endpoint = selectedCatalogue.kind === 'custom'
+                    ? `/api/catalogue/custom/${encodeURIComponent(selectedCatalogue.slug)}/refresh`
+                    : `/api/catalogue/${selectedCatalogue.risk_area}/refresh`;
+                const response = await fetch(endpoint, { method: 'POST' });
+                const payload = await readJson(response);
                 if (!response.ok) throw new Error(payload.error || `HTTP ${response.status}`);
-                renderLayoutSource(payload.layout_source);
-                layoutSourceStatus.textContent = payload.message || 'PowerPoint layout updated.';
+                const selectedId = selectedCatalogue.id;
+                window.CatalogueLoading?.set(93, 'Applying refreshed catalogue data…', 'กำลังนำข้อมูลแค็ตตาล็อกที่รีเฟรชมาใช้…');
+                await loadCatalogues(selectedId);
+                setStatus(payload.changed ? 'Google Docs changes found and applied.' : 'Checked successfully; the catalogue was already current.', 'success');
+                window.CatalogueLoading?.finish('Google Docs refresh complete', 'รีเฟรช Google Docs เสร็จสมบูรณ์');
             } catch (error) {
                 console.error(error);
-                layoutSourceStatus.textContent = `PowerPoint update failed: ${error.message}. Restart the backend if this route was just added.`;
+                setStatus(`Refresh failed: ${error.message}`, 'error');
+                window.CatalogueLoading?.fail('Refresh failed', 'การรีเฟรชไม่สำเร็จ');
             } finally {
-                if (submitButton) {
-                    submitButton.disabled = false;
-                    submitButton.textContent = originalButtonText;
-                }
+                refreshButton.disabled = false;
+                saveButton.disabled = false;
             }
-        });
+        }
 
-        document.querySelectorAll('.tool-tab').forEach(button => {
-            button.addEventListener('click', () => setActiveTool(button.dataset.tool));
-        });
-        document.querySelectorAll('[data-tool-link]').forEach(link => {
-            link.addEventListener('click', () => {
-                setActiveTool(link.dataset.toolLink);
-            });
-        });
+        function setTool(toolKey) {
+            const [label, url] = toolDetails[toolKey] || toolDetails.rooms;
+            toolFrame.src = url;
+            activeToolLabel.textContent = label;
+            document.querySelectorAll('.tool-tab').forEach(button => button.classList.toggle('active', button.dataset.tool === toolKey));
+        }
 
-        setActiveTool('machines');
-        loadMetadata();
-        loadLayoutSource();
+        catalogueSelect.addEventListener('change', renderSelectedCatalogue);
+        catalogueForm.addEventListener('submit', saveSelectedCatalogue);
+        refreshButton.addEventListener('click', refreshSelectedCatalogue);
+        document.querySelectorAll('.tool-tab').forEach(button => button.addEventListener('click', () => setTool(button.dataset.tool)));
+        document.querySelectorAll('[data-tool-link]').forEach(link => link.addEventListener('click', () => setTool(link.dataset.toolLink)));
+        window.addEventListener('message', event => {
+            if (event.origin !== window.location.origin || event.data?.type !== 'catalogue-created') return;
+            loadCatalogues(event.data.catalogueId).catch(error => setStatus(`Unable to reload catalogues: ${error.message}`, 'error'));
+        });
+        loadCatalogues().catch(error => {
+            console.error(error);
+            catalogueCount.textContent = 'Unable to load catalogues';
+            emptyState.textContent = `Unable to load catalogue management: ${error.message}`;
+            window.CatalogueLoading?.fail('Unable to load catalogue management', 'ไม่สามารถโหลดหน้าจัดการแค็ตตาล็อกได้');
+        });
     </script>
 </body>
 </html>

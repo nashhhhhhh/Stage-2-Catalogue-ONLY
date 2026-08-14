@@ -1,0 +1,44 @@
+{
+  "slug": "water-treatment-plant",
+  "title": "Water Treatment Plant",
+  "doc_url": "https://docs.google.com/document/d/1NBjHKRBiQ_E2RmX2XAiTkexKc0czpZqwMVyfQLwe0es/edit?usp=sharing",
+  "created_at": "2026-08-13 10:35:07",
+  "updated_at": "2026-08-13 10:37:44",
+  "last_checked": "2026-08-13 10:37:28",
+  "last_updated": "2026-08-13 10:37:28",
+  "refresh_error": "",
+  "auto_refresh": true,
+  "refresh_interval_minutes": 5,
+  "source_pptx": "data/custom_catalogue_uploads/water-treatment-plant.pptx",
+  "slide_number": 1,
+  "picture_name": "Picture 8",
+  "room_count": 1,
+  "room_overrides": {},
+  "layout": {
+    "image": "/static/custom_catalogues/water-treatment-plant/layout.png",
+    "pdf": "/static/custom_catalogues/water-treatment-plant/catalogue.pdf",
+    "width": 3600,
+    "height": 1364,
+    "aspect": 2.6393
+  },
+  "rooms": {
+    "C-01": {
+      "code": "C-01",
+      "name": "WTP 2nd Floor",
+      "risk": "custom",
+      "interactive": true,
+      "left": 0.7576,
+      "top": 3.6357,
+      "width": 97.9798,
+      "height": 96.1802,
+      "svgPath": "M 0.9259 3.6357 L 98.4007 3.6357 L 98.7374 99.8159 L 68.4344 99.3716 L 68.3502 88.7096 L 0.7576 88.7096 L 0.9259 3.6357 Z",
+      "fillColor": "#2563EB",
+      "fillOpacity": 0.36,
+      "strokeColor": "#2563EB",
+      "strokeWidth": 1,
+      "page": 3,
+      "defaultName": "WTP 2nd Floor",
+      "defaultPage": 3
+    }
+  }
+}

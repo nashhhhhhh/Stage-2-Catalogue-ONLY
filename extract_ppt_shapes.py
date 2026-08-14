@@ -3,9 +3,11 @@ import math
 from io import BytesIO
 from pathlib import Path
 
-from PIL import Image, ImageFilter
+from PIL import Image, ImageFilter, ImageOps
 from pptx import Presentation
 from pptx.enum.shapes import MSO_SHAPE_TYPE
+from pptx.opc.constants import RELATIONSHIP_TYPE as RT
+from pptx.oxml import parse_xml
 
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -134,10 +136,66 @@ def crop_picture_image(picture):
     return image.crop(box)
 
 
+def get_shape_transform(shape):
+    transform = shape.element.find(".//a:xfrm", namespaces=NS)
+    if transform is None:
+        return 0, False, False
+    rotation = int(transform.get("rot") or 0) / 60000
+    flip_h = str(transform.get("flipH") or "").lower() in {"1", "true"}
+    flip_v = str(transform.get("flipV") or "").lower() in {"1", "true"}
+    return rotation, flip_h, flip_v
+
+
+def transform_shape_point(shape, local_x, local_y):
+    rotation, flip_h, flip_v = get_shape_transform(shape)
+    if flip_h:
+        local_x = 1 - local_x
+    if flip_v:
+        local_y = 1 - local_y
+
+    center_x = shape.left + shape.width / 2
+    center_y = shape.top + shape.height / 2
+    offset_x = (local_x - 0.5) * shape.width
+    offset_y = (local_y - 0.5) * shape.height
+    radians = math.radians(rotation)
+    return (
+        center_x + offset_x * math.cos(radians) - offset_y * math.sin(radians),
+        center_y + offset_x * math.sin(radians) + offset_y * math.cos(radians),
+    )
+
+
+def get_rendered_shape_bounds(shape):
+    corners = [
+        transform_shape_point(shape, local_x, local_y)
+        for local_x, local_y in ((0, 0), (1, 0), (1, 1), (0, 1))
+    ]
+    xs = [point[0] for point in corners]
+    ys = [point[1] for point in corners]
+    return min(xs), min(ys), max(xs), max(ys)
+
+
 def export_floorplan(picture, output_path, target_width):
     image = crop_picture_image(picture)
-    target_height = round(target_width * image.height / image.width)
-    image = image.resize((target_width, target_height), Image.Resampling.LANCZOS)
+    rotation, flip_h, flip_v = get_shape_transform(picture)
+    left, top, right, bottom = get_rendered_shape_bounds(picture)
+    rendered_width = max(1, right - left)
+    rendered_height = max(1, bottom - top)
+    scale = target_width / rendered_width
+    unrotated_size = (
+        max(1, round(picture.width * scale)),
+        max(1, round(picture.height * scale)),
+    )
+    image = image.resize(unrotated_size, Image.Resampling.LANCZOS)
+    if flip_h:
+        image = ImageOps.mirror(image)
+    if flip_v:
+        image = ImageOps.flip(image)
+    if rotation % 360:
+        image = image.rotate(-rotation, expand=True, resample=Image.Resampling.BICUBIC)
+
+    target_height = max(1, round(target_width * rendered_height / rendered_width))
+    if image.size != (target_width, target_height):
+        image = image.resize((target_width, target_height), Image.Resampling.LANCZOS)
     image = image.filter(ImageFilter.UnsharpMask(radius=1.2, percent=135, threshold=2))
     output_path.parent.mkdir(parents=True, exist_ok=True)
     image.save(output_path, "PNG", optimize=True)
@@ -147,17 +205,16 @@ def export_floorplan(picture, output_path, target_width):
 def shape_point_to_picture(point, path_width, path_height, shape, picture):
     local_x = int(point.get("x")) / path_width
     local_y = int(point.get("y")) / path_height
-    slide_x = shape.left + local_x * shape.width
-    slide_y = shape.top + local_y * shape.height
+    slide_x, slide_y = transform_shape_point(shape, local_x, local_y)
+    picture_left, picture_top, picture_right, picture_bottom = get_rendered_shape_bounds(picture)
     return (
-        rounded((slide_x - picture.left) / picture.width * 100),
-        rounded((slide_y - picture.top) / picture.height * 100),
+        rounded((slide_x - picture_left) / (picture_right - picture_left) * 100),
+        rounded((slide_y - picture_top) / (picture_bottom - picture_top) * 100),
     )
 
 
 def get_shape_rotation(shape):
-    transform = shape.element.find(".//a:xfrm", namespaces=NS)
-    return int(transform.get("rot") or 0) / 60000 if transform is not None else 0
+    return get_shape_transform(shape)[0]
 
 
 def extract_rotated_rect_path(shape, picture):
@@ -165,22 +222,19 @@ def extract_rotated_rect_path(shape, picture):
     if rotation % 360 == 0:
         return None
 
-    center_x = shape.left + shape.width / 2
-    center_y = shape.top + shape.height / 2
-    radians = math.radians(rotation)
-    corners = []
-    for local_x, local_y in (
-        (-shape.width / 2, -shape.height / 2),
-        (shape.width / 2, -shape.height / 2),
-        (shape.width / 2, shape.height / 2),
-        (-shape.width / 2, shape.height / 2),
-    ):
-        slide_x = center_x + local_x * math.cos(radians) - local_y * math.sin(radians)
-        slide_y = center_y + local_x * math.sin(radians) + local_y * math.cos(radians)
-        corners.append((
-            rounded((slide_x - picture.left) / picture.width * 100),
-            rounded((slide_y - picture.top) / picture.height * 100),
-        ))
+    picture_left, picture_top, picture_right, picture_bottom = get_rendered_shape_bounds(picture)
+    picture_width = picture_right - picture_left
+    picture_height = picture_bottom - picture_top
+    corners = [
+        (
+            rounded((slide_x - picture_left) / picture_width * 100),
+            rounded((slide_y - picture_top) / picture_height * 100),
+        )
+        for slide_x, slide_y in (
+            transform_shape_point(shape, local_x, local_y)
+            for local_x, local_y in ((0, 0), (1, 0), (1, 1), (0, 1))
+        )
+    ]
 
     return " ".join(
         [f"M {corners[0][0]} {corners[0][1]}"]
@@ -220,7 +274,37 @@ def extract_svg_path(shape, picture):
     return " ".join(commands) or None
 
 
-def resolve_color(container, default):
+def get_theme_colors(slide):
+    colors = dict(SCHEME_COLORS)
+    try:
+        master = slide.slide_layout.slide_master
+        theme_part = master.part.part_related_by(RT.THEME)
+        theme = parse_xml(theme_part.blob)
+        color_scheme = theme.find(".//a:themeElements/a:clrScheme", namespaces=NS)
+        if color_scheme is not None:
+            for scheme_entry in color_scheme:
+                if len(scheme_entry) == 0:
+                    continue
+                color_node = scheme_entry[0]
+                tag = color_node.tag.rsplit("}", 1)[-1]
+                value = color_node.get("val") if tag == "srgbClr" else color_node.get("lastClr")
+                if value:
+                    colors[scheme_entry.tag.rsplit("}", 1)[-1]] = value.upper()
+
+        color_map = master.element.find(".//p:clrMap", namespaces={
+            **NS,
+            "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
+        })
+        if color_map is not None:
+            for alias, target in color_map.attrib.items():
+                if target in colors:
+                    colors[alias] = colors[target]
+    except (AttributeError, KeyError, ValueError):
+        pass
+    return colors
+
+
+def resolve_color(container, default, theme_colors=None):
     if container is None or len(container) == 0:
         return default
     color = container[0]
@@ -228,11 +312,13 @@ def resolve_color(container, default):
     if tag == "srgbClr":
         return color.get("val") or default
     if tag == "schemeClr":
-        return SCHEME_COLORS.get(color.get("val"), default)
+        return (theme_colors or SCHEME_COLORS).get(color.get("val"), default)
+    if tag == "sysClr":
+        return color.get("lastClr") or default
     return default
 
 
-def extract_style(shape, risk):
+def extract_style(shape, risk, theme_colors=None):
     shape_properties = shape.element.find("p:spPr", namespaces={
         **NS,
         "p": "http://schemas.openxmlformats.org/presentationml/2006/main",
@@ -246,8 +332,8 @@ def extract_style(shape, risk):
         "low": "EAB308",
         "office": "8064A2",
     }
-    fill_color = resolve_color(solid_fill, color_defaults[risk])
-    stroke_color = resolve_color(line_fill, fill_color)
+    fill_color = resolve_color(solid_fill, color_defaults[risk], theme_colors)
+    stroke_color = resolve_color(line_fill, fill_color, theme_colors)
     color_node = solid_fill[0] if solid_fill is not None and len(solid_fill) else None
     alpha = color_node.find("a:alpha", namespaces=NS) if color_node is not None else None
     fill_opacity = int(alpha.get("val")) / 100000 if alpha is not None else 1
@@ -260,23 +346,27 @@ def extract_style(shape, risk):
     }
 
 
-def extract_room(shape, picture, level=None):
+def extract_room(shape, picture, level=None, theme_colors=None):
     parsed = parse_room_shape(shape.name)
     if not parsed:
         return None
 
     code, room_name, risk = parsed
+    shape_left, shape_top, shape_right, shape_bottom = get_rendered_shape_bounds(shape)
+    picture_left, picture_top, picture_right, picture_bottom = get_rendered_shape_bounds(picture)
+    picture_width = picture_right - picture_left
+    picture_height = picture_bottom - picture_top
     room = {
         "code": code,
         "name": room_name,
         "risk": risk,
         "interactive": True,
-        "left": rounded((shape.left - picture.left) / picture.width * 100),
-        "top": rounded((shape.top - picture.top) / picture.height * 100),
-        "width": rounded(shape.width / picture.width * 100),
-        "height": rounded(shape.height / picture.height * 100),
+        "left": rounded((shape_left - picture_left) / picture_width * 100),
+        "top": rounded((shape_top - picture_top) / picture_height * 100),
+        "width": rounded((shape_right - shape_left) / picture_width * 100),
+        "height": rounded((shape_bottom - shape_top) / picture_height * 100),
         "svgPath": extract_svg_path(shape, picture),
-        **extract_style(shape, risk),
+        **extract_style(shape, risk, theme_colors),
     }
     if level:
         room["level"] = level
@@ -286,6 +376,7 @@ def extract_room(shape, picture, level=None):
 def extract_layout(presentation, key, config):
     slide = presentation.slides[config["slide"] - 1]
     picture = find_shape(slide, config["picture"])
+    theme_colors = get_theme_colors(slide)
     image_size = export_floorplan(
         picture,
         IMAGE_DIR / config["image"],
@@ -304,7 +395,7 @@ def extract_layout(presentation, key, config):
             MSO_SHAPE_TYPE.FREEFORM,
         }:
             continue
-        room = extract_room(shape, picture, level)
+        room = extract_room(shape, picture, level, theme_colors)
         if room:
             rooms[room["code"]] = room
 

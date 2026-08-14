@@ -1,0 +1,44 @@
+{
+  "slug": "waste-water-treatment-plant",
+  "title": "Waste Water Treatment Plant",
+  "doc_url": "https://docs.google.com/document/d/1bJ0YFeJogaNX9qSSdLt-1xH1vpJ55VKiJAQZzafdXXM/edit?usp=sharing",
+  "created_at": "2026-08-13 10:07:28",
+  "updated_at": "2026-08-13 13:33:35",
+  "last_checked": "2026-08-13 11:54:32",
+  "last_updated": "2026-08-13 11:54:32",
+  "refresh_error": "",
+  "auto_refresh": true,
+  "refresh_interval_minutes": 5,
+  "source_pptx": "data/custom_catalogue_uploads/waste-water-treatment-plant.pptx",
+  "slide_number": 1,
+  "picture_name": "Picture 2",
+  "room_count": 1,
+  "room_overrides": {},
+  "layout": {
+    "image": "/static/custom_catalogues/waste-water-treatment-plant/layout.png",
+    "pdf": "/static/custom_catalogues/waste-water-treatment-plant/catalogue.pdf",
+    "width": 3600,
+    "height": 2396,
+    "aspect": 1.5025
+  },
+  "rooms": {
+    "C-01": {
+      "code": "C-01",
+      "name": "WWTP 2nd Floor",
+      "risk": "custom",
+      "interactive": true,
+      "left": 8.3872,
+      "top": 9.2874,
+      "width": 89.0322,
+      "height": 86.1491,
+      "svgPath": "M 94.9822 17.4716 L 94.8388 66.792 L 97.4194 66.792 L 97.4194 95.4365 L 20.4302 95.4365 L 20.2868 69.1611 L 10.9678 69.1611 L 10.8245 63.9921 L 8.3872 64.2075 L 8.5306 32.5477 L 10.9678 32.117 L 10.9678 9.5028 C 36.6309 9.431 62.294 9.3592 87.9571 9.2874 L 87.9571 17.4716 L 94.9822 17.4716 Z",
+      "fillColor": "#196B24",
+      "fillOpacity": 0.21,
+      "strokeColor": "#196B24",
+      "strokeWidth": 1.0,
+      "page": 3,
+      "defaultName": "WWTP 2nd Floor",
+      "defaultPage": 3
+    }
+  }
+}

@@ -1,0 +1,88 @@
+{
+  "slug": "compressed-air-boiler-rooms",
+  "title": "Compressed Air & Boiler Rooms",
+  "doc_url": "https://docs.google.com/document/d/1OS_iQpzM97F0EmQbH1SB_5wyfuteAPVLIq-3l8vg9uU/edit?usp=sharing",
+  "created_at": "2026-08-13 14:16:39",
+  "updated_at": "2026-08-14 13:01:18",
+  "last_checked": "2026-08-13 14:17:31",
+  "last_updated": "2026-08-13 14:17:31",
+  "refresh_error": "",
+  "auto_refresh": true,
+  "refresh_interval_minutes": 5,
+  "source_pptx": "data/custom_catalogue_uploads/compressed-air-boiler-rooms.pptx",
+  "slide_number": 1,
+  "slide_numbers": [
+    1
+  ],
+  "picture_name": "Picture 2",
+  "picture_names": [
+    "Picture 2"
+  ],
+  "room_count": 2,
+  "room_overrides": {},
+  "layout": {
+    "image": "/static/custom_catalogues/compressed-air-boiler-rooms/layout.png",
+    "pdf": "/static/custom_catalogues/compressed-air-boiler-rooms/catalogue.pdf",
+    "width": 3600,
+    "height": 1039,
+    "aspect": 3.4649
+  },
+  "layouts": [
+    {
+      "key": "slide-1",
+      "label": "Map 1 \u00b7 Slide 1",
+      "slide_number": 1,
+      "picture_name": "Picture 2",
+      "image": "/static/custom_catalogues/compressed-air-boiler-rooms/layout.png",
+      "width": 3600,
+      "height": 1039,
+      "aspect": 3.4649,
+      "room_codes": [
+        "C-01",
+        "C-02"
+      ]
+    }
+  ],
+  "rooms": {
+    "C-01": {
+      "code": "C-01",
+      "name": "Compressed Air Room",
+      "risk": "custom",
+      "interactive": true,
+      "left": 0.7474,
+      "top": 1.98,
+      "width": 47.5486,
+      "height": 91.1185,
+      "svgPath": null,
+      "fillColor": "#0F9ED5",
+      "fillOpacity": 0.41,
+      "strokeColor": "#0F9ED5",
+      "strokeWidth": 1.0,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
+      "page": 3,
+      "defaultName": "Compressed Air Room",
+      "defaultPage": 3
+    },
+    "C-02": {
+      "code": "C-02",
+      "name": "Boiler Room",
+      "risk": "custom",
+      "interactive": true,
+      "left": 49.4399,
+      "top": 1.98,
+      "width": 47.5486,
+      "height": 91.1185,
+      "svgPath": null,
+      "fillColor": "#0F9ED5",
+      "fillOpacity": 0.41,
+      "strokeColor": "#0F9ED5",
+      "strokeWidth": 1.0,
+      "layoutKey": "slide-1",
+      "slideNumber": 1,
+      "page": 4,
+      "defaultName": "Boiler Room",
+      "defaultPage": 4
+    }
+  }
+}

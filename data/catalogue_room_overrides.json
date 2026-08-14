@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "rooms": {
+    "L-54": {
+      "name": "Washing Area EE-Point Water Drain",
+      "page": 119,
+      "updated_at": "2026-08-11T09:26:44"
+    },
+    "L-50": {
+      "name": "Staff Access LR Area-2",
+      "page": 109,
+      "updated_at": "2026-08-11T09:26:52"
+    }
+  },
+  "updated_at": "2026-08-11T09:26:52"
+}

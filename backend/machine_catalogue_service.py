@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import re
+import threading
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -10,6 +12,16 @@ from pathlib import Path
 DATA_DIR = Path(__file__).resolve().parent.parent / "data"
 MACHINE_CATALOGUE_PATH = DATA_DIR / "catalogue_machine_capacity.json"
 ROOM_OVERRIDES_PATH = DATA_DIR / "catalogue_room_overrides.json"
+_MACHINE_CATALOGUE_LOCK = threading.RLock()
+_ROOM_OVERRIDES_LOCK = threading.RLock()
+
+
+def write_json_atomically(path, payload):
+    temp_path = path.with_suffix(f"{path.suffix}.tmp")
+    with temp_path.open("w", encoding="utf-8") as handle:
+        json.dump(payload, handle, ensure_ascii=False, indent=2)
+        handle.write("\n")
+    os.replace(temp_path, path)
 
 
 def now_iso():
@@ -64,9 +76,7 @@ def save_machine_catalogue(payload):
     payload.setdefault("source", {})
     payload.setdefault("machines", [])
     payload["updated_at"] = now_iso()
-    with MACHINE_CATALOGUE_PATH.open("w", encoding="utf-8") as handle:
-        json.dump(payload, handle, ensure_ascii=False, indent=2)
-        handle.write("\n")
+    write_json_atomically(MACHINE_CATALOGUE_PATH, payload)
     return payload
 
 
@@ -88,9 +98,7 @@ def save_room_overrides(payload):
     payload["version"] = int(payload.get("version") or 1)
     payload.setdefault("rooms", {})
     payload["updated_at"] = now_iso()
-    with ROOM_OVERRIDES_PATH.open("w", encoding="utf-8") as handle:
-        json.dump(payload, handle, ensure_ascii=False, indent=2)
-        handle.write("\n")
+    write_json_atomically(ROOM_OVERRIDES_PATH, payload)
     return payload
 
 
@@ -115,27 +123,28 @@ def apply_room_overrides(catalogue_map):
 
 
 def upsert_room_override(data):
-    payload = load_room_overrides()
-    room_code = normalize_room_code((data or {}).get("code") or (data or {}).get("room_code"))
-    if not room_code:
-        raise ValueError("Room code is required")
-    room = payload.setdefault("rooms", {}).setdefault(room_code, {})
-    name = str((data or {}).get("name") or "").strip()
-    page = (data or {}).get("page")
-    if name:
-        room["name"] = name
-    else:
-        room.pop("name", None)
-    if page not in ("", None):
-        try:
-            room["page"] = int(page)
-        except (TypeError, ValueError):
+    with _ROOM_OVERRIDES_LOCK:
+        payload = load_room_overrides()
+        room_code = normalize_room_code((data or {}).get("code") or (data or {}).get("room_code"))
+        if not room_code:
+            raise ValueError("Room code is required")
+        room = payload.setdefault("rooms", {}).setdefault(room_code, {})
+        name = str((data or {}).get("name") or "").strip()
+        page = (data or {}).get("page")
+        if name:
+            room["name"] = name
+        else:
+            room.pop("name", None)
+        if page not in ("", None):
+            try:
+                room["page"] = int(page)
+            except (TypeError, ValueError):
+                room.pop("page", None)
+        else:
             room.pop("page", None)
-    else:
-        room.pop("page", None)
-    room["updated_at"] = now_iso()
-    save_room_overrides(payload)
-    return {"code": room_code, **room}
+        room["updated_at"] = now_iso()
+        save_room_overrides(payload)
+        return {"code": room_code, **room}
 
 
 def machine_summary(machine):
@@ -227,25 +236,27 @@ def sanitize_machine(data):
 
 
 def upsert_machine(data):
-    payload = load_machine_catalogue()
-    machine = sanitize_machine(data)
-    machines = payload.setdefault("machines", [])
-    for index, current in enumerate(machines):
-        if str(current.get("id")) == machine["id"]:
-            machines[index] = machine
-            break
-    else:
-        machines.append(machine)
-    save_machine_catalogue(payload)
-    return machine
+    with _MACHINE_CATALOGUE_LOCK:
+        payload = load_machine_catalogue()
+        machine = sanitize_machine(data)
+        machines = payload.setdefault("machines", [])
+        for index, current in enumerate(machines):
+            if str(current.get("id")) == machine["id"]:
+                machines[index] = machine
+                break
+        else:
+            machines.append(machine)
+        save_machine_catalogue(payload)
+        return machine
 
 
 def delete_machine(machine_id):
-    payload = load_machine_catalogue()
-    before = len(payload.get("machines", []))
-    payload["machines"] = [
-        machine for machine in payload.get("machines", [])
-        if str(machine.get("id")) != str(machine_id)
-    ]
-    save_machine_catalogue(payload)
-    return len(payload["machines"]) < before
+    with _MACHINE_CATALOGUE_LOCK:
+        payload = load_machine_catalogue()
+        before = len(payload.get("machines", []))
+        payload["machines"] = [
+            machine for machine in payload.get("machines", [])
+            if str(machine.get("id")) != str(machine_id)
+        ]
+        save_machine_catalogue(payload)
+        return len(payload["machines"]) < before
